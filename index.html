@@ -1868,8 +1868,18 @@ const PACK_ART = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAU
 const RAR_LABEL = {common:'Common', uncommon:'Uncommon', rare:'Rare', mythic:'Mythic rare', basic:'Basic land', token:'Token', special:'Special'};
 const rarLabel = c => c.special || RAR_LABEL[c.rar];
 const isHit = c => c.rar==='rare' || c.rar==='mythic' || c.rar==='special';
-// About 1 pack in 5 swaps the token for something special
-const SPECIAL_ODDS = 0.2;
+// About 1 pack in 4 swaps the token for something special
+const SPECIAL_ODDS = 0.25;
+const BASICS = ['Plains','Island','Swamp','Mountain','Forest'];
+// /cards/random returns each card's default printing, so for basics pick a random printing ourselves
+async function randomPrint(q){
+  const url = p => '/cards/search?unique=prints&order=released&page='+p+'&q='+encodeURIComponent(q);
+  const first = await sf(url(1)); const total = first.total_cards||0;
+  if(!total) return null;
+  const idx = Math.floor(Math.random()*total), per = 175, page = Math.floor(idx/per)+1;
+  const j = page===1 ? first : await sf(url(page));
+  const list = j.data||[]; return list[idx % per] || list[0] || null;
+}
 const SPECIALS = [
   {label:'Secret Lair', q:'e:sld game:paper'},
   {label:'Judge promo', q:'is:judge_gift game:paper'},
@@ -1888,7 +1898,7 @@ async function rollPack(era){
     ...Array.from({length:9}, ()=>({rar:'common', qs:['r:common -t:basic'+base+E]})),
     ...Array.from({length:3}, ()=>({rar:'uncommon', qs:['r:uncommon'+base+E]})),
     {rar: mythic?'mythic':'rare', qs:[(mythic?'r:mythic':'r:rare')+base+E, 'r:rare'+base]},
-    {rar:'basic', qs:['t:basic'+base+E, 't:basic game:paper']},
+    {rar:'basic', basic:BASICS[Math.floor(Math.random()*BASICS.length)], qs:['','']},
     {rar:'token', qs:['t:token include:extras game:paper', 'layout:token include:extras', 't:token']},
   ];
   if(Math.random() < SPECIAL_ODDS){
@@ -1901,7 +1911,9 @@ async function rollPack(era){
     for(let attempt=0; attempt<3 && !card; attempt++){
       const q = s.qs[Math.min(attempt, s.qs.length-1)];
       try{
-        const raw = await sf('/cards/random?q='+encodeURIComponent(q));
+        const raw = s.basic
+          ? await randomPrint('!"'+s.basic+'" game:paper -st:memorabilia -is:oversized'+(attempt===0?E:''))
+          : await sf('/cards/random?q='+encodeURIComponent(q));
         if(!raw || !raw.id) continue;
         const c = cardLite(raw);
         if(s.rar!=='basic' && s.rar!=='token' && s.rar!=='special' && seen.has(c.name)) continue;
@@ -1946,7 +1958,7 @@ function newPack(keepNumber){
 const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="sheen"></div>`;
 const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="sheen"></div>
   <div class="backcopy">
-    <div class="col">${gem(22)}<b>RIPJR<br>DECK<br>GENIE</b><p>15 randomized game cards</p><p>9 commons<br>3 uncommons<br>1 rare or mythic<br>1 basic land<br>1 token, or about 1 in 5 packs, a special surprise</p></div>
+    <div class="col">${gem(22)}<b>RIPJR<br>DECK<br>GENIE</b><p>15 randomized game cards</p><p>9 commons<br>3 uncommons<br>1 rare or mythic<br>1 basic land<br>1 token, or about 1 in 4 packs, a special surprise</p></div>
     <div></div>
     <div class="col"><p>Drawn at random from Scryfall’s database of ${pk.era==='old'?'old-school (pre-2003)':'every'} booster card.</p><div class="label"><div class="bar"></div><small>NO PURCHASE NECESSARY</small></div><p>Unlimited packs.<br>Tear along the top.</p></div>
   </div>`;
