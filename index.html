@@ -127,6 +127,10 @@ main{min-width:0}
 .tok.role{border-color:var(--accent);background:var(--accent-soft)}
 .tok button{border:0;background:transparent;color:var(--muted);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:1rem;line-height:1}
 .tok button:hover{background:var(--surface-2);color:var(--ink)}
+.tok.concept{border-color:var(--gold);background:linear-gradient(135deg,var(--gold-soft),transparent);color:var(--ink)}
+.tok.concept svg{color:var(--gold)}
+.genie{width:min(760px,100%);display:flex;gap:12px;align-items:flex-start;text-align:left;font-size:.92rem;line-height:1.45;background:var(--gold-soft);border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:16px;padding:12px 16px}
+.genie svg{color:var(--gold);flex:none;margin-top:2px}
 .linkbtn{border:0;background:none;color:var(--accent);font-size:.88rem;padding:4px 6px;font-weight:500}
 .quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;width:min(760px,100%)}
 .quick .lbl{font-size:.85rem;color:var(--muted);margin-right:2px}
@@ -281,7 +285,45 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .w-cont .pill{padding:12px 26px;font-size:1rem}
 .w-cont p{margin:0;font-size:.85rem;color:var(--muted);max-width:46ch}
 
+.top.match{color:var(--accent);border-color:var(--accent);font-family:var(--f-body);font-weight:700;letter-spacing:.04em}
+/* ---------- draft ---------- */
+.draftp{padding:20px;display:grid;gap:16px}
+.draft-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.draft-h h3{font:600 1.2rem/1.25 var(--f-body);margin-top:6px;letter-spacing:-.01em}
+.dgroup h4{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
+.dgroup + .dgroup{margin-top:10px}
+.drows{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px 18px}
+.drow{display:grid;grid-template-columns:20px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.drow.done{opacity:.55}
+.drow input{width:17px;height:17px;accent-color:var(--accent);margin:0}
+.thumbbtn{border:0;padding:0;background:none;display:block}
+.thumb{display:block;width:40px;aspect-ratio:488/680;border-radius:3px;object-fit:cover;background:var(--surface-2);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.dmain{display:grid;min-width:0}
+.dname{border:0;background:none;padding:0;text-align:left;font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dname:hover{color:var(--accent)}
+.dsub{font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsub .t{color:var(--gold);font-weight:600}.dsub .g{color:var(--good);font-weight:600}
+.dmeta{font-size:.76rem;color:var(--muted);text-align:right;line-height:1.35}
+.draft-acts{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px;font-size:.88rem}
+/* ---------- similar ---------- */
+.ac{position:relative}
+.ac-list{position:absolute;left:0;right:0;top:calc(100% + 6px);margin:0;padding:6px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lift);max-height:320px;overflow:auto;z-index:15;text-align:left}
+.ac-list button{width:100%;text-align:left;border:0;background:none;padding:9px 12px;border-radius:9px;font-size:.95rem}
+.ac-list button:hover,.ac-list [aria-selected="true"] button{background:var(--accent-soft)}
+.sim-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px;align-items:start}
+.sim-card{position:sticky;top:80px;display:grid;gap:14px}
+.sim-card .art{box-shadow:var(--shadow-lift)}
+.sim-card .tok{font-size:.8rem}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--muted);cursor:pointer}
+.switch input{appearance:none;-webkit-appearance:none;width:36px;height:22px;border-radius:999px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);position:relative;margin:0;cursor:pointer;transition:background .2s}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch input:checked{background:var(--good)}
+.switch input:checked::after{transform:translateX(14px)}
+
 @media (max-width: 960px){
+  .sim-layout{grid-template-columns:minmax(0,1fr)}
+  .sim-card{position:static;grid-template-columns:120px minmax(0,1fr);align-items:start}
+  .sim-card > div:last-child{grid-column:1/-1}
   .app{grid-template-columns:minmax(0,1fr);padding-block:16px 60px}
   .seg .deck-seg{display:inline-block}
   .nav-count{display:none}
@@ -317,12 +359,13 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <div class="w-in">
     <div class="w-brand"><svg width="18" height="18"><use href="#i-gem"/></svg>Ripjr Deck Genie</div>
     <h1>What kind of deck do you want to build?</h1>
-    <p class="lede">Pick a style or describe it, then choose a commander that fits. The genie handles the card hunting.</p>
+    <p class="lede">Describe it however you want, even something abstract like a heist or a casino. Then pick a commander and the genie does the card hunting.</p>
     <form class="spot" id="wSpot" role="search" autocomplete="off">
       <svg width="20" height="20"><use href="#i-search"/></svg>
-      <input id="wq" type="text" aria-label="Describe your deck" placeholder="e.g. “elves that make tons of mana” or “spooky graveyard deck”">
+      <input id="wq" type="text" aria-label="Describe your deck" placeholder="e.g. “gambling”, “a deck that works like the government”, “elves that make tons of mana”">
       <button class="pill" type="submit">Start</button>
     </form>
+    <div class="w-tribes" id="wTry"></div>
     <div class="orn w-or" aria-hidden="true"><span>or pick a style</span></div>
     <div class="types" id="wTypes"></div>
     <div class="w-tribes" id="wTribes"></div>
@@ -340,6 +383,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     <div class="seg" role="tablist" aria-label="Views">
       <button role="tab" id="tab-discover" data-view="discover" aria-selected="true">Discover</button>
       <button role="tab" id="tab-suggest" data-view="suggest" aria-selected="false">Suggestions</button>
+      <button role="tab" id="tab-similar" data-view="similar" aria-selected="false">Similar</button>
       <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
     </div>
     <span class="nav-count num" id="navCount"></span><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
@@ -362,6 +406,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
         <button class="x" id="stepsX" type="button" aria-label="Hide tips">×</button>
       </div>
       <div class="tokens" id="tokens"></div>
+      <div class="genie" id="genieNote" hidden></div>
       <div class="quick" id="quick"></div>
       <div class="query" id="query" hidden></div>
     </div>
@@ -369,7 +414,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     <div class="orn" aria-hidden="true"><svg width="14" height="14"><use href="#i-gem"/></svg></div>
 
     <section style="display:grid;gap:16px">
-      <div class="rhead"><h3 id="rTitle">Results</h3><span class="status" id="status" role="status"></span></div>
+      <div class="rhead"><h3 id="rTitle">Results</h3><div class="dacts2"><span class="status" id="status" role="status"></span><button class="pill small" type="button" data-draft><svg width="12" height="12" style="vertical-align:-1px;margin-right:4px"><use href="#i-gem"/></svg>Draft a full list</button></div></div>
       <div class="grid" id="results"></div>
       <div class="more"><button class="pill ghost" id="moreBtn" hidden>Show more</button></div>
     </section>
@@ -383,7 +428,38 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
       <div class="leans" id="leans"></div>
       <div><button class="pill ghost small" id="refreshBtn">Refresh suggestions</button></div>
     </div>
+    <div class="panel draftp" id="draftBox">
+      <div class="draft-h"><div><span class="eyebrow">Genie draft</span><h3>A starter list, built for you</h3></div><button class="pill" id="draftGo" type="button">Draft my list</button></div>
+      <div id="draftBody"></div>
+      <div class="draft-acts" id="draftActs" hidden><span class="muted num" id="draftInfo"></span><div class="dacts2"><button class="linkbtn" id="draftAll" type="button">Select all / none</button><button class="pill ghost small" id="draftCsv" type="button">Export CSV</button><button class="pill small" id="draftAdd" type="button">Add to deck</button></div></div>
+    </div>
+    <div class="orn" aria-hidden="true"><svg width="14" height="14"><use href="#i-gem"/></svg></div>
     <div id="shelves" style="display:grid;gap:30px"></div>
+  </section>
+
+  <section class="view" id="view-similar" hidden>
+    <div class="hero">
+      <span class="eyebrow">Similar cards</span>
+      <h2>Find cards like…</h2>
+      <form class="spot ac" id="simForm" role="search" autocomplete="off">
+        <svg width="20" height="20"><use href="#i-search"/></svg>
+        <input id="simQ" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="simList" aria-label="Card to compare" placeholder="Type any card name, like Blood Artist">
+        <button class="pill" type="submit">Compare</button>
+        <ul class="ac-list" id="simList" role="listbox" hidden></ul>
+      </form>
+      <p class="muted" style="margin:0;max-width:60ch;font-size:.92rem">The genie compares what a card does, its triggers, keywords, creature types and cost. You can also open any card and tap <b style="color:var(--ink)">Find similar</b>.</p>
+      <span class="status" id="simStatus" role="status"></span>
+    </div>
+    <div class="sim-layout" id="simBody" hidden>
+      <div class="sim-card" id="simCard"></div>
+      <div style="display:grid;gap:16px;min-width:0;align-content:start">
+        <div class="rhead" style="align-items:center">
+          <div class="minis" id="simSort"><button type="button" data-sort="match" aria-pressed="true">Most similar</button><button type="button" data-sort="cheap" aria-pressed="false">Cheapest</button><button type="button" data-sort="popular" aria-pressed="false">Most popular</button></div>
+          <div class="dacts2"><label class="switch" id="simColorsWrap"><input type="checkbox" id="simColors" checked><span id="simColorsLbl"></span></label><button class="pill ghost small" id="simCsv" type="button">Export CSV</button></div>
+        </div>
+        <div class="grid" id="simGrid"></div>
+      </div>
+    </div>
   </section>
 </main>
 
@@ -402,6 +478,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
       <div class="dacts">
         <button class="linkbtn" id="importBtn">Import list</button>
         <button class="linkbtn" id="copyBtn">Copy list</button>
+        <button class="linkbtn" id="csvBtn">Export CSV</button>
         <button class="linkbtn" id="clearBtn" style="color:var(--bad)">Clear</button>
       </div>
       <div id="list" style="display:grid;gap:14px"></div>
@@ -419,7 +496,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     <div class="oracle" id="dText"></div>
     <div class="kv" id="dKv"></div>
     <div class="whylist" id="dWhy"></div>
-    <div class="dacts2"><button class="pill" id="dAdd">Add to deck</button><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a></div>
+    <div class="dacts2"><button class="pill" id="dAdd">Add to deck</button><button class="pill ghost" id="dSimilar">Find similar</button><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a></div>
   </div>
 </div></dialog>
 
@@ -513,18 +590,147 @@ const THEMES = {
 const TRIBES = ['vampire','elf','goblin','zombie','dragon','angel','merfolk','wizard','knight','soldier','human','cat','dinosaur','sliver','spirit','rogue','warrior','cleric','pirate','faerie','elemental','beast','squirrel','rat','snake','hydra','demon','giant','dwarf','treefolk','wolf','werewolf','horror','eldrazi','ninja','samurai','shaman','druid','assassin','bird','spider','insect','phyrexian','construct','golem','myr','thopter','servo','kithkin','ally','dog','fox','rabbit','bat','frog','otter','mouse','raccoon','lizard','ooze','fungus','saproling','plant','minotaur','centaur','satyr','nymph','god','hound','wurm','kraken','octopus','serpent','leviathan','sphinx','avatar','monk','berserker','scout','artificer','advisor','noble','peasant','mercenary','gnome','kobold','orc','devil','imp','skeleton','shade','specter','nightmare','troll','ogre','cyclops','phoenix','unicorn','pegasus','griffin','hippo','elk','badger','bear','boar','ape','monkey','crab','turtle','fish','whale','shark','nautilus'];
 const IRREG = {elves:'elf',dwarves:'dwarf',wolves:'wolf',werewolves:'werewolf',faeries:'faerie',merfolk:'merfolk',sphinxes:'sphinx',foxes:'fox',mice:'mouse',octopi:'octopus',krakens:'kraken',fungi:'fungus',myr:'myr',phyrexians:'phyrexian',allies:'ally',zombies:'zombie',bunnies:'rabbit',bunny:'rabbit',ninjas:'ninja',samurai:'samurai',hippos:'hippo',fish:'fish',elk:'elk'};
 
+
+/* ======================= Concepts: abstract ideas → mechanics ======================= */
+// An idea like "gambling" or "a deck that works like the government" maps to the mechanics that express it.
+// read = how the genie explains its interpretation; q = Scryfall fragment; re = local test for scoring.
+const CONCEPTS = {
+  gambling:{label:'Gambling', words:['gambling','gamble','gambler','casino','luck','lucky','chance','random','randomness','dice','die roll','coin','coin flip','coin flips','risk','risky','vegas','lottery','bet','betting','poker','slots','jackpot','roulette'],
+    read:'coin flips, dice rolls, random effects and cascade',
+    q:'(o:"flip a coin" or o:"flip one or more coins" or o:"roll a" or o:"roll one or more" or o:"at random" or kw:cascade)',
+    re:/flip (a|one or more) coins?|roll (a|one or more)|at random|cascade/},
+  government:{label:'Government', words:['government','politics','political','politician','bureaucracy','bureaucrat','democracy','election','elections','vote','voting','senate','congress','legislature','legislation','law','laws','tax','taxes','taxation','council','kingdom','monarchy','monarch','king','queen','ruler','authority','lobbying','lobbyist','policy','regulation','regulations','red tape','parliament','diplomacy'],
+    read:'voting, becoming the monarch, taxing your opponents, setting rules everyone must follow, and advisors and nobles',
+    q:'(o:vote or o:"the monarch" or kw:detain or o:"unless that player pays" or o:"unless its controller pays" or o:"more to cast" or o:"can\'t cast more than" or t:advisor or t:noble)',
+    re:/\bvote|the monarch|detain|unless (that player|its controller) pays|more to cast|can't cast more than|\badvisor\b|\bnoble\b/},
+  heist:{label:'Heist', words:['steal','stealing','theft','thief','thieves','heist','heists','rob','robbery','robbing','burglar','burglary','pickpocket','swipe','kleptomaniac'],
+    read:'taking control of their stuff and casting cards from their library',
+    q:'(o:"gain control of" or o:"you don\'t own" or o:"cards your opponents own" or (o:"opponent\'s library" o:"you may cast"))',
+    re:/gain control of|you don't own|your opponents own|opponent's library[^]*you may (cast|play)/},
+  wealth:{label:'Wealth', words:['money','rich','wealth','wealthy','gold','capitalism','capitalist','economy','economics','banking','bank','banker','greed','greedy','loot','profit','billionaire','stock market','investing','investment'],
+    read:'Treasure and Gold tokens, and cards that cash them in',
+    q:'(o:"treasure token" or o:"create a treasure" or o:"gold token" or o:"for each treasure" or o:"sacrifice a treasure")',
+    re:/treasure|gold token/},
+  time:{label:'Time travel', words:['time','time travel','time-travel','clock','clocks','eternity','future','past','delay','patience','paradox','timeline','history'],
+    read:'extra turns, suspend, foretell, rebound and time counters',
+    q:'(o:"extra turn" or kw:suspend or kw:foretell or kw:rebound or o:"time counter")',
+    re:/extra turn|suspend|foretell|rebound|time counter/},
+  war:{label:'War', words:['war','warfare','military','soldiers','general','conquest','invasion','siege','troops','battalion','legion','empire'],
+    read:'soldier armies, anthems for attacking creatures, battle cry, amass and myriad',
+    q:'(t:soldier or o:"attacking creatures you control get" or kw:"battle cry" or kw:amass or kw:myriad or o:"creatures you control get +1/+1")',
+    re:/\bsoldier|attacking creatures you control get|battle cry|amass|myriad|creatures you control get \+1\/\+1/},
+  peace:{label:'Peace', words:['peace','peaceful','pacifist','pacifism','hippie','defensive','defense','turtle','turtling','fortress','castle','walls','prison','pillow fort','pillowfort','fog'],
+    read:'making it hard to attack you, preventing combat damage and big defenders',
+    q:'(o:"can\'t attack you" or o:"prevent all combat damage" or kw:defender or o:"creatures can\'t attack")',
+    re:/can't attack you|prevent all combat damage|defender|creatures can't attack/},
+  chaos:{label:'Chaos', words:['chaos','chaotic','madness','insanity','insane','anarchy','mayhem','wild','unpredictable','pandemonium','havoc'],
+    read:'random effects, madness, swapping control and wheels that hit everyone',
+    q:'(o:"at random" or kw:madness or o:"exchange control" or (o:"each player discards" o:"draws") or o:"chaos")',
+    re:/at random|madness|exchange control|each player discards[^]*draws|chaos/},
+  undead:{label:'Undead', words:['death','undead','necromancy','necromancer','spooky','haunted','haunting','ghost','ghosts','halloween','horror','creepy','graveyard deck','zombies apocalypse','afterlife','cemetery'],
+    read:'death triggers, recursion and zombies, spirits and skeletons',
+    q:'(o:"dies" or o:"from your graveyard" or t:zombie or t:spirit or t:skeleton or t:horror)',
+    re:/\bdies\b|from your graveyard|zombie|spirit|skeleton|horror/},
+  plague:{label:'Plague', words:['plague','disease','sickness','poison','poisonous','toxic','infect','infection','virus','pandemic','rot','decay','contagion'],
+    read:'poison, infect, toxic, wither and -1/-1 counters',
+    q:'(kw:infect or kw:toxic or kw:poisonous or o:"poison counter" or o:"-1/-1 counter" or kw:wither)',
+    re:/infect|toxic|poison|-1\/-1 counter|wither/},
+  machines:{label:'Machines', words:['robot','robots','machine','machines','mech','mechs','cyborg','cyborgs','technology','tech','factory','engineering','engineer','gadget','gadgets','steampunk','android','androids','automation'],
+    read:'artifact creatures, constructs, modular and fabricate',
+    q:'((t:artifact t:creature) or t:construct or kw:modular or kw:fabricate or o:"artifact creature")',
+    re:/artifact creature|construct|modular|fabricate/},
+  racing:{label:'Racing', words:['car','cars','racing','race','racer','driving','driver','vehicle','vehicles','speed','engines','road trip','highway','fast and furious','nascar'],
+    read:'vehicles, crew and “start your engines”',
+    q:'(t:vehicle or kw:crew or o:"start your engines" or o:"max speed")',
+    re:/vehicle|crew|start your engines|max speed/},
+  food:{label:'Cooking', words:['food','cooking','cook','chef','kitchen','restaurant','feast','eating','hungry','snack','snacks','dinner','baking','baker','picnic'],
+    read:'Food tokens and cards that eat them',
+    q:'(o:"food token" or o:"create a food" or t:food or o:"sacrifice a food")',
+    re:/\bfood\b/},
+  adventure:{label:'Adventure', words:['party','celebration','celebrate','festival','adventure','adventurers','adventuring','dungeon','dungeons','d&d','dnd','quest','questing','tavern'],
+    read:'the party mechanic, venturing into dungeons, the initiative and celebration',
+    q:'(o:"your party" or kw:venture or o:"venture into" or o:"the initiative" or kw:celebration)',
+    re:/your party|venture|the initiative|celebration/},
+  mystery:{label:'Mystery', words:['detective','detectives','mystery','mysteries','murder','investigation','investigate','clue','clues','sleuth','crime scene','noir','sherlock','whodunit'],
+    read:'investigate, Clue tokens, collect evidence, disguise and suspects',
+    q:'(kw:investigate or o:"clue token" or kw:"collect evidence" or kw:disguise or o:"suspect")',
+    re:/investigate|clue|collect evidence|disguise|suspect/},
+  crime:{label:'Crime', words:['crime','mafia','mob','mobster','gangster','gangsters','gang','criminal','criminals','outlaw','outlaws','cartel','syndicate','underworld','bandit','bandits'],
+    read:'outlaws (rogues, assassins, mercenaries, pirates, warlocks), connive, blitz and shield counters',
+    q:'(t:rogue or t:assassin or t:mercenary or t:pirate or t:warlock or kw:connive or kw:blitz or o:"shield counter" or o:"outlaw")',
+    re:/rogue|assassin|mercenary|pirate|warlock|connive|blitz|shield counter|outlaw/},
+  knowledge:{label:'Knowledge', words:['knowledge','library','school','academy','college','study','studying','student','students','wisdom','scholar','books','smart','genius','nerd','nerds','professor','learning'],
+    read:'wizards, learn, magecraft and drawing lots of cards',
+    q:'(t:wizard or kw:learn or kw:magecraft or o:"draw two cards" or o:"draw three cards" or o:"draw cards")',
+    re:/wizard|learn|magecraft|draws? (two|three|x) cards|draw cards/},
+  copies:{label:'Copies', words:['copy','copies','copying','clone','clones','cloning','mirror','mirrors','mimic','imitation','twin','twins','duplicate','shapeshifter','shapeshifters','doppelganger','identity theft'],
+    read:'clones, copying spells and changelings',
+    q:'(o:"copy of" or o:"becomes a copy" or o:"copy target" or kw:changeling)',
+    re:/copy of|becomes a copy|copy target|changeling/},
+  nature:{label:'Nature', words:['nature','natural','wilderness','plants','garden','gardening','jungle','animals','wildlife','outdoors','hiking','camping','national park'],
+    read:'treefolk, plants, druids, beasts and forests',
+    q:'(t:treefolk or t:plant or t:druid or t:beast or o:"forest")',
+    re:/treefolk|plant|druid|beast|forest/},
+  ocean:{label:'Ocean', words:['ocean','oceans','sea','seas','water','underwater','fishing','fisherman','beach','islands','tide','tides','aquatic','sailor','sailors','nautical','navy','submarine'],
+    read:'merfolk, krakens, leviathans, serpents and island-matters cards',
+    q:'(t:merfolk or t:kraken or t:leviathan or t:octopus or t:serpent or t:fish or t:whale or kw:islandwalk or o:"islands you control")',
+    re:/merfolk|kraken|leviathan|octopus|serpent|\bfish\b|whale|islandwalk|islands you control/},
+  fire:{label:'Fire', words:['fire','flames','flame','burn','burning','inferno','volcano','volcanoes','lava','arson','pyro','pyromaniac','explosion','explosions','explode','bombs','fireworks'],
+    read:'direct damage to opponents, burn spells and fiery elementals',
+    q:'(o:"damage to each opponent" or o:"damage to any target" or o:"damage to target player" or t:elemental)',
+    re:/damage to (each opponent|any target|target player)|elemental/},
+  winter:{label:'Winter', words:['ice','snow','winter','cold','frozen','frost','arctic','glacier','christmas','holiday','holidays','blizzard'],
+    read:'snow permanents and freezing things so they don’t untap',
+    q:'(t:snow or o:snow or o:"doesn\'t untap" or o:"stun counter")',
+    re:/\bsnow|doesn't untap|stun counter/},
+  mind:{label:'Mind games', words:['mind','psychic','telepathy','telepathic','mind control','manipulation','manipulate','brainwash','hypnosis','spy','spies','espionage','secrets','surveillance','paranoia','information'],
+    read:'peeking at their hand, surveil, and taking control of their creatures',
+    q:'(o:"look at target opponent\'s hand" or o:"target opponent reveals" or o:"target player reveals" or kw:surveil or o:"gain control of target creature")',
+    re:/look at target opponent's hand|(opponent|player) reveals|surveil|gain control of target creature/},
+  holy:{label:'Holy light', words:['holy','heaven','heavenly','divine','angelic','righteous','justice','paladin','paladins','good vs evil','light side','saints','sacred'],
+    read:'angels, clerics, lifelink and protection from black',
+    q:'(t:angel or t:cleric or kw:lifelink or o:"protection from black")',
+    re:/angel|cleric|lifelink|protection from black/},
+  evil:{label:'Evil', words:['evil','villain','villains','villainous','demonic','hell','sinister','corruption','corrupt','dark lord','tyrant','tyranny','dark side','wicked','overlord','supervillain'],
+    read:'demons, devils, making opponents lose life and forcing sacrifices',
+    q:'(t:demon or t:devil or o:"each opponent loses" or o:"each opponent sacrifices" or o:"each player sacrifices")',
+    re:/demon|devil|each opponent loses|(each opponent|each player) sacrifices/},
+  monsters:{label:'Big monsters', words:['big','huge','giant monsters','massive','stompy','titan','titans','monsters','monster','kaiju','godzilla','colossal','enormous'],
+    read:'huge creatures, trample and cards that reward big power',
+    q:'(pow>=6 or o:"power 4 or greater" or o:"greatest power" or (kw:trample t:creature mv>=5))',
+    re:/power 4 or greater|greatest power|trample/},
+  storm:{label:'Storms', words:['storm','storms','weather','lightning','thunder','rain','tornado','hurricane','tempest'],
+    read:'storm, lightning and copying spells over and over',
+    q:'(kw:storm or o:"copy it for each" or name:lightning or name:storm or name:thunder or name:tempest)',
+    re:/storm|copy it for each|lightning|thunder|tempest/},
+  dreams:{label:'Dreams', words:['dream','dreams','dreaming','nightmare','nightmares','sleep','sleeping','asleep','illusion','illusions','hallucination','surreal'],
+    read:'illusions, nightmares, stun counters and keeping things tapped down',
+    q:'(t:illusion or t:nightmare or o:"stun counter" or o:"doesn\'t untap during")',
+    re:/illusion|nightmare|stun counter|doesn't untap during/},
+  friendship:{label:'Friendship', words:['friendship','friends','friend','family','teamwork','together','community','cooperation','cooperative','allies','helping','group hug','grouphug','wholesome','generous','charity','sharing'],
+    read:'partners, group-hug cards that help every player, and assist',
+    q:'(kw:partner or kw:"friends forever" or kw:assist or (o:"each player" o:"draws") or o:"each player may")',
+    re:/partner|friends forever|assist|each player (draws|may)/},
+};
+const STOP = new Set('a an the deck decks that which works work working like about with and or of to for in on my me i want wanna build building make makes making something some theme themed based around kind type style cards card lots tons really very more is are be it its who where when how what play plays playing uses use using feel feels vibe vibes full all any every this these those just kinda sort get gets thing things way would could should can will do does into out from by as at than then them they you your our we us one two'.split(' '));
+const freeWords = s => (s.toLowerCase().match(/[a-z0-9'&-]+/g)||[]).filter(w=>w.length>=3 && !STOP.has(w)).slice(0,6);
+
 /* ======================= Parsing: words → intents ======================= */
 const esc = s => s.replace(/[.*+?^${}()|[\]\\/]/g,'\\$&');
 const hasPhrase = (text, p) => new RegExp('(^|[^a-z0-9+])'+esc(p)+'($|[^a-z0-9])').test(text);
 
 function parseDescription(raw){
   const text = ' '+raw.toLowerCase().replace(/[“”"]/g,'"')+' ';
-  const out = {themes:[], funcs:[], tribe:null, type:null, mv:null, price:null, phrase:null, notes:[]};
+  const out = {themes:[], funcs:[], tribe:null, concepts:[], type:null, mv:null, price:null, phrase:null, notes:[]};
   // quoted phrase → exact text
   const quoted = raw.match(/"([^"]{3,})"/);
   if(quoted) out.phrase = quoted[1];
   for(const [k,v] of Object.entries(THEMES)) if(v.words.some(w=>hasPhrase(text,w))) out.themes.push(k);
   for(const [k,v] of Object.entries(FUNCS)) if(v.words.some(w=>hasPhrase(text,w))) out.funcs.push(k);
+  for(const [k,v] of Object.entries(CONCEPTS)) if(v.words.some(w=>hasPhrase(text,w))) out.concepts.push(k);
+  // a concept that already means a theme shouldn't also trigger that theme's looser words
+  if(out.concepts.includes('undead')) out.themes = out.themes.filter(t=>t!=='graveyard' || /graveyard/.test(text));
+  if(out.concepts.includes('war')) out.themes = out.themes.filter(t=>t!=='combat' || /attack/.test(text));
   // "counter target spell" style words shouldn't double as +1/+1 counters
   if(out.funcs.includes('removal') && /counterspell|counter spells/.test(text)) out.themes = out.themes.filter(t=>t!=='counters');
   // "reanimate" is recursion + graveyard
@@ -558,12 +764,15 @@ function buildQuery(st){
   if(st.mv!=null && st.mv!=='') parts.push('mv<='+st.mv);
   if(st.price) parts.push('usd<='+st.price);
   if(st.phrase) parts.push('o:"'+st.phrase.replace(/"/g,'')+'"');
-  const themeQ = st.themes.map(k=>THEMES[k].q);
+  const themeQ = (st.themes||[]).map(k=>THEMES[k].q).concat((st.concepts||[]).map(k=>CONCEPTS[k].q));
   if(st.tribe) themeQ.push('(t:'+st.tribe+' or o:'+st.tribe+')');
   if(themeQ.length) parts.push('('+themeQ.map(x=>'('+x+')').join(' or ')+')');
-  const fq = st.funcs.map(k=>FUNCS[k].q);
+  const fq = (st.funcs||[]).map(k=>FUNCS[k].q);
   if(fq.length) parts.push('('+fq.map(x=>'('+x+')').join(' or ')+')');
-  if(st.free){ const w = st.free.replace(/["():<>=!]/g,' ').replace(/\s+/g,' ').trim(); if(w) parts.push('('+w+' or o:"'+w+'")'); }
+  if(st.free){
+    const ws = freeWords(st.free).map(w=>w.replace(/[^a-z0-9'-]/g,'')).filter(Boolean);
+    if(ws.length) parts.push('(('+ws.join(' ')+') or '+ws.map(w=>'ft:'+w+' or t:'+w+' or o:'+w).join(' or ')+')');
+  }
   return parts.join(' ');
 }
 
@@ -580,7 +789,8 @@ function cardLite(c){
     oracle, kw:c.keywords||[], img:img.normal||img.large||img.small||'', art:img.art_crop||'', back,
     ci:c.color_identity||[], usd: p.usd ? +p.usd : (p.usd_foil ? +p.usd_foil : null),
     uri:c.scryfall_uri, rank:c.edhrec_rank||null,
-    mana:c.mana_cost || f.map(x=>x.mana_cost).filter(Boolean).join(' // ')
+    mana:c.mana_cost || f.map(x=>x.mana_cost).filter(Boolean).join(' // '),
+    flavor:c.flavor_text || f.map(x=>x.flavor_text||'').join(' ')
   };
 }
 const front = c => c.type.split(' // ')[0];
@@ -620,9 +830,10 @@ const searchCards = (q, order='edhrec') => sf('/cards/search?order='+order+'&uni
 
 
 /* ======================= State ======================= */
+const blankIntent = () => ({themes:[], funcs:[], tribe:null, concepts:[], type:'', mv:'', price:'', phrase:'', free:''});
 const state = {
   view:'discover',
-  intent:{themes:[], funcs:[], tribe:null, type:'', mv:'', price:'', phrase:'', free:''},
+  intent:blankIntent(),
   results:[], next:null,
   deck:{commander:null, cards:[]},
   example:false, predictDirty:true, tipsHidden:false,
@@ -648,6 +859,10 @@ function scoreCard(c, ctx){
   const t = ctext(c); const why = []; let s = 0;
   const th = ctx.themes||[], fn = ctx.funcs||[];
   for(const k of th) if(THEMES[k].re.test(t)){ s+=3; why.push({k:'t', s:THEMES[k].label, long:'Matches your '+THEMES[k].label.toLowerCase()+' theme'}); }
+  for(const k of (ctx.concepts||[])) if(CONCEPTS[k].re.test(t)){ s+=3.5; why.push({k:'t', s:CONCEPTS[k].label, long:'Fits your '+CONCEPTS[k].label.toLowerCase()+' idea: '+CONCEPTS[k].read}); }
+  if(ctx.free){ const fw=freeWords(ctx.free), nm=c.name.toLowerCase(), fl=(c.flavor||'').toLowerCase();
+    if(fw.length && fw.every(w=>nm.includes(w))){ s+=10; why.push({k:'t', s:'Name match', long:'Its name matches what you typed'}); }
+    else { const hit=fw.filter(w=>nm.includes(w)||fl.includes(w)||t.includes(w)); if(hit.length){ s+=2*hit.length; why.push({k:'t', s:'Mentions “'+hit[0]+'”', long:'Its name, type, rules or flavor text mention “'+hit.join('”, “')+'”'}); } } }
   if(ctx.tribe && (c.type.toLowerCase().includes(ctx.tribe) || t.includes(ctx.tribe))){ s+=3; why.push({k:'t', s:cap(ctx.tribe), long:'Fits your '+ctx.tribe+' tribe'}); }
   for(const r of rolesOf(c)){
     if(fn.includes(r)){ s+=3; why.push({k:'', s:FUNCS[r].label, long:'It’s '+FUNCS[r].label.toLowerCase()+', which you asked for'}); }
@@ -677,10 +892,13 @@ function deckAnalysis(){
 }
 
 /* ======================= Discover: search bar → intent ======================= */
+function intentFrom(p, raw){
+  const recognized = p.themes.length || p.funcs.length || p.tribe || p.concepts.length || p.type || p.mv || p.price || p.phrase;
+  return Object.assign(blankIntent(), {themes:p.themes, funcs:p.funcs, tribe:p.tribe, concepts:p.concepts, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||'', free: recognized ? '' : raw.trim()});
+}
 function applyDescription(raw){
   const p = parseDescription(raw);
-  const recognized = p.themes.length || p.funcs.length || p.tribe || p.type || p.mv || p.price || p.phrase;
-  state.intent = {themes:p.themes, funcs:p.funcs, tribe:p.tribe, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||'', free: recognized ? '' : raw.trim()};
+  state.intent = intentFrom(p, raw);
 }
 $('#spot').addEventListener('submit',e=>{
   e.preventDefault();
@@ -693,6 +911,7 @@ $('#spot').addEventListener('submit',e=>{
 function intentTokens(){
   const i = state.intent, t = [];
   if(i.free) t.push({cls:'', label:'“'+i.free+'”', rm:()=>i.free=''});
+  (i.concepts||[]).forEach(k=>t.push({cls:'concept', label:CONCEPTS[k].label, rm:()=>i.concepts=i.concepts.filter(x=>x!==k)}));
   if(i.tribe) t.push({cls:'theme', label:plural(i.tribe), rm:()=>i.tribe=null});
   i.themes.forEach(k=>t.push({cls:'theme', label:THEMES[k].label, rm:()=>i.themes=i.themes.filter(x=>x!==k)}));
   i.funcs.forEach(k=>t.push({cls:'role', label:FUNCS[k].label, rm:()=>i.funcs=i.funcs.filter(x=>x!==k)}));
@@ -706,9 +925,10 @@ let tokRm = [];
 function renderIntent(){
   const toks = intentTokens(); tokRm = toks.map(t=>t.rm);
   $('#tokens').innerHTML =
-    toks.map((t,n)=>`<span class="tok ${t.cls}">${h(t.label)}<button type="button" data-tok="${n}" aria-label="Remove ${h(t.label)}">×</button></span>`).join('') +
+    toks.map((t,n)=>`<span class="tok ${t.cls}">${t.cls==='concept'?gem(11):''}${h(t.label)}<button type="button" data-tok="${n}" aria-label="Remove ${h(t.label)}">×</button></span>`).join('') +
     `<button class="linkbtn" type="button" id="openFilters"><svg width="14" height="14" style="vertical-align:-2px;margin-right:4px"><use href="#i-sliders"/></svg>Filters</button>` +
     (toks.length ? `<button class="linkbtn" type="button" id="clearIntent" style="color:var(--muted)">Clear all</button>` : '');
+  renderGenie();
   // quick chips: the four core roles + whatever the deck leans toward
   const an = deckAnalysis();
   const quickThemes = Array.from(new Set(an.deckThemes)).filter(k=>!state.intent.themes.includes(k)).slice(0,3);
@@ -716,10 +936,21 @@ function renderIntent(){
     ['ramp','draw','removal','wipe'].map(k=>`<button class="chip" type="button" data-qf="${k}" aria-pressed="${state.intent.funcs.includes(k)}">${FUNCS[k].label}</button>`).join('') +
     quickThemes.map(k=>`<button class="chip" type="button" data-qt="${k}" aria-pressed="false">${THEMES[k].label}</button>`).join('');
 }
+function genieText(i){
+  const parts = (i.concepts||[]).map(k=>`<b>${h(CONCEPTS[k].label)}</b> as ${h(CONCEPTS[k].read)}`);
+  if(parts.length) return 'The genie read '+parts.join('; and ')+'.';
+  if(i.free) return `Nothing in the genie’s playbook matched <b>“${h(i.free)}”</b> directly, so it’s searching card names, types, rules text and flavor text for it.`;
+  return '';
+}
+function renderGenie(){
+  const txt = genieText(state.intent);
+  $('#genieNote').hidden = !txt;
+  $('#genieNote').innerHTML = txt ? gem(16)+`<span>${txt} <button class="linkbtn" type="button" data-draft style="padding:0">Draft a full list from this →</button></span>` : '';
+}
 $('#tokens').addEventListener('click',e=>{
   const b = e.target.closest('[data-tok]'); if(b){ tokRm[+b.dataset.tok](); renderIntent(); runSearch(); return; }
   if(e.target.closest('#openFilters')) openFilters();
-  if(e.target.closest('#clearIntent')){ state.intent={themes:[],funcs:[],tribe:null,type:'',mv:'',price:'',phrase:'',free:''}; renderIntent(); runSearch(); }
+  if(e.target.closest('#clearIntent')){ state.intent=blankIntent(); renderIntent(); runSearch(); }
 });
 $('#quick').addEventListener('click',e=>{
   const f=e.target.closest('[data-qf]'), t=e.target.closest('[data-qt]');
@@ -735,7 +966,7 @@ const TYPES = ['','creature','instant','sorcery','artifact','enchantment','plane
 const MVS = ['','1','2','3','4','5','6'];
 let draft;
 function renderFilters(){
-  $('#fThemes').innerHTML = (draft.tribe?`<button type="button" class="chip" aria-pressed="true" data-ftribe="1">${h(plural(draft.tribe))} ×</button>`:'') +
+  $('#fThemes').innerHTML = (draft.concepts||[]).map(k=>`<button type="button" class="chip" aria-pressed="true" data-fconcept="${k}">${h(CONCEPTS[k].label)} ×</button>`).join('') + (draft.tribe?`<button type="button" class="chip" aria-pressed="true" data-ftribe="1">${h(plural(draft.tribe))} ×</button>`:'') +
     Object.entries(THEMES).map(([k,v])=>`<button type="button" class="chip" data-ft="${k}" aria-pressed="${draft.themes.includes(k)}">${v.label}</button>`).join('');
   $('#fRoles').innerHTML = Object.entries(FUNCS).map(([k,v])=>`<button type="button" class="chip" data-fr="${k}" aria-pressed="${draft.funcs.includes(k)}">${v.label}</button>`).join('');
   $('#fType').innerHTML = TYPES.map(t=>`<button type="button" data-fy="${t}" aria-pressed="${draft.type===t}">${t?cap(t):'Any'}</button>`).join('');
@@ -748,10 +979,11 @@ $('#filtForm').addEventListener('click',e=>{
   const tg = (arr,k)=>arr.includes(k)?arr.splice(arr.indexOf(k),1):arr.push(k);
   if(b.dataset.ft){ tg(draft.themes,b.dataset.ft); }
   else if(b.dataset.ftribe){ draft.tribe=null; }
+  else if(b.dataset.fconcept){ draft.concepts=draft.concepts.filter(x=>x!==b.dataset.fconcept); }
   else if(b.dataset.fr){ tg(draft.funcs,b.dataset.fr); }
   else if(b.dataset.fy!=null){ draft.type=b.dataset.fy; }
   else if(b.dataset.fm!=null){ draft.mv=b.dataset.fm; }
-  else if(b.id==='fReset'){ draft={themes:[],funcs:[],tribe:null,type:'',mv:'',price:'',phrase:'',free:draft.free}; }
+  else if(b.id==='fReset'){ draft=Object.assign(blankIntent(),{free:draft.free, concepts:draft.concepts}); }
   else return;
   draft.price=$('#fPrice').value; draft.phrase=$('#fText').value.trim();
   renderFilters();
@@ -778,12 +1010,12 @@ async function runSearch(append=false){
     const j = append && state.next ? await sf(state.next) : await searchCards(q);
     if(seq!==seqS) return;
     const an = deckAnalysis();
-    const ctx = {themes:st.themes, funcs:st.funcs, tribe:st.tribe, gaps:an.gaps, deckThemes:an.deckThemes};
+    const ctx = {themes:st.themes, funcs:st.funcs, tribe:st.tribe, concepts:st.concepts, free:st.free, gaps:an.gaps, deckThemes:an.deckThemes};
     const fresh = (j.data||[]).map(cardLite).map(c=>Object.assign(c, scoreCard(c,ctx)));
     state.results = (append ? state.results.concat(fresh) : fresh).sort((a,b)=>b.score-a.score);
     state.next = j.has_more ? j.next_page : null;
     const total = j.total_cards||state.results.length;
-    $('#rTitle').textContent = state.intent.free ? 'Cards matching “'+state.intent.free+'”' : intentTokens().length ? 'Best matches' : 'Commander staples in your colors';
+    $('#rTitle').textContent = state.intent.free ? 'Cards about “'+state.intent.free+'”' : (state.intent.concepts||[]).length ? 'Cards for a '+state.intent.concepts.map(k=>CONCEPTS[k].label.toLowerCase()).join(' + ')+' deck' : intentTokens().length ? 'Best matches' : 'Commander staples in your colors';
     $('#status').textContent = state.results.length ? `${total.toLocaleString()} cards · best fit first` : '';
     renderResults();
   }catch(err){
@@ -800,7 +1032,7 @@ function tile(c, i){
   return `<div class="card">
     <div class="artwrap">
       <button class="art" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>
-      ${i!=null && i<3 && c.score>=6 ? `<span class="top">${gem(9)} TOP PICK</span>`:''}
+      ${c.match!=null ? `<span class="top match">${c.match}% MATCH</span>` : i!=null && i<3 && c.score>=6 ? `<span class="top">${gem(9)} TOP PICK</span>`:''}
       <button class="plus ${added?'in':''}" data-add="${c.id}" aria-label="${added?h(c.name)+' is in your deck':'Add '+h(c.name)}">${added?'<svg width="16" height="16"><use href="#i-check"/></svg>':'+'}</button>
     </div>
     <div class="cname">${h(c.name)}</div>
@@ -854,6 +1086,7 @@ function syncButtons(){
 function deckChanged(){
   state.predictDirty = true; save(); renderDeck(); renderCmdPill(); renderIntent(); syncButtons();
   if(state.view==='suggest') runPredict();
+  if(state.draft) renderDraft();
 }
 const TYPE_ORDER = ['Creature','Planeswalker','Instant','Sorcery','Artifact','Enchantment','Battle','Land'];
 const groupOf = c => { const f=front(c); if(/Land/.test(f)) return 'Land'; return TYPE_ORDER.find(t=>f.includes(t)) || 'Other'; };
@@ -908,11 +1141,13 @@ const STYLES = [
   ['drain','Bleed every opponent out'],
 ];
 const STYLE_NAMES = {aristocrats:'Sacrifice', spells:'Spellslinger', counters:'+1/+1 Counters', drain:'Drain'};
+const W_TRY = ['Gambling','A deck that works like the government','A heist','Time travel','Robots','A cooking show','Dreams and nightmares'];
 const W_TRIBES = ['vampire','elf','goblin','zombie','dragon','angel','merfolk','dinosaur','cat','sliver','wizard','knight'];
 const PLURAL = {elf:'Elves',dwarf:'Dwarves',wolf:'Wolves',werewolf:'Werewolves',merfolk:'Merfolk',fox:'Foxes',mouse:'Mice',sphinx:'Sphinxes',ally:'Allies',myr:'Myr',fish:'Fish',elk:'Elk',samurai:'Samurai'};
 const plural = t => PLURAL[t] || cap(t)+'s';
 function renderWelcome(){
   $('#wTypes').innerHTML = STYLES.map(([k,d])=>`<button class="type" type="button" data-style="${k}">${gem(16)}<b>${h(STYLE_NAMES[k]||THEMES[k].label)}</b><span>${h(d)}</span></button>`).join('');
+  $('#wTry').innerHTML = `<span class="lbl">Try something weird</span>` + W_TRY.map(t=>`<button class="chip" type="button" data-wtry="${h(t)}">${h(t)}</button>`).join('');
   $('#wTribes').innerHTML = `<span class="lbl">Or build around a creature type</span>` + W_TRIBES.map(t=>`<button class="chip" type="button" data-wtribe="${t}">${plural(t)}</button>`).join('');
   const d = state.deck, real = !state.example && (d.commander || d.cards.length);
   $('#wContinue').textContent = real ? 'Continue to deckbuilder →' : 'Continue to deckbuilder →';
@@ -924,11 +1159,18 @@ function showWelcome(){ renderWelcome(); $('#welcome').hidden=false; $('#welcome
 function hideWelcome(){ $('#welcome').hidden=true; window.scrollTo({top:0}); }
 function startNew(intent, label){
   state.startedNew = true;
-  state.deck = {commander:null, cards:[]}; state.example=false;
-  state.intent = Object.assign({themes:[],funcs:[],tribe:null,type:'',mv:'',price:'',phrase:'',free:''}, intent);
+  state.deck = {commander:null, cards:[]}; state.example=false; state.draft=null;
+  state.intent = Object.assign(blankIntent(), intent);
   deckChanged(); hideWelcome(); setView('discover');
-  const q = buildQuery({commander:null, themes:state.intent.themes, funcs:[], tribe:state.intent.tribe});
+  const i = state.intent;
+  const q = buildQuery({commander:null, themes:i.themes, concepts:i.concepts, funcs:i.funcs, tribe:i.tribe, free:i.free});
   openCmd({label, q});
+}
+function startFromText(v){
+  const p = parseDescription(v);
+  const intent = intentFrom(p, v);
+  const label = p.concepts.length ? p.concepts.map(k=>CONCEPTS[k].label.toLowerCase()).join(' + ')+' decks' : intent.free ? '“'+intent.free+'”' : 'your deck idea';
+  startNew(intent, label);
 }
 $('#wTypes').addEventListener('click',e=>{
   const b=e.target.closest('[data-style]'); if(!b) return;
@@ -938,18 +1180,12 @@ $('#wTribes').addEventListener('click',e=>{
   const b=e.target.closest('[data-wtribe]'); if(!b) return;
   const t=b.dataset.wtribe; startNew({tribe:t}, plural(t).toLowerCase());
 });
+$('#wTry').addEventListener('click',e=>{ const b=e.target.closest('[data-wtry]'); if(b) startFromText(b.dataset.wtry); });
 $('#wSpot').addEventListener('submit',e=>{
   e.preventDefault();
   const v=$('#wq').value.trim(); if(!v){ $('#wq').focus(); return; }
-  const p = parseDescription(v);
-  if(!(p.themes.length || p.tribe)){
-    // nothing deck-shaped recognized: treat it like a normal search inside the builder
-    hideWelcome(); setView('discover'); applyDescription(v); renderIntent(); runSearch();
-    if(!state.deck.commander) openCmd();
-    return;
-  }
   $('#wq').value='';
-  startNew({themes:p.themes, funcs:p.funcs, tribe:p.tribe, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||''}, 'your deck idea');
+  startFromText(v);
 });
 $('#wContinue').addEventListener('click',hideWelcome);
 $('#homeBtn').addEventListener('click',showWelcome);
@@ -1069,6 +1305,247 @@ async function runPredict(){
 $('#refreshBtn').addEventListener('click',runPredict);
 $('#shelves').addEventListener('click',e=>{ if(e.target.closest('[data-cmd2]')) openCmd(); });
 
+
+/* ======================= CSV export ======================= */
+const csvCell = v => { const s = String(v??''); return /[",\n\r]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+function downloadCSV(filename, header, rows){
+  const text = [header].concat(rows).map(r=>r.map(csvCell).join(',')).join('\r\n');
+  try{
+    const url = URL.createObjectURL(new Blob(['﻿'+text], {type:'text/csv;charset=utf-8'}));
+    const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    toast('Downloaded '+filename);
+  }catch(e){ $('#copyText').value=text; $('#copyDlg').showModal(); $('#copyText').select(); }
+}
+const slug = s => (s||'deck').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const CARD_COLS = ['Name','Type','Mana Value','Mana Cost','Color Identity','Roles','Price (USD)','EDHREC Rank','Scryfall URL'];
+const cardCols = c => [c.name, c.type, c.mv, c.mana||'', (c.ci||[]).join('')||'C', rolesOf(c).filter(r=>r!=='land').map(r=>FUNCS[r].label).join('; '), c.usd!=null?c.usd.toFixed(2):'', c.rank||'', c.uri||''];
+function exportDeckCSV(){
+  const d = state.deck; if(!d.commander && !d.cards.length){ toast('Your deck is empty'); return; }
+  const rows = [];
+  if(d.commander) rows.push([1,'Commander'].concat(cardCols(d.commander)));
+  d.cards.slice().sort((a,b)=>groupOf(a).localeCompare(groupOf(b))||a.mv-b.mv||a.name.localeCompare(b.name))
+    .forEach(c=>rows.push([c.qty, groupOf(c)].concat(cardCols(c))));
+  downloadCSV('ripjr-'+slug(d.commander?d.commander.name:'deck')+'.csv', ['Quantity','Section'].concat(CARD_COLS), rows);
+}
+function exportListCSV(filename, groups, extraHeader, extraCell){
+  const rows = [];
+  groups.forEach(g=>g.items.forEach(c=>rows.push([g.title].concat(cardCols(c), extraCell(c)))));
+  downloadCSV(filename, ['Group'].concat(CARD_COLS, extraHeader), rows);
+}
+function addMany(cards){
+  let n=0;
+  for(const c of cards){
+    if(inDeck(c) && !multiOk(c)) continue;
+    const {score,why,match,...lite} = c;
+    const ex = state.deck.cards.find(x=>x.name===c.name);
+    if(ex) ex.qty++; else state.deck.cards.push(Object.assign({}, lite, {qty:1}));
+    n++;
+  }
+  state.example=false; deckChanged(); toast(n ? `Added ${n} card${n===1?'':'s'}` : 'Those are already in your deck');
+}
+
+/* ======================= Genie draft ======================= */
+const DRAFT_NEEDS = {ramp:8, draw:7, removal:6, wipe:2};
+let seqD = 0;
+async function runDraft(){
+  const box = $('#draftBox');
+  if(!state.deck.commander){ openCmd(); toast('Pick a commander first'); return; }
+  const seq = ++seqD, cmd = state.deck.commander, an = deckAnalysis(), i = state.intent;
+  const themes = Array.from(new Set((i.themes||[]).concat(an.deckThemes)));
+  const concepts = i.concepts||[], tribe = i.tribe || an.tribe, free = i.free;
+  const idea = [...concepts.map(k=>CONCEPTS[k].label), ...(tribe?[plural(tribe)]:[]), ...themes.map(k=>THEMES[k].label), ...(free?['“'+free+'”']:[])];
+  $('#draftBody').innerHTML = `<div class="status">Drafting around ${idea.length?h(idea.join(', ')):'the most-played cards in your colors'}…</div>` + '<div class="drows">'+Array(6).fill('<div class="drow"><span></span><div class="thumb skel"></div><div class="skel" style="height:14px;border-radius:6px;aspect-ratio:auto"></div></div>').join('')+'</div>';
+  $('#draftActs').hidden = true;
+  const ctx = {themes, concepts, tribe, free, gaps:an.gaps};
+  const taken = new Set(state.deck.cards.map(c=>c.name).concat(cmd.name));
+  const pick = (cards, n) => cards.map(cardLite).filter(c=>!taken.has(c.name)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,n).map(c=>{ taken.add(c.name); return c; });
+  const groups = [];
+  try{
+    const core = await searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price}));
+    if(seq!==seqD) return;
+    groups.push({title: idea.length ? 'On your idea' : 'Popular in your colors', key:'core', items: pick(core.data||[], 18)});
+    for(const [k,n] of Object.entries(DRAFT_NEEDS)){
+      const need = Math.max(0, Math.min(n, FUNCS[k].target - an.counts[k]));
+      if(!need) continue;
+      const j = await searchCards(buildQuery({commander:cmd, funcs:[k], price:i.price}));
+      if(seq!==seqD) return;
+      groups.push({title: FUNCS[k].label, key:k, items: pick(j.data||[], need)});
+    }
+  }catch(err){ if(seq===seqD) $('#draftBody').innerHTML = `<p class="status err">${h(err.message)}</p>`; return; }
+  state.draft = {groups: groups.filter(g=>g.items.length), sel: new Set(groups.flatMap(g=>g.items.map(c=>c.name)))};
+  renderDraft();
+}
+function renderDraft(){
+  const d = state.draft;
+  if(!d){ $('#draftBody').innerHTML = `<p class="muted" style="margin:0">The genie builds a starter list from your idea plus the ramp, card draw and removal every Commander deck needs. You pick what to keep.</p>`; $('#draftActs').hidden=true; $('#draftGo').textContent='Draft my list'; return; }
+  const total = d.groups.reduce((n,g)=>n+g.items.length,0);
+  if(!total){ $('#draftBody').innerHTML = `<div class="empty" style="padding:20px 8px">${gem(20)}<b style="color:var(--ink)">Nothing new to add</b><span>Everything the genie found is already in your deck. Try a different idea on Discover, or loosen your price filter.</span></div>`; $('#draftActs').hidden=true; $('#draftGo').textContent='Redraft'; return; }
+  const cost = d.groups.flatMap(g=>g.items).filter(c=>d.sel.has(c.name)).reduce((n,c)=>n+(c.usd||0),0);
+  $('#draftBody').innerHTML = d.groups.map(g=>`<div class="dgroup"><h4>${h(g.title)} · ${g.items.length}</h4><div class="drows">${g.items.map(c=>{ cache.set(c.id,c);
+    const why = (c.why||[]).slice(0,2).map(w=>w.k?`<span class="${w.k}">${h(w.s)}</span>`:h(w.s)).join(' · ');
+    const inn = inDeck(c) && !multiOk(c);
+    return `<label class="drow ${inn?'done':''}"><input type="checkbox" data-dsel="${h(c.name)}" ${d.sel.has(c.name)&&!inn?'checked':''} ${inn?'disabled':''}>
+      <button type="button" class="thumbbtn" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img class="thumb" src="${h(c.img)}" alt="" loading="lazy">`:'<span class="thumb"></span>'}</button>
+      <span class="dmain"><button type="button" class="dname" data-open="${c.id}">${h(c.name)}</button><span class="dsub">${h(front(c).split('—')[0].trim())}${why?' · '+why:''}</span></span>
+      <span class="dmeta num">${inn?'In deck':`MV ${c.mv}<br>${money(c.usd)}`}</span></label>`; }).join('')}</div></div>`).join('');
+  const n = [...d.sel].filter(nm=>!state.deck.cards.some(x=>x.name===nm)).length;
+  $('#draftAdd').textContent = n ? `Add ${n} card${n===1?'':'s'} to deck` : 'All added';
+  $('#draftAdd').disabled = !n;
+  $('#draftInfo').textContent = `${total} suggestions · selected ≈ $${Math.round(cost).toLocaleString()}`;
+  $('#draftActs').hidden=false; $('#draftGo').textContent='Redraft';
+}
+$('#draftBody').addEventListener('change',e=>{
+  const cb = e.target.closest('[data-dsel]'); if(!cb || !state.draft) return;
+  cb.checked ? state.draft.sel.add(cb.dataset.dsel) : state.draft.sel.delete(cb.dataset.dsel);
+  renderDraft();
+});
+$('#draftGo').addEventListener('click',runDraft);
+$('#draftAdd').addEventListener('click',()=>{ const d=state.draft; if(!d) return; addMany(d.groups.flatMap(g=>g.items).filter(c=>d.sel.has(c.name))); renderDraft(); });
+$('#draftAll').addEventListener('click',()=>{ const d=state.draft; if(!d) return; const all=d.groups.flatMap(g=>g.items.map(c=>c.name)); const on = d.sel.size<all.length; d.sel = new Set(on?all:[]); renderDraft(); });
+$('#draftCsv').addEventListener('click',()=>{ const d=state.draft; if(!d) return; exportListCSV('ripjr-draft-'+slug(state.deck.commander&&state.deck.commander.name)+'.csv', d.groups, ['Why suggested'], c=>[(c.why||[]).map(w=>w.long).join('; ')]); });
+document.addEventListener('click',e=>{ if(e.target.closest('[data-draft]')){ setView('suggest'); runDraft(); } });
+
+/* ======================= Similar cards ======================= */
+const TRIGGERS = {
+  dies:{label:'Death trigger', re:/\bdies\b|put into a graveyard from the battlefield/, q:'o:"dies"'},
+  etb:{label:'Enters trigger', re:/\benters\b/, q:'(o:"when" o:"enters")'},
+  attacks:{label:'Attack trigger', re:/\battacks?\b/, q:'(o:"whenever" o:"attacks")'},
+  cast:{label:'Cast trigger', re:/whenever (you|a player|an opponent) casts?/, q:'o:"whenever you cast"'},
+  upkeep:{label:'Every-turn trigger', re:/^at the beginning of/, q:'o:"at the beginning of"'},
+  damage:{label:'Combat damage trigger', re:/deals combat damage/, q:'o:"deals combat damage"'},
+  gain:{label:'Lifegain trigger', re:/gain life/, q:'o:"whenever you gain life"'},
+  draw:{label:'Draw trigger', re:/whenever you draw/, q:'o:"whenever you draw"'},
+  sac:{label:'Sacrifice trigger', re:/whenever you sacrifice/, q:'o:"whenever you sacrifice"'},
+  landfall:{label:'Landfall', re:/land enters|landfall/, q:'(kw:landfall or o:"land enters")'},
+};
+const MAIN_TYPES = ['creature','planeswalker','instant','sorcery','artifact','enchantment','battle','land'];
+function features(c){
+  const t = ctext(c), f = front(c).toLowerCase(), oracle = (c.oracle||'').toLowerCase().split(c.name.toLowerCase()).join('~');
+  const clauses = oracle.split('\n').map(l=>l.replace(/\([^)]*\)/g,'').trim()).filter(l=>/^(whenever|when|at the beginning)/.test(l)).map(l=>l.split(',')[0]);
+  const trig = new Set(Object.keys(TRIGGERS).filter(k=>clauses.some(cl=>TRIGGERS[k].re.test(cl))));
+  const sub = (f.split('—')[1]||'').trim();
+  return {
+    roles:new Set(rolesOf(c).filter(r=>r!=='land')), themes:new Set(themesOf(c)),
+    concepts:new Set(Object.keys(CONCEPTS).filter(k=>CONCEPTS[k].re.test(t))),
+    kw:new Set((c.kw||[]).map(k=>k.toLowerCase())), subs:new Set(sub?sub.split(/\s+/):[]),
+    types:new Set(MAIN_TYPES.filter(x=>new RegExp('\\b'+x+'\\b').test(f))), trig,
+    mv:c.mv, ci:new Set(c.ci||[]), land:isLand(c)
+  };
+}
+const inter = (a,b) => [...a].filter(x=>b.has(x));
+function similarity(fa, fb){
+  const r = inter(fa.roles,fb.roles), th = inter(fa.themes,fb.themes), tg = inter(fa.trig,fb.trig), kw = inter(fa.kw,fb.kw), sb = inter(fa.subs,fb.subs), co = inter(fa.concepts,fb.concepts), ty = inter(fa.types,fb.types);
+  const dmv = Math.abs(fa.mv-fb.mv);
+  let w = 3*r.length + 3*th.length + 2.5*tg.length + 2*kw.length + 2*sb.length + 0.75*co.length
+        + (ty.length===fa.types.size && ty.length===fb.types.size ? 2 : ty.length ? 1 : 0)
+        + (fa.land ? 0 : dmv===0 ? 2 : dmv===1 ? 1.2 : dmv===2 ? 0.4 : 0)
+        + (inter(fa.ci,fb.ci).length || (!fa.ci.size && !fb.ci.size) ? 0.5 : 0);
+  const why = [];
+  r.forEach(k=>why.push({k:'g', s:'Also '+FUNCS[k].label.toLowerCase()}));
+  tg.forEach(k=>why.push({k:'t', s:TRIGGERS[k].label}));
+  th.forEach(k=>why.push({k:'t', s:THEMES[k].label}));
+  kw.forEach(k=>why.push({k:'', s:cap(k)}));
+  sb.forEach(k=>why.push({k:'', s:cap(k)}));
+  if(!fa.land && dmv===0) why.push({k:'', s:'Same mana value'});
+  return {w, why};
+}
+const sim = {card:null, feats:null, list:[], sort:'match', colors:true};
+function similarQuery(c, fa){
+  const parts = ['legal:commander','game:paper','-!"'+c.name.replace(/"/g,'')+'"'];
+  if(sim.colors && state.deck.commander){ const ci = state.deck.commander.ci; parts.push('id<='+(ci.length?ci.join('').toLowerCase():'c')); }
+  const main = fa.types.has('creature') ? 'creature' : [...fa.types][0];
+  if(main) parts.push('t:'+main);
+  if(!fa.land) parts.push('mv>='+Math.max(0,Math.floor(fa.mv)-2), 'mv<='+(Math.floor(fa.mv)+2));
+  const ors = [...fa.roles].map(k=>FUNCS[k].q)
+    .concat([...fa.themes].map(k=>THEMES[k].q), [...fa.trig].map(k=>TRIGGERS[k].q))
+    .concat([...fa.kw].slice(0,4).map(k=>'kw:"'+k+'"'), [...fa.subs].slice(0,3).map(s=>'t:'+s));
+  if(ors.length) parts.push('('+ors.map(x=>'('+x+')').join(' or ')+')');
+  return parts.join(' ');
+}
+let seqSim = 0;
+async function setSimilar(c){
+  sim.card = c; sim.feats = features(c);
+  const seq = ++seqSim;
+  $('#simQ').value = c.name; closeAc();
+  renderSimHead();
+  $('#simGrid').innerHTML = Array(8).fill('<div class="card"><div class="skel"></div></div>').join('');
+  $('#simStatus').className='status'; $('#simStatus').textContent='Comparing…';
+  try{
+    const q = similarQuery(c, sim.feats);
+    let j = await searchCards(q);
+    if(seq!==seqSim) return;
+    const self = similarity(sim.feats, sim.feats).w || 1;
+    sim.list = (j.data||[]).map(cardLite).filter(x=>x.name!==c.name).map(x=>{
+      const s = similarity(sim.feats, features(x));
+      x.match = Math.min(99, Math.round(100*s.w/self)); x.why = s.why;
+      if(x.rank && x.rank<=1500) x.why.push({k:'', s:'Popular'});
+      return x;
+    }).filter(x=>x.match>=20);
+    sim.q = q;
+    renderSim();
+  }catch(err){ if(seq===seqSim){ $('#simGrid').innerHTML=''; $('#simStatus').className='status err'; $('#simStatus').textContent=err.message; } }
+}
+function renderSimHead(){
+  const c = sim.card, f = sim.feats; cache.set(c.id,c);
+  const chips = [...[...f.roles].map(k=>FUNCS[k].label), ...[...f.trig].map(k=>TRIGGERS[k].label), ...[...f.themes].map(k=>THEMES[k].label), ...[...f.kw].map(cap), ...[...f.subs].map(cap)];
+  $('#simBody').hidden = false;
+  $('#simCard').innerHTML = `<button class="art" data-open="${c.id}" aria-label="View ${h(c.name)}" style="cursor:zoom-in">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}">`:''}</button>
+    <div><div class="eyebrow">Comparing to</div><h3 style="font:600 1.15rem/1.25 var(--f-body);margin-top:6px">${h(c.name)}</h3><div class="muted" style="font-size:.85rem">${h(c.type)} · MV ${c.mv} · ${money(c.usd)}</div></div>
+    <div><div class="sec-t"><span>What the genie looks at</span></div><div class="chips">${chips.length?chips.map(x=>`<span class="tok" style="padding-right:12px">${h(x)}</span>`).join(''):'<span class="muted" style="font-size:.85rem">Mostly its type and mana value. It doesn’t do much the genie can name.</span>'}</div></div>`;
+  $('#simColorsWrap').hidden = !state.deck.commander;
+  $('#simColorsLbl').textContent = state.deck.commander ? 'Only '+state.deck.commander.name+'’s colors' : '';
+}
+function renderSim(){
+  let list = sim.list.slice();
+  if(sim.sort==='match') list.sort((a,b)=>b.match-a.match || (a.rank||1e6)-(b.rank||1e6));
+  else {
+    list = list.filter(x=>x.match>=40);
+    list.sort(sim.sort==='cheap' ? (a,b)=>(a.usd??1e9)-(b.usd??1e9) : (a,b)=>(a.rank||1e6)-(b.rank||1e6));
+  }
+  sim.shown = list.slice(0,60);
+  $('#simStatus').className='status';
+  $('#simStatus').textContent = sim.shown.length ? `${sim.shown.length} similar card${sim.shown.length===1?'':'s'}`+(sim.sort==='match'?', closest first':sim.sort==='cheap'?' (40%+ match), cheapest first':' (40%+ match), most played first') : '';
+  $('#simGrid').innerHTML = sim.shown.length ? sim.shown.map(x=>tile(x)).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">No close matches found</b><span>Try turning off the color filter, or pick a card that does something more specific.</span></div>`;
+  document.querySelectorAll('#simSort button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.sort===sim.sort)));
+}
+$('#simSort').addEventListener('click',e=>{ const b=e.target.closest('[data-sort]'); if(!b) return; sim.sort=b.dataset.sort; if(sim.card) renderSim(); });
+$('#simColors').addEventListener('change',e=>{ sim.colors=e.target.checked; if(sim.card) setSimilar(sim.card); });
+$('#simCsv').addEventListener('click',()=>{ if(!sim.shown||!sim.shown.length){ toast('Pick a card first'); return; } exportListCSV('ripjr-similar-to-'+slug(sim.card.name)+'.csv', [{title:'Similar to '+sim.card.name, items:sim.shown}], ['Match %','Why similar'], c=>[c.match, (c.why||[]).map(w=>w.s).join('; ')]); });
+
+// autocomplete
+let acT, acSeq=0, acItems=[], acIdx=-1;
+function closeAc(){ $('#simList').hidden=true; $('#simQ').setAttribute('aria-expanded','false'); acIdx=-1; }
+function renderAc(){
+  $('#simList').innerHTML = acItems.map((n,i)=>`<li role="option" id="ac${i}" aria-selected="${i===acIdx}"><button type="button" tabindex="-1" data-ac="${h(n)}">${h(n)}</button></li>`).join('');
+  $('#simList').hidden = !acItems.length; $('#simQ').setAttribute('aria-expanded', String(!!acItems.length));
+  if(acIdx>=0) $('#simQ').setAttribute('aria-activedescendant','ac'+acIdx); else $('#simQ').removeAttribute('aria-activedescendant');
+}
+$('#simQ').addEventListener('input',e=>{
+  const v=e.target.value.trim(); clearTimeout(acT);
+  if(v.length<2){ acItems=[]; renderAc(); return; }
+  acT=setTimeout(async()=>{ const seq=++acSeq; try{ const j=await sf('/cards/autocomplete?q='+encodeURIComponent(v)); if(seq!==acSeq) return; acItems=(j.data||[]).slice(0,10); acIdx=-1; renderAc(); }catch(err){} },200);
+});
+$('#simQ').addEventListener('keydown',e=>{
+  if($('#simList').hidden) return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); acIdx=Math.min(acItems.length-1,acIdx+1); renderAc(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); acIdx=Math.max(0,acIdx-1); renderAc(); }
+  else if(e.key==='Escape'){ closeAc(); }
+  else if(e.key==='Enter' && acIdx>=0){ e.preventDefault(); pickSimilar(acItems[acIdx]); }
+});
+$('#simList').addEventListener('mousedown',e=>{ const b=e.target.closest('[data-ac]'); if(b){ e.preventDefault(); pickSimilar(b.dataset.ac); } });
+$('#simQ').addEventListener('blur',()=>setTimeout(closeAc,120));
+$('#simForm').addEventListener('submit',e=>{ e.preventDefault(); const v=$('#simQ').value.trim(); if(v) pickSimilar(acIdx>=0?acItems[acIdx]:(acItems[0]||v)); });
+async function pickSimilar(name){
+  closeAc();
+  try{
+    const j = await sf('/cards/named?fuzzy='+encodeURIComponent(name));
+    if(!j.id){ $('#simStatus').className='status err'; $('#simStatus').textContent='Couldn’t find that card. Try picking from the list as you type.'; return; }
+    setSimilar(cardLite(j));
+  }catch(err){ $('#simStatus').className='status err'; $('#simStatus').textContent=err.message; }
+}
+$('#dSimilar').addEventListener('click',()=>{ const c=dlgCard; $('#cardDlg').close(); setView('similar'); if(c) setSimilar(c); });
+
 /* ======================= Views ======================= */
 function setView(v){
   if(v==='deck' && matchMedia('(min-width: 961px)').matches) v='discover';
@@ -1076,6 +1553,9 @@ function setView(v){
   document.querySelectorAll('.seg button').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
   $('#view-discover').hidden = v!=='discover';
   $('#view-suggest').hidden = v!=='suggest';
+  $('#view-similar').hidden = v!=='similar';
+  if(v==='similar' && !sim.card) setTimeout(()=>$('#simQ').focus(),50);
+  if(v==='suggest' && !state.draft) renderDraft();
   if(v==='suggest' && state.predictDirty) runPredict();
   window.scrollTo({top:0});
 }
@@ -1133,6 +1613,7 @@ $('#copyBtn').addEventListener('click',async()=>{
   try{ await navigator.clipboard.writeText(txt); toast('Decklist copied'); }
   catch(e){ $('#copyText').value=txt; $('#copyDlg').showModal(); $('#copyText').select(); }
 });
+$('#csvBtn').addEventListener('click',exportDeckCSV);
 $('#clearBtn').addEventListener('click',()=>$('#confirmDlg').showModal());
 $('#confirmDlg').addEventListener('close',()=>{
   if($('#confirmDlg').returnValue!=='yes') return;
