@@ -3,311 +3,475 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Deckwright</title>
+<title>Ripjr Deck Genie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap">
 <style>
-/* Layout: card-table workspace — intent + results on the left, the deck as a sticky ledger on the right; tabs swap in the deck on phones. */
+/* Layout: Spotlight-style search over a card grid, deck as a glass side panel; gold filigree and a night sky are the only fantasy notes. */
 :root{
-  --bg:#E9ECE8; --surface:#FBFCFA; --sunk:#DEE3DD; --ink:#1A201E; --muted:#58645F; --line:#C9D1CA;
-  --accent:#8A580A; --accent-ink:#FFF8EA; --accent-soft:#F2E5C7;
-  --good:#2F7A4A; --warn:#A0620A; --bad:#B23A2A;
-  --pip-w:#EFE4B0; --pip-u:#2F6FB8; --pip-b:#4A3F52; --pip-r:#C8432C; --pip-g:#2E7D4F; --pip-c:#A6ABAE;
-  --f-display:"Alegreya SC", Georgia, "Times New Roman", serif;
-  --f-body:"Alegreya Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  --r:10px;
+  --bg:#F5F5F7; --glow:rgba(176,132,40,.10); --star:transparent;
+  --surface:#FFFFFF; --surface-2:#EEEEF1; --glass:rgba(255,255,255,.72); --glass-line:rgba(0,0,0,.06);
+  --ink:#1D1D1F; --muted:#6E6E73; --faint:#AEAEB2; --line:rgba(0,0,0,.08);
+  --accent:#2457D6; --accent-ink:#FFFFFF; --accent-soft:rgba(36,87,214,.10);
+  --gold:#A27A20; --gold-soft:rgba(162,122,32,.13);
+  --good:#248A3D; --warn:#B25000; --bad:#D70015;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.07);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.08),0 18px 40px rgba(0,0,0,.14);
+  --scrim:rgba(20,20,28,.32);
+  --pip-w:#F3EBC4; --pip-u:#3D7BD6; --pip-b:#4C4452; --pip-r:#D9502F; --pip-g:#2F8A55; --pip-c:#B4B8BC;
+  --f-display:"Cinzel", "Trajan Pro", Georgia, serif;
+  --f-body:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --f-mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0F1412; --surface:#171F1C; --sunk:#0B0F0D; --ink:#E4E9E5; --muted:#94A19A; --line:#2A3430;
-  --accent:#E2B04E; --accent-ink:#1A1405; --accent-soft:#3A2E14;
-  --good:#5DBB82; --warn:#E3A548; --bad:#E0705F; --pip-b:#8C7F98; --pip-w:#E8DCA2;
+  --bg:#09090E; --glow:rgba(214,176,92,.08); --star:rgba(255,255,255,.55);
+  --surface:#15151C; --surface-2:#1F1F28; --glass:rgba(21,21,28,.72); --glass-line:rgba(255,255,255,.07);
+  --ink:#F5F5F7; --muted:#9C9CA5; --faint:#5C5C66; --line:rgba(255,255,255,.09);
+  --accent:#6E95FF; --accent-ink:#08080D; --accent-soft:rgba(110,149,255,.16);
+  --gold:#DDB863; --gold-soft:rgba(221,184,99,.14);
+  --good:#30D158; --warn:#FF9F0A; --bad:#FF453A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.5),0 18px 44px rgba(0,0,0,.55);
+  --scrim:rgba(0,0,0,.55); --pip-b:#8E8299; --pip-w:#EDE3B2;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0F1412; --surface:#171F1C; --sunk:#0B0F0D; --ink:#E4E9E5; --muted:#94A19A; --line:#2A3430;
-  --accent:#E2B04E; --accent-ink:#1A1405; --accent-soft:#3A2E14;
-  --good:#5DBB82; --warn:#E3A548; --bad:#E0705F; --pip-b:#8C7F98; --pip-w:#E8DCA2;
+  --bg:#09090E; --glow:rgba(214,176,92,.08); --star:rgba(255,255,255,.55);
+  --surface:#15151C; --surface-2:#1F1F28; --glass:rgba(21,21,28,.72); --glass-line:rgba(255,255,255,.07);
+  --ink:#F5F5F7; --muted:#9C9CA5; --faint:#5C5C66; --line:rgba(255,255,255,.09);
+  --accent:#6E95FF; --accent-ink:#08080D; --accent-soft:rgba(110,149,255,.16);
+  --gold:#DDB863; --gold-soft:rgba(221,184,99,.14);
+  --good:#30D158; --warn:#FF9F0A; --bad:#FF453A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.5),0 18px 44px rgba(0,0,0,.55);
+  --scrim:rgba(0,0,0,.55); --pip-b:#8E8299; --pip-w:#EDE3B2;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-body);padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px)}
+body{
+  background:var(--bg);color:var(--ink);font:15px/1.47 var(--f-body);
+  -webkit-font-smoothing:antialiased;padding-inline:16px;min-height:100vh;
+  background-image:radial-gradient(1200px 500px at 50% -180px,var(--glow),transparent 70%);
+}
+body::before,.welcome::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.9;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 78% 12%,var(--star),transparent 60%),
+    radial-gradient(1.5px 1.5px at 42% 32%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 88% 46%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 24% 64%,var(--star),transparent 60%),
+    radial-gradient(1.5px 1.5px at 62% 78%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 8% 88%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 94% 82%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 52% 6%,var(--star),transparent 60%),
+    radial-gradient(1px 1px at 34% 92%,var(--star),transparent 60%);
+}
 img{max-width:100%}
 [hidden]{display:none!important}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-h1,h2,h3{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance;letter-spacing:.01em}
-.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
-.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent-soft);outline-offset:2px;box-shadow:0 0 0 1px var(--accent)}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+.eyebrow{font:600 .7rem/1 var(--f-display);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
 
-.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;max-width:1440px;margin:0 auto;padding-block:18px 10px}
-.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.brand h1{font-size:1.9rem}
-.brand p{margin:0;color:var(--muted)}
-.tabs{display:flex;gap:4px;margin-left:auto;background:var(--sunk);padding:4px;border-radius:999px}
-.tab{border:0;background:transparent;padding:6px 14px;border-radius:999px;cursor:pointer;font-weight:500;color:var(--muted)}
-.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0/.12)}
-.tab.deck-tab{display:none}
+/* ---------- nav ---------- */
+.nav{
+  position:sticky;top:0;z-index:20;margin-inline:-16px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;
+  background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--glass-line);
+}
+.nav-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.mark{display:flex;align-items:center;gap:10px;font:700 1.25rem/1 var(--f-display);letter-spacing:.06em}
+.mark svg{color:var(--gold)}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:2px;margin-inline:auto}
+.seg button{border:0;background:transparent;padding:6px 16px;border-radius:8px;font-weight:500;font-size:.9rem;color:var(--ink)}
+.seg button[aria-selected="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px var(--line)}
+.seg .deck-seg{display:none}
+.nav-count{font-size:.85rem;color:var(--muted)}
 
-.app{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:20px;max-width:1440px;margin:0 auto;padding-block:0 40px;align-items:start}
-main{min-width:0;display:flex;flex-direction:column;gap:18px}
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;max-width:1400px;margin:0 auto;padding-block:24px 60px;align-items:start}
+main{min-width:0}
+.view{display:grid;gap:26px}
 
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-.intent{display:grid;gap:14px}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
-.field{display:flex;flex-direction:column;gap:4px;min-width:0}
-.field.grow{flex:1 1 260px}
-input[type=text],input[type=number],select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
-textarea{resize:vertical;min-height:64px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:3px 11px;cursor:pointer;font-size:.92rem}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-.chip.tribe[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
-.btn:hover{border-color:var(--muted)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
-.btn.small{padding:4px 10px;font-size:.88rem}
-.btn:disabled{opacity:.5;cursor:default}
-.readout{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:12px}
-.readout .chips span{font-size:.85rem;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--ink)}
-.query{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.query code{font-family:var(--f-mono);font-size:.8rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;flex:1 1 300px;min-width:0;overflow-wrap:anywhere;color:var(--muted)}
-.query a{color:var(--accent);font-size:.9rem}
+/* ---------- hero / search ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;justify-items:center;text-align:center;padding-block:12px 4px}
+.cmd-pill{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 14px 5px 5px;box-shadow:var(--shadow);max-width:100%}
+.cmd-pill .por{width:30px;height:30px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 1.5px var(--gold)}
+.cmd-pill .por.blank{display:grid;place-items:center;background:var(--gold-soft);color:var(--gold)}
+.cmd-pill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cmd-pill .chev{color:var(--muted)}
+.hero h2{font:600 clamp(1.7rem,3.4vw,2.4rem)/1.12 var(--f-body);letter-spacing:-.022em}
+.spot{width:min(720px,100%);display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 8px 8px 16px;box-shadow:var(--shadow)}
+.spot:focus-within{box-shadow:var(--shadow),0 0 0 4px var(--accent-soft);border-color:var(--accent)}
+.spot svg{color:var(--muted);flex:none}
+.spot input:focus-visible{outline:none;box-shadow:none}
+.spot input{flex:1;min-width:0;border:0;background:transparent;font-size:1.05rem;padding:8px 0;outline:none}
+.pill{border:0;border-radius:999px;padding:9px 18px;font-weight:600;background:var(--accent);color:var(--accent-ink)}
+.pill:disabled{opacity:.5;cursor:default}
+.pill.ghost{background:var(--surface-2);color:var(--ink);font-weight:500}
+.pill.small{padding:6px 13px;font-size:.85rem}
+.steps{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;font-size:.85rem;color:var(--muted)}
+.steps b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--gold-soft);color:var(--gold);font:700 .7rem var(--f-display);margin-right:6px}
+.steps .x{border:0;background:none;color:var(--faint);padding:0 4px}
 
-.cmd{display:flex;gap:12px;align-items:center;min-width:0}
-.cmd img{width:46px;border-radius:4px}
-.pips{display:inline-flex;gap:3px;vertical-align:middle}
-.pip{width:14px;height:14px;border-radius:50%;border:1px solid rgb(0 0 0/.25);display:inline-block}
-.pip.W{background:var(--pip-w)}.pip.U{background:var(--pip-u)}.pip.B{background:var(--pip-b)}.pip.R{background:var(--pip-r)}.pip.G{background:var(--pip-g)}.pip.C{background:var(--pip-c)}
+.tokens{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:min(760px,100%)}
+.tok{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 6px 4px 12px;font-size:.88rem}
+.tok.theme{border-color:var(--gold);background:var(--gold-soft)}
+.tok.role{border-color:var(--accent);background:var(--accent-soft)}
+.tok button{border:0;background:transparent;color:var(--muted);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:1rem;line-height:1}
+.tok button:hover{background:var(--surface-2);color:var(--ink)}
+.linkbtn{border:0;background:none;color:var(--accent);font-size:.88rem;padding:4px 6px;font-weight:500}
+.quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;width:min(760px,100%)}
+.quick .lbl{font-size:.85rem;color:var(--muted);margin-right:2px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 13px;font-size:.88rem;color:var(--ink)}
+.chip:hover{background:var(--surface)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.query{width:min(760px,100%);font:.78rem/1.5 var(--f-mono);color:var(--muted);background:var(--surface-2);border-radius:10px;padding:10px 12px;text-align:left;overflow-wrap:anywhere}
+.query a{color:var(--accent);font-family:var(--f-body);white-space:nowrap}
 
-.status{color:var(--muted);font-size:.95rem;min-height:1.4em}
+/* ---------- ornament ---------- */
+.orn{display:flex;align-items:center;gap:12px;color:var(--gold)}
+.orn::before,.orn::after{content:"";flex:1;height:1px}
+.orn::before{background:linear-gradient(to right,transparent,var(--gold))}
+.orn::after{background:linear-gradient(to left,transparent,var(--gold))}
+.orn svg{flex:none}
+
+/* ---------- results ---------- */
+.rhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rhead h3{font:600 1.35rem/1.2 var(--f-body);letter-spacing:-.015em}
+.status{font-size:.9rem;color:var(--muted);min-height:1.3em}
 .status.err{color:var(--bad)}
-.results-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:16px}
-.card{display:flex;flex-direction:column;gap:6px;min-width:0}
-.card .art{position:relative;aspect-ratio:488/680;border-radius:4.75%/3.5%;overflow:hidden;background:var(--sunk);border:0;padding:0;cursor:zoom-in;max-width:100%}
-.card .art img{width:100%;height:100%;object-fit:cover;display:block}
-.card .art .fit{position:absolute;top:8px;left:8px;background:var(--surface);color:var(--ink);font:500 .75rem var(--f-mono);padding:2px 6px;border-radius:5px;box-shadow:0 1px 3px rgb(0 0 0/.3)}
-.card .meta{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.card .name{font-weight:700;font-size:.95rem;line-height:1.2;min-width:0;overflow-wrap:anywhere}
-.why{display:flex;flex-wrap:wrap;gap:4px}
-.why span{font-size:.74rem;border-radius:4px;padding:1px 6px;background:var(--sunk);color:var(--muted)}
-.why span.t{background:var(--accent-soft);color:var(--ink)}
-.why span.g{color:var(--good);background:transparent;border:1px solid currentColor}
-.add{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:6px;padding:2px 9px;cursor:pointer;font-weight:700;white-space:nowrap}
-.add.in{border-color:var(--line);color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:22px 18px}
+.card{display:grid;gap:4px;min-width:0;align-content:start}
+.artwrap{position:relative;max-width:100%}
+.art{display:block;width:100%;aspect-ratio:488/680;border:0;padding:0;border-radius:4.75%/3.5%;overflow:hidden;background:var(--surface-2);box-shadow:var(--shadow);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;cursor:zoom-in}
+.art img{display:block;width:100%;height:100%;object-fit:cover}
+.card:hover .art{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.top{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;gap:4px;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:2px 8px;font:600 .66rem/1.4 var(--f-display);letter-spacing:.08em;pointer-events:none}
+.plus{position:absolute;right:8px;bottom:8px;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px rgba(0,0,0,.3);font-size:1.3rem;line-height:1;transition:transform .15s}
+.plus:hover{transform:scale(1.08)}
+.plus.in{background:var(--surface);color:var(--good);box-shadow:0 4px 14px rgba(0,0,0,.2),0 0 0 1px var(--line)}
+.cname{font-weight:600;font-size:.92rem;line-height:1.25;margin-top:6px;overflow-wrap:anywhere}
+.csub{font-size:.8rem;color:var(--muted)}
+.reason{font-size:.78rem;color:var(--muted);line-height:1.35}
+.reason .t{color:var(--gold);font-weight:600}
+.reason .g{color:var(--good);font-weight:600}
+.more{display:flex;justify-content:center}
+.skel{aspect-ratio:488/680;border-radius:4.75%/3.5%;background:linear-gradient(100deg,var(--surface-2) 40%,var(--surface) 50%,var(--surface-2) 60%);background-size:200% 100%;animation:sh 1.3s infinite linear}
+@keyframes sh{to{background-position:-200% 0}}
+.empty{text-align:center;padding:40px 16px;color:var(--muted);display:grid;gap:10px;justify-items:center}
 
-.gap-section{display:grid;gap:12px}
-.gap-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.gap-head h3{font-size:1.25rem}
-.gap-head p{margin:0;color:var(--muted)}
-.strip{display:grid;grid-auto-flow:column;grid-auto-columns:160px;gap:14px;overflow-x:auto;padding-bottom:8px}
-.health{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.hcell{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:grid;gap:4px}
-.hcell b{font-family:var(--f-mono);font-weight:500}
-.meter{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
-.meter i{display:block;height:100%;background:var(--good)}
-.meter i.low{background:var(--warn)}.meter i.none{background:var(--bad)}
+/* ---------- suggestions ---------- */
+.shead{display:grid;gap:8px}
+.shead h2{font:600 clamp(1.6rem,3vw,2.1rem)/1.15 var(--f-body);letter-spacing:-.02em}
+.leans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.shelf{display:grid;gap:12px}
+.shelf-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.shelf-h h3{font:600 1.15rem/1.25 var(--f-body);letter-spacing:-.01em}
+.shelf-h p{margin:0;font-size:.88rem;color:var(--muted)}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:158px;gap:16px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity}
+.rail .card{scroll-snap-align:start}
 
-aside{position:sticky;top:env(safe-area-inset-top,0px);max-height:100vh;overflow:auto;display:grid;gap:14px;padding-block:0 16px}
-.banner{border-radius:var(--r);overflow:hidden;position:relative;background:var(--sunk);min-height:120px;display:flex;align-items:flex-end;border:1px solid var(--line)}
-.banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.banner .cap{position:relative;width:100%;padding:28px 12px 10px;background:linear-gradient(to top,rgb(0 0 0/.82),rgb(0 0 0/0));color:#fff}
-.banner .cap h2{font-size:1.2rem}
-.banner .cap .label{color:#d9d9d9}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface)}
-.stat b{display:block;font:500 1.15rem var(--f-mono)}
-.curve{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;align-items:end;height:70px}
-.curve div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:2px}
-.curve i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px}
-.curve span{font:.7rem var(--f-mono);color:var(--muted)}
-.decklist{display:grid;gap:10px}
-.group h4{margin:0 0 4px;font:700 .72rem var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
-.line{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid var(--line)}
-.line .q{font:.85rem var(--f-mono);color:var(--muted)}
-.line button.nm{border:0;background:none;padding:0;text-align:left;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.line button.nm.off{color:var(--bad)}
-.line .mv{font:.8rem var(--f-mono);color:var(--muted)}
-.x{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 4px;font-size:1.05rem}
-.x:hover{color:var(--bad)}
-.note{font-size:.88rem;color:var(--muted);background:var(--accent-soft);border-radius:8px;padding:8px 10px}
-.actions{display:flex;gap:6px;flex-wrap:wrap}
+/* ---------- deck panel ---------- */
+aside{position:sticky;top:76px;max-height:calc(100vh - 92px);overflow:auto;display:grid;gap:16px;padding:2px;border-radius:22px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.dhead{position:relative;min-height:150px;border-radius:20px 20px 0 0;overflow:hidden;background:var(--surface-2);display:flex;align-items:flex-end}
+.dhead img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dhead .cap{position:relative;width:100%;padding:40px 16px 14px;background:linear-gradient(to top,rgba(8,8,12,.85),rgba(8,8,12,0));color:#fff;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.dhead .cap .eyebrow{color:#E9CD86}
+.dhead h3{font:600 1.15rem/1.2 var(--f-body);margin-top:4px}
+.dhead .pill{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-weight:500}
+.dhead.none{align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;padding:20px;border-bottom:1px solid var(--line)}
+.dbody{padding:16px;display:grid;gap:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat b{display:block;font-size:1.25rem;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat span{font-size:.75rem;color:var(--muted)}
+.sec-t{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;justify-content:space-between}
+.curve{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;align-items:end;height:74px}
+.curve div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;height:100%}
+.curve i{display:block;width:100%;border-radius:4px;background:linear-gradient(to top,var(--accent),color-mix(in srgb,var(--accent) 70%,var(--gold)));min-height:3px}
+.curve span{font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ess{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ring{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:12px;background:var(--surface-2)}
+.ring svg{flex:none}
+.ring b{display:block;font-size:.84rem;font-weight:600;line-height:1.2}
+.ring span{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.dacts{display:flex;gap:4px;flex-wrap:wrap;justify-content:space-between}
+.group h4{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px}
+.line{display:grid;grid-template-columns:22px minmax(0,1fr) auto 22px;gap:8px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--line);font-size:.9rem}
+.line .q{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.82rem}
+.line .nm{border:0;background:none;padding:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.line .nm:hover{color:var(--accent)}
+.line .nm.off{color:var(--bad)}
+.line .mv{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.line .rm{border:0;background:none;color:var(--faint);font-size:1.05rem;padding:0;border-radius:50%;width:22px;height:22px}
+.line .rm:hover{color:var(--bad);background:var(--surface-2)}
+.note{font-size:.84rem;background:var(--gold-soft);border-radius:12px;padding:10px 12px;line-height:1.4}
 
-dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;max-width:min(860px,calc(100vw - 32px));width:100%}
-dialog::backdrop{background:rgb(0 0 0/.55)}
-.dlg{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;padding:20px}
-.dlg img{width:100%;border-radius:4.75%/3.5%}
-.dlg .body{display:grid;gap:10px;align-content:start;min-width:0}
-.oracle{white-space:pre-line;line-height:1.5}
-.sym{display:inline-block;font:500 .75rem var(--f-mono);background:var(--sunk);border-radius:50%;min-width:1.35em;text-align:center;padding:0 2px}
-.kv{display:flex;gap:16px;flex-wrap:wrap;font-size:.92rem;color:var(--muted)}
-.kv b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
-.plain{padding:20px;display:grid;gap:12px}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:8px 14px;border-radius:8px;font-weight:500;z-index:10}
+/* ---------- sheets ---------- */
+dialog{border:0;padding:0;border-radius:22px;background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35),0 0 0 1px var(--line);width:min(860px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
+dialog::backdrop{background:var(--scrim);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+dialog[open]{animation:pop .28s cubic-bezier(.2,.9,.25,1.1)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}}
+.sheet{padding:22px;display:grid;gap:16px}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheet-h h3{font:600 1.25rem/1.2 var(--f-body);letter-spacing:-.01em}
+.close{border:0;background:var(--surface-2);color:var(--muted);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:1.05rem;flex:none}
+.detail{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:24px;padding:22px}
+.detail img{width:100%;border-radius:4.75%/3.5%;box-shadow:var(--shadow-lift)}
+.detail .info{display:grid;gap:12px;align-content:start;min-width:0}
+.detail h3{font:600 1.5rem/1.2 var(--f-body);letter-spacing:-.015em}
+.typel{color:var(--muted)}
+.oracle{white-space:pre-line;line-height:1.55;background:var(--surface-2);border-radius:14px;padding:12px 14px}
+.sym{display:inline-grid;place-items:center;min-width:1.35em;height:1.35em;padding:0 3px;border-radius:999px;background:var(--surface);box-shadow:0 0 0 1px var(--line);font:600 .72rem var(--f-body);vertical-align:.08em}
+.kv{display:flex;gap:18px;flex-wrap:wrap;font-size:.88rem;color:var(--muted)}
+.kv b{display:block;color:var(--ink);font-size:1rem;font-variant-numeric:tabular-nums}
+.whylist{display:grid;gap:6px;font-size:.88rem}
+.whylist div{display:flex;gap:8px;align-items:baseline}
+.whylist svg{flex:none;color:var(--gold)}
+.dacts2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dacts2 a{color:var(--accent);text-decoration:none;font-weight:500;font-size:.92rem}
+.field{display:grid;gap:8px}
+.field > label,.field > .lbl{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.minis{display:inline-flex;flex-wrap:wrap;background:var(--surface-2);border-radius:10px;padding:2px;gap:2px}
+.minis button{border:0;background:transparent;border-radius:8px;padding:6px 12px;font-size:.88rem}
+.minis button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.input{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;width:100%}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cmdgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;max-height:52vh;overflow:auto;padding:2px}
+.cmdgrid button{border:0;background:none;padding:0;text-align:left;display:grid;gap:6px;font-size:.82rem;font-weight:500}
+.cmdgrid img{border-radius:4.75%/3.5%;box-shadow:var(--shadow);transition:transform .2s}
+.cmdgrid button:hover img{transform:translateY(-3px)}
+.pips{display:inline-flex;gap:3px;vertical-align:middle}
+.pip{width:13px;height:13px;border-radius:50%;display:inline-block;box-shadow:inset 0 -1px 2px rgba(0,0,0,.25),0 0 0 .5px rgba(0,0,0,.3)}
+.pip.W{background:var(--pip-w)}.pip.U{background:var(--pip-u)}.pip.B{background:var(--pip-b)}.pip.R{background:var(--pip-r)}.pip.G{background:var(--pip-g)}.pip.C{background:var(--pip-c)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);color:var(--ink);border:1px solid var(--glass-line);box-shadow:var(--shadow-lift);padding:10px 16px;border-radius:14px;font-weight:500;font-size:.9rem;z-index:50;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 32px)}
+.toast svg{color:var(--good);flex:none}
 
-@media (max-width: 900px){
-  .app{grid-template-columns:minmax(0,1fr)}
-  .tab.deck-tab{display:inline-block}
+
+.mark{border:0;background:none;padding:0;color:var(--ink)}
+.mark-sub{color:var(--gold)}
+/* ---------- welcome ---------- */
+.welcome{position:fixed;inset:0;z-index:40;overflow:auto;isolation:isolate;background:var(--bg);background-image:radial-gradient(1000px 520px at 50% -120px,var(--glow),transparent 70%)}
+.w-in{grid-template-columns:minmax(0,1fr);max-width:1000px;margin:0 auto;padding:calc(48px + env(safe-area-inset-top,0px)) 16px calc(48px + env(safe-area-inset-bottom,0px));display:grid;gap:26px;justify-items:center;text-align:center}
+.w-brand{display:flex;align-items:center;gap:10px;font:600 .95rem/1 var(--f-display);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.w-in h1{font:600 clamp(2rem,5vw,3.2rem)/1.08 var(--f-body);letter-spacing:-.03em;max-width:16ch}
+.w-in .lede{margin:0;color:var(--muted);font-size:1.05rem;max-width:52ch}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;width:100%}
+.type{display:grid;gap:4px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:16px;box-shadow:var(--shadow);transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s,border-color .2s}
+.type:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--gold)}
+.type svg{color:var(--gold);margin-bottom:6px}
+.type b{font-size:1rem;font-weight:600}
+.type span{font-size:.85rem;color:var(--muted);line-height:1.35}
+.w-tribes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.w-tribes .lbl{font-size:.85rem;color:var(--muted)}
+.w-or{width:min(520px,100%)}
+.w-or span{font-size:.8rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.w-cont{display:grid;gap:8px;justify-items:center}
+.w-cont .pill{padding:12px 26px;font-size:1rem}
+.w-cont p{margin:0;font-size:.85rem;color:var(--muted);max-width:46ch}
+
+@media (max-width: 960px){
+  .app{grid-template-columns:minmax(0,1fr);padding-block:16px 60px}
+  .seg .deck-seg{display:inline-block}
+  .nav-count{display:none}
   .app[data-view="deck"] main{display:none}
   .app:not([data-view="deck"]) aside{display:none}
   aside{position:static;max-height:none}
-  .tabs{margin-left:0;width:100%;justify-content:space-between}
-  .tab{flex:1}
 }
-@media (max-width: 560px){
-  .dlg{grid-template-columns:1fr}
-  .dlg img{max-width:260px;margin:0 auto}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width: 600px){
+  .nav-in{gap:10px}
+  #newDeckBtn{margin-left:auto}
+  .seg{margin-inline:0;width:100%;order:3}
+  .seg button{flex:1;padding:6px 8px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+  .detail{grid-template-columns:1fr}
+  .detail img{max-width:240px;justify-self:center}
+  .frow{grid-template-columns:1fr}
+  dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:22px 22px 0 0;max-height:92vh}
+  .spot .pill{padding:9px 14px}
 }
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion: reduce){*,*::before{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="brand"><h1>Deckwright</h1><p>Commander deck building with predictive add</p></div>
-  <nav class="tabs" role="tablist" aria-label="Views">
-    <button class="tab" role="tab" id="tab-search" data-view="search" aria-selected="true">Search</button>
-    <button class="tab" role="tab" id="tab-predict" data-view="predict" aria-selected="false">Predictive add</button>
-    <button class="tab deck-tab" role="tab" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="mono"></span></button>
-  </nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-gem" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1 15 8 8 15 1 8Z" opacity=".25"/><path fill="none" stroke="currentColor" stroke-width="1.2" d="M8 1 15 8 8 15 1 8Z M8 4.5 11.5 8 8 11.5 4.5 8Z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m13 13 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 20 20"><path d="M3 6h9M15 6h2M3 14h3M9 14h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="13.5" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="7.5" cy="14" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+</svg>
+
+
+<section class="welcome" id="welcome" aria-label="Start a deck">
+  <div class="w-in">
+    <div class="w-brand"><svg width="18" height="18"><use href="#i-gem"/></svg>Ripjr Deck Genie</div>
+    <h1>What kind of deck do you want to build?</h1>
+    <p class="lede">Pick a style or describe it, then choose a commander that fits. The genie handles the card hunting.</p>
+    <form class="spot" id="wSpot" role="search" autocomplete="off">
+      <svg width="20" height="20"><use href="#i-search"/></svg>
+      <input id="wq" type="text" aria-label="Describe your deck" placeholder="e.g. “elves that make tons of mana” or “spooky graveyard deck”">
+      <button class="pill" type="submit">Start</button>
+    </form>
+    <div class="orn w-or" aria-hidden="true"><span>or pick a style</span></div>
+    <div class="types" id="wTypes"></div>
+    <div class="w-tribes" id="wTribes"></div>
+    <div class="orn w-or" aria-hidden="true"><svg width="12" height="12"><use href="#i-gem"/></svg></div>
+    <div class="w-cont">
+      <button class="pill ghost" id="wContinue" type="button">Continue to deckbuilder →</button>
+      <p id="wNote"></p>
+    </div>
+  </div>
+</section>
+
+<header class="nav">
+  <div class="nav-in">
+    <button class="mark" id="homeBtn" type="button" aria-label="Ripjr Deck Genie home"><svg width="20" height="20"><use href="#i-gem"/></svg><span>Ripjr <span class="mark-sub">Deck Genie</span></span></button>
+    <div class="seg" role="tablist" aria-label="Views">
+      <button role="tab" id="tab-discover" data-view="discover" aria-selected="true">Discover</button>
+      <button role="tab" id="tab-suggest" data-view="suggest" aria-selected="false">Suggestions</button>
+      <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
+    </div>
+    <span class="nav-count num" id="navCount"></span><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
+  </div>
 </header>
 
-<div class="app" id="app" data-view="search">
+<div class="app" id="app" data-view="discover">
 <main>
-  <!-- SEARCH VIEW -->
-  <section id="view-search" style="display:grid;gap:18px">
-    <form class="panel intent" id="intentForm" autocomplete="off">
-      <div class="row">
-        <div class="field grow">
-          <label class="label" for="cmdInput">Commander</label>
-          <input type="text" id="cmdInput" list="cmdList" placeholder="Start typing a legendary creature">
-          <datalist id="cmdList"></datalist>
-        </div>
-        <div class="cmd" id="cmdShow"></div>
+  <section class="view" id="view-discover">
+    <div class="hero">
+      <button class="cmd-pill" id="cmdPill" type="button"></button>
+      <h2>What should this deck do?</h2>
+      <form class="spot" id="spot" role="search" autocomplete="off">
+        <svg width="20" height="20"><use href="#i-search"/></svg>
+        <input id="q" type="text" aria-label="Describe what you want, or type a card name" placeholder="Try “vampires that drain opponents” or a card name">
+        <button class="pill" id="goBtn" type="submit">Search</button>
+      </form>
+      <div class="steps" id="steps">
+        <span><b>1</b>Pick a commander</span><span><b>2</b>Describe your deck</span><span><b>3</b>Tap + to add cards</span>
+        <button class="x" id="stepsX" type="button" aria-label="Hide tips">×</button>
       </div>
-      <div class="field">
-        <label class="label" for="desc">Describe what you're after</label>
-        <textarea id="desc" placeholder="e.g. vampires that drain opponents and make tokens, cheap removal under $5"></textarea>
-      </div>
-      <div class="field">
-        <span class="label">Themes</span>
-        <div class="chips" id="themeChips"></div>
-      </div>
-      <div class="field">
-        <span class="label">Deck functions</span>
-        <div class="chips" id="funcChips"></div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label class="label" for="typeSel">Card type</label>
-          <select id="typeSel">
-            <option value="">Any</option><option>creature</option><option>instant</option><option>sorcery</option>
-            <option>artifact</option><option>enchantment</option><option>planeswalker</option><option>land</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="label" for="mvSel">Max mana value</label>
-          <select id="mvSel"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
-        </div>
-        <div class="field">
-          <label class="label" for="priceIn">Max price (USD)</label>
-          <input type="number" id="priceIn" min="0" step="0.5" placeholder="Any" style="width:110px">
-        </div>
-        <div class="field">
-          <label class="label" for="kwIn">Exact text on card</label>
-          <input type="text" id="kwIn" placeholder="e.g. whenever you attack" style="width:220px">
-        </div>
-        <button class="btn primary" type="submit" id="goBtn">Find cards</button>
-      </div>
-      <div class="readout" id="readout" hidden>
-        <div class="row" style="align-items:center"><span class="label">Read as</span><div class="chips" id="readChips"></div></div>
-        <div class="query"><code id="queryText"></code><a id="queryLink" href="#" target="_blank" rel="noopener">Open on Scryfall ↗</a></div>
-      </div>
-    </form>
+      <div class="tokens" id="tokens"></div>
+      <div class="quick" id="quick"></div>
+      <div class="query" id="query" hidden></div>
+    </div>
 
-    <section style="display:grid;gap:12px">
-      <div class="results-head"><h2 style="font-size:1.35rem">Results</h2><span class="status" id="status" role="status"></span></div>
+    <div class="orn" aria-hidden="true"><svg width="14" height="14"><use href="#i-gem"/></svg></div>
+
+    <section style="display:grid;gap:16px">
+      <div class="rhead"><h3 id="rTitle">Results</h3><span class="status" id="status" role="status"></span></div>
       <div class="grid" id="results"></div>
-      <div><button class="btn" id="moreBtn" hidden>Load more</button></div>
+      <div class="more"><button class="pill ghost" id="moreBtn" hidden>Show more</button></div>
     </section>
   </section>
 
-  <!-- PREDICT VIEW -->
-  <section id="view-predict" hidden style="display:grid;gap:18px">
-    <div class="panel" style="display:grid;gap:12px">
-      <div class="gap-head"><h2 style="font-size:1.35rem">Deck health</h2><button class="btn small" id="refreshPredict">Refresh suggestions</button></div>
-      <div class="health" id="health"></div>
-      <div id="themeRead" class="status"></div>
+  <section class="view" id="view-suggest" hidden>
+    <div class="shead">
+      <span class="eyebrow">Predictive add</span>
+      <h2 id="sTitle">Suggestions</h2>
+      <p class="muted" style="margin:0" id="sSub"></p>
+      <div class="leans" id="leans"></div>
+      <div><button class="pill ghost small" id="refreshBtn">Refresh suggestions</button></div>
     </div>
-    <div id="predictOut" style="display:grid;gap:26px"></div>
+    <div id="shelves" style="display:grid;gap:30px"></div>
   </section>
 </main>
 
-<aside id="deckPane">
-  <div class="banner" id="banner"><div class="cap"><span class="label">Commander</span><h2>None chosen</h2></div></div>
-  <div class="note" id="exampleNote" hidden>This is an example Edgar Markov deck so you can see how it works. Clear it to start your own.</div>
-  <div class="stats">
-    <div class="stat"><span class="label">Cards</span><b id="stCount">0/100</b></div>
-    <div class="stat"><span class="label">Avg MV</span><b id="stMv">–</b></div>
-    <div class="stat"><span class="label">Est. $</span><b id="stUsd">–</b></div>
+<aside id="deck" aria-label="Your deck">
+  <div class="panel">
+    <div id="dhead"></div>
+    <div class="dbody">
+      <div class="note" id="exNote" hidden>This is an example deck so you can see how everything works. <button class="linkbtn" id="exClear" style="padding:0">Start fresh</button></div>
+      <div class="stats">
+        <div class="stat"><b id="stCount">0</b><span>of 100 cards</span></div>
+        <div class="stat"><b id="stMv">–</b><span>avg mana value</span></div>
+        <div class="stat"><b id="stUsd">–</b><span>est. value</span></div>
+      </div>
+      <div><div class="sec-t"><span>Mana curve</span><span>nonland</span></div><div class="curve" id="curve"></div></div>
+      <div><div class="sec-t"><span>Essentials</span><span>vs. typical</span></div><div class="ess" id="ess"></div></div>
+      <div class="dacts">
+        <button class="linkbtn" id="importBtn">Import list</button>
+        <button class="linkbtn" id="copyBtn">Copy list</button>
+        <button class="linkbtn" id="clearBtn" style="color:var(--bad)">Clear</button>
+      </div>
+      <div id="list" style="display:grid;gap:14px"></div>
+    </div>
   </div>
-  <div>
-    <span class="label">Mana curve (nonland)</span>
-    <div class="curve" id="curve"></div>
-  </div>
-  <div class="actions">
-    <button class="btn small" id="importBtn">Import list</button>
-    <button class="btn small" id="copyBtn">Copy list</button>
-    <button class="btn small" id="clearBtn">Clear deck</button>
-  </div>
-  <div class="decklist" id="decklist"></div>
 </aside>
 </div>
 
-<dialog id="cardDlg"><div class="dlg">
-  <div><img id="dImg" alt=""><div style="margin-top:8px;text-align:center"><button class="btn small" id="dFlip" hidden>Flip card</button></div></div>
-  <div class="body">
-    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start"><h2 id="dName" style="font-size:1.5rem"></h2><button class="x" id="dClose" aria-label="Close" style="font-size:1.5rem">×</button></div>
+<dialog id="cardDlg" aria-label="Card details"><div class="detail">
+  <div style="display:grid;gap:10px;justify-items:center"><img id="dImg" alt=""><button class="pill ghost small" id="dFlip" hidden>Flip card</button></div>
+  <div class="info">
+    <div class="sheet-h" style="align-items:start"><h3 id="dName"></h3><button class="close" id="dClose" aria-label="Close">×</button></div>
     <div id="dCost"></div>
-    <div class="label" id="dType" style="text-transform:none;letter-spacing:0;font-size:.95rem"></div>
+    <div class="typel" id="dType"></div>
     <div class="oracle" id="dText"></div>
     <div class="kv" id="dKv"></div>
-    <div class="why" id="dWhy"></div>
-    <div class="actions"><button class="btn primary" id="dAdd">Add to deck</button><a class="btn" id="dLink" target="_blank" rel="noopener" style="text-decoration:none">View on Scryfall ↗</a></div>
+    <div class="whylist" id="dWhy"></div>
+    <div class="dacts2"><button class="pill" id="dAdd">Add to deck</button><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a></div>
   </div>
 </div></dialog>
 
-<dialog id="importDlg"><form class="plain" method="dialog" id="importForm">
-  <h2 style="font-size:1.3rem">Import a decklist</h2>
-  <p style="margin:0;color:var(--muted)">One card per line, like <span class="mono">1 Sol Ring</span>. Set codes and collector numbers are ignored. Imported cards are added to what's already in the deck.</p>
-  <textarea id="importText" rows="12" style="font-family:var(--f-mono);font-size:.85rem"></textarea>
-  <div class="actions"><button class="btn primary" value="import" id="importGo">Import</button><button class="btn" value="cancel">Cancel</button></div>
-</form></dialog>
-
-<dialog id="confirmDlg"><form class="plain" method="dialog">
-  <h2 style="font-size:1.3rem" id="confirmTitle">Clear the deck?</h2>
-  <p style="margin:0;color:var(--muted)" id="confirmBody">This removes every card and the commander.</p>
-  <div class="actions"><button class="btn primary" value="yes">Clear deck</button><button class="btn" value="no">Keep it</button></div>
-</form></dialog>
-
-<dialog id="copyDlg"><div class="plain">
-  <h2 style="font-size:1.3rem">Your decklist</h2>
-  <p style="margin:0;color:var(--muted)">Select all and copy.</p>
-  <textarea id="copyText" rows="14" readonly style="font-family:var(--f-mono);font-size:.85rem"></textarea>
-  <div class="actions"><button class="btn" id="copyClose">Done</button></div>
+<dialog id="cmdDlg" aria-label="Choose a commander"><div class="sheet">
+  <div class="sheet-h"><h3>Choose your commander</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <input class="input" id="cmdQ" type="text" placeholder="Search legendary creatures by name or ability" aria-label="Search commanders" autocomplete="off">
+  <div class="status" id="cmdStatus">Most popular commanders</div>
+  <div class="cmdgrid" id="cmdGrid"></div>
 </div></dialog>
 
-<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+<dialog id="filtDlg" aria-label="Filters"><form class="sheet" id="filtForm" method="dialog">
+  <div class="sheet-h"><h3>Filters</h3><button class="close" value="cancel" aria-label="Close">×</button></div>
+  <div class="field"><span class="lbl">Themes</span><div class="chips" id="fThemes"></div></div>
+  <div class="field"><span class="lbl">What the card does</span><div class="chips" id="fRoles"></div></div>
+  <div class="frow">
+    <div class="field"><span class="lbl">Card type</span><div class="minis" id="fType"></div></div>
+    <div class="field"><span class="lbl">Max mana value</span><div class="minis" id="fMv"></div></div>
+  </div>
+  <div class="frow">
+    <div class="field"><label for="fPrice">Max price (USD)</label><input class="input" id="fPrice" type="number" min="0" step="0.5" placeholder="No limit"></div>
+    <div class="field"><label for="fText">Card text contains</label><input class="input" id="fText" type="text" placeholder="e.g. whenever you attack"></div>
+  </div>
+  <div class="dacts2" style="justify-content:flex-end"><button class="pill ghost" value="reset" type="button" id="fReset">Reset</button><button class="pill" value="apply">Show results</button></div>
+</form></dialog>
+
+<dialog id="importDlg" aria-label="Import a decklist"><form class="sheet" method="dialog">
+  <div class="sheet-h"><h3>Import a decklist</h3><button class="close" value="cancel" aria-label="Close">×</button></div>
+  <p class="muted" style="margin:0">Paste one card per line, like “1 Sol Ring”. Exports from Moxfield or Archidekt work too. Cards are added to your current deck.</p>
+  <textarea class="input" id="importText" rows="12"></textarea>
+  <div class="dacts2" style="justify-content:flex-end"><button class="pill ghost" value="cancel">Cancel</button><button class="pill" value="import">Import</button></div>
+</form></dialog>
+
+<dialog id="confirmDlg" aria-label="Clear deck" style="width:min(420px,calc(100vw - 32px))"><form class="sheet" method="dialog">
+  <h3 style="font:600 1.2rem var(--f-body)">Clear this deck?</h3>
+  <p class="muted" style="margin:0">This removes every card and your commander.</p>
+  <div class="dacts2" style="justify-content:flex-end"><button class="pill ghost" value="no">Keep it</button><button class="pill" value="yes" style="background:var(--bad);color:#fff">Clear deck</button></div>
+</form></dialog>
+
+<dialog id="copyDlg" aria-label="Your decklist"><div class="sheet">
+  <div class="sheet-h"><h3>Your decklist</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <p class="muted" style="margin:0">Select all and copy.</p>
+  <textarea class="input" id="copyText" rows="14" readonly></textarea>
+</div></dialog>
+
+<div class="toast" id="toast" hidden role="status" aria-live="polite"><svg width="16" height="16"><use href="#i-check"/></svg><span id="toastT"></span></div>
 
 <script>
+
 /* ======================= Intent dictionaries ======================= */
 // Each entry has: words (what a person might type), q (Scryfall query fragment), re (same idea, tested locally against card text).
 const FUNCS = {
-  ramp:{label:'Ramp',target:10,words:['ramp','mana rocks','mana rock','accelerate','fast mana','mana dorks','extra mana'],
+  ramp:{label:'Ramp',target:10,words:['ramp','make mana','makes mana','tons of mana','lots of mana','mana production','mana rocks','mana rock','accelerate','fast mana','mana dorks','extra mana'],
     q:'(o:"add {" or o:"create a treasure" or (o:"search your library" o:"land card" o:"onto the battlefield")) -t:land',
     re:/add \{|add (one|two|three) mana|add mana|create (a|two|three) treasure|search your library for (a|up to \w+) basic land.*onto the battlefield|put (a|that|up to one) land card.*onto the battlefield/s},
   draw:{label:'Card draw',target:10,words:['card draw','draw','card advantage','refill','draw engine'],
@@ -399,6 +563,7 @@ function buildQuery(st){
   if(themeQ.length) parts.push('('+themeQ.map(x=>'('+x+')').join(' or ')+')');
   const fq = st.funcs.map(k=>FUNCS[k].q);
   if(fq.length) parts.push('('+fq.map(x=>'('+x+')').join(' or ')+')');
+  if(st.free){ const w = st.free.replace(/["():<>=!]/g,' ').replace(/\s+/g,' ').trim(); if(w) parts.push('('+w+' or o:"'+w+'")'); }
   return parts.join(' ');
 }
 
@@ -453,346 +618,468 @@ async function sf(pathOrUrl, opts={}){
 }
 const searchCards = (q, order='edhrec') => sf('/cards/search?order='+order+'&unique=cards&q='+encodeURIComponent(q));
 
+
 /* ======================= State ======================= */
 const state = {
-  view:'search',
-  intent:{themes:[], funcs:[], tribe:null, type:'', mv:'', price:'', phrase:''},
-  lastParsed:'',
+  view:'discover',
+  intent:{themes:[], funcs:[], tribe:null, type:'', mv:'', price:'', phrase:'', free:''},
   results:[], next:null,
   deck:{commander:null, cards:[]},
-  example:false, predictDirty:true,
+  example:false, predictDirty:true, tipsHidden:false,
 };
 const KEY = 'deckwright.v1';
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({deck:state.deck, example:state.example})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({deck:state.deck, example:state.example, tipsHidden:state.tipsHidden})); }catch(e){} }
 function load(){ try{ const j = JSON.parse(localStorage.getItem(KEY)||'null'); if(j && j.deck) return j; }catch(e){} return null; }
 
-/* ======================= DOM helpers ======================= */
+/* ======================= Helpers ======================= */
 const $ = s => document.querySelector(s);
 const h = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const syms = s => h(s).replace(/\{([^}]+)\}/g,'<span class="sym">$1</span>');
 const pips = ci => '<span class="pips">'+(ci.length?ci:['C']).map(c=>`<i class="pip ${c}" title="${c}"></i>`).join('')+'</span>';
-const money = n => n==null ? '–' : '$'+n.toFixed(2);
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2200); }
+const money = n => n==null ? '—' : '$'+n.toFixed(2);
+const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
+const gem = (w=12) => `<svg width="${w}" height="${w}" aria-hidden="true"><use href="#i-gem"/></svg>`;
+function toast(msg){ $('#toastT').textContent=msg; const t=$('#toast'); t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2200); }
+document.addEventListener('click',e=>{ const c=e.target.closest('[data-close]'); if(c) c.closest('dialog').close(); });
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{ if(e.target===d) d.close(); }));
 
-/* ======================= Chips ======================= */
-function renderChips(){
-  $('#themeChips').innerHTML =
-    (state.intent.tribe ? `<button type="button" class="chip tribe" aria-pressed="true" data-tribe="1" title="Remove tribe">Tribe: ${h(state.intent.tribe)} ×</button>` : '') +
-    Object.entries(THEMES).map(([k,v])=>`<button type="button" class="chip" data-theme="${k}" aria-pressed="${state.intent.themes.includes(k)}">${v.label}</button>`).join('');
-  $('#funcChips').innerHTML = Object.entries(FUNCS).map(([k,v])=>`<button type="button" class="chip" data-func="${k}" aria-pressed="${state.intent.funcs.includes(k)}">${v.label}</button>`).join('');
-}
-function toggle(arr,k){ const i=arr.indexOf(k); i>=0?arr.splice(i,1):arr.push(k); }
-$('#themeChips').addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.tribe) state.intent.tribe=null; else toggle(state.intent.themes,b.dataset.theme);
-  renderChips(); runSearch();
-});
-$('#funcChips').addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b) return;
-  toggle(state.intent.funcs,b.dataset.func); renderChips(); runSearch();
-});
-['typeSel','mvSel'].forEach(id=>$('#'+id).addEventListener('change',()=>runSearch()));
-
-/* ======================= Search ======================= */
-function readForm(){
-  const desc = $('#desc').value.trim();
-  const readBits = [];
-  if(desc && desc!==state.lastParsed){
-    const p = parseDescription(desc);
-    p.themes.forEach(k=>{ if(!state.intent.themes.includes(k)) state.intent.themes.push(k); });
-    p.funcs.forEach(k=>{ if(!state.intent.funcs.includes(k)) state.intent.funcs.push(k); });
-    if(p.tribe) state.intent.tribe = p.tribe;
-    if(p.type) $('#typeSel').value = p.type;
-    if(p.mv) $('#mvSel').value = String(p.mv);
-    if(p.price) $('#priceIn').value = p.price;
-    if(p.phrase) $('#kwIn').value = p.phrase;
-    state.lastParsed = desc;
-    if(p.tribe) readBits.push('Tribe: '+p.tribe);
-    p.themes.forEach(k=>readBits.push(THEMES[k].label));
-    p.funcs.forEach(k=>readBits.push(FUNCS[k].label));
-    if(p.type) readBits.push('Type: '+p.type);
-    if(p.mv) readBits.push('MV ≤ '+p.mv);
-    if(p.price) readBits.push('≤ $'+p.price);
-    if(p.phrase) readBits.push('Text: "'+p.phrase+'"');
-    state.readBits = readBits.length ? readBits : ['No themes recognized, so this is a broad search'];
-    renderChips();
-  }
-  state.intent.type = $('#typeSel').value;
-  state.intent.mv = $('#mvSel').value;
-  state.intent.price = $('#priceIn').value;
-  state.intent.phrase = $('#kwIn').value.trim();
-}
-
+/* ======================= Scoring & analysis ======================= */
 function scoreCard(c, ctx){
   const t = ctext(c); const why = []; let s = 0;
-  const intentThemes = ctx.themes||[], intentFuncs = ctx.funcs||[];
-  for(const k of intentThemes) if(THEMES[k].re.test(t)){ s+=3; why.push(['t',THEMES[k].label]); }
-  if(ctx.tribe && (c.type.toLowerCase().includes(ctx.tribe) || t.includes(ctx.tribe))){ s+=3; why.push(['t',ctx.tribe[0].toUpperCase()+ctx.tribe.slice(1)]); }
-  const roles = rolesOf(c);
-  for(const k of roles){
-    if(intentFuncs.includes(k)){ s+=3; why.push(['',FUNCS[k].label]); }
-    else if(ctx.gaps && ctx.gaps.includes(k)){ s+=2; why.push(['g','Fills gap: '+FUNCS[k].label]); }
+  const th = ctx.themes||[], fn = ctx.funcs||[];
+  for(const k of th) if(THEMES[k].re.test(t)){ s+=3; why.push({k:'t', s:THEMES[k].label, long:'Matches your '+THEMES[k].label.toLowerCase()+' theme'}); }
+  if(ctx.tribe && (c.type.toLowerCase().includes(ctx.tribe) || t.includes(ctx.tribe))){ s+=3; why.push({k:'t', s:cap(ctx.tribe), long:'Fits your '+ctx.tribe+' tribe'}); }
+  for(const r of rolesOf(c)){
+    if(fn.includes(r)){ s+=3; why.push({k:'', s:FUNCS[r].label, long:'It’s '+FUNCS[r].label.toLowerCase()+', which you asked for'}); }
+    else if(ctx.gaps && ctx.gaps.includes(r)){ s+=2; why.push({k:'g', s:'Adds '+FUNCS[r].label.toLowerCase(), long:'Your deck is short on '+FUNCS[r].label.toLowerCase()}); }
   }
-  for(const k of (ctx.deckThemes||[])) if(!intentThemes.includes(k) && THEMES[k].re.test(t)){ s+=1.5; why.push(['','Fits your '+THEMES[k].label.toLowerCase()]); }
-  if(c.rank){ s += Math.max(0, 4.5-Math.log10(c.rank)); if(c.rank<=1500) why.push(['','EDHREC #'+c.rank.toLocaleString()]); }
+  for(const k of (ctx.deckThemes||[])) if(!th.includes(k) && THEMES[k].re.test(t)){ s+=1.5; why.push({k:'', s:'Fits your deck', long:'Supports the '+THEMES[k].label.toLowerCase()+' cards already in your deck'}); }
+  if(c.rank){ s += Math.max(0, 4.5-Math.log10(c.rank)); if(c.rank<=1500) why.push({k:'', s:'Popular', long:'Ranked #'+c.rank.toLocaleString()+' on EDHREC'}); }
   return {score:s, why};
 }
-
 function deckAnalysis(){
   const counts = {land:0}; Object.keys(FUNCS).forEach(k=>counts[k]=0);
-  const themeCounts = {}; const tribeCounts = {};
+  const themeCounts = {}, tribeCounts = {};
+  const tally = (c,w) => {
+    themesOf(c).forEach(k=>themeCounts[k]=(themeCounts[k]||0)+w);
+    const sub = front(c).split('—')[1];
+    if(/Creature/.test(front(c)) && sub) sub.trim().toLowerCase().split(/\s+/).forEach(x=>{ if(TRIBES.includes(x)) tribeCounts[x]=(tribeCounts[x]||0)+w; });
+  };
   for(const c of state.deck.cards){
     for(const r of rolesOf(c)) counts[r] += (r==='land'?c.qty:1);
-    if(!isLand(c)){
-      themesOf(c).forEach(k=>themeCounts[k]=(themeCounts[k]||0)+1);
-      const sub = front(c).split('—')[1];
-      if(/Creature/.test(front(c)) && sub) sub.trim().toLowerCase().split(/\s+/).forEach(w=>{ if(TRIBES.includes(w)) tribeCounts[w]=(tribeCounts[w]||0)+1; });
-    }
+    if(!isLand(c)) tally(c,1);
   }
-  if(state.deck.commander){
-    themesOf(state.deck.commander).forEach(k=>themeCounts[k]=(themeCounts[k]||0)+2);
-    const sub = front(state.deck.commander).split('—')[1];
-    if(sub) sub.trim().toLowerCase().split(/\s+/).forEach(w=>{ if(TRIBES.includes(w)) tribeCounts[w]=(tribeCounts[w]||0)+2; });
-  }
-  const gaps = Object.keys(FUNCS).filter(k=>counts[k]<FUNCS[k].target)
-    .sort((a,b)=>(counts[a]/FUNCS[a].target)-(counts[b]/FUNCS[b].target));
+  if(state.deck.commander) tally(state.deck.commander,2);
+  const gaps = Object.keys(FUNCS).filter(k=>counts[k]<FUNCS[k].target).sort((a,b)=>(counts[a]/FUNCS[a].target)-(counts[b]/FUNCS[b].target));
   const deckThemes = Object.entries(themeCounts).filter(([,n])=>n>=3).sort((a,b)=>b[1]-a[1]).map(([k])=>k).slice(0,3);
-  const topTribe = Object.entries(tribeCounts).sort((a,b)=>b[1]-a[1])[0];
-  return {counts, gaps, deckThemes, themeCounts, tribe: topTribe && topTribe[1]>=4 ? topTribe[0] : null};
+  const tt = Object.entries(tribeCounts).sort((a,b)=>b[1]-a[1])[0];
+  return {counts, gaps, deckThemes, themeCounts, tribe: tt && tt[1]>=4 ? tt[0] : null};
 }
 
-let searchSeq = 0;
+/* ======================= Discover: search bar → intent ======================= */
+function applyDescription(raw){
+  const p = parseDescription(raw);
+  const recognized = p.themes.length || p.funcs.length || p.tribe || p.type || p.mv || p.price || p.phrase;
+  state.intent = {themes:p.themes, funcs:p.funcs, tribe:p.tribe, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||'', free: recognized ? '' : raw.trim()};
+}
+$('#spot').addEventListener('submit',e=>{
+  e.preventDefault();
+  const v = $('#q').value.trim(); if(!v) { runSearch(); return; }
+  applyDescription(v);
+  $('#q').value=''; $('#q').placeholder='Search again, or refine with the filters below';
+  renderIntent(); runSearch();
+});
+
+function intentTokens(){
+  const i = state.intent, t = [];
+  if(i.free) t.push({cls:'', label:'“'+i.free+'”', rm:()=>i.free=''});
+  if(i.tribe) t.push({cls:'theme', label:plural(i.tribe), rm:()=>i.tribe=null});
+  i.themes.forEach(k=>t.push({cls:'theme', label:THEMES[k].label, rm:()=>i.themes=i.themes.filter(x=>x!==k)}));
+  i.funcs.forEach(k=>t.push({cls:'role', label:FUNCS[k].label, rm:()=>i.funcs=i.funcs.filter(x=>x!==k)}));
+  if(i.type) t.push({cls:'', label:cap(i.type)+'s only', rm:()=>i.type=''});
+  if(i.mv) t.push({cls:'', label:'Mana value ≤ '+i.mv, rm:()=>i.mv=''});
+  if(i.price) t.push({cls:'', label:'Under $'+i.price, rm:()=>i.price=''});
+  if(i.phrase) t.push({cls:'', label:'Text: “'+i.phrase+'”', rm:()=>i.phrase=''});
+  return t;
+}
+let tokRm = [];
+function renderIntent(){
+  const toks = intentTokens(); tokRm = toks.map(t=>t.rm);
+  $('#tokens').innerHTML =
+    toks.map((t,n)=>`<span class="tok ${t.cls}">${h(t.label)}<button type="button" data-tok="${n}" aria-label="Remove ${h(t.label)}">×</button></span>`).join('') +
+    `<button class="linkbtn" type="button" id="openFilters"><svg width="14" height="14" style="vertical-align:-2px;margin-right:4px"><use href="#i-sliders"/></svg>Filters</button>` +
+    (toks.length ? `<button class="linkbtn" type="button" id="clearIntent" style="color:var(--muted)">Clear all</button>` : '');
+  // quick chips: the four core roles + whatever the deck leans toward
+  const an = deckAnalysis();
+  const quickThemes = Array.from(new Set(an.deckThemes)).filter(k=>!state.intent.themes.includes(k)).slice(0,3);
+  $('#quick').innerHTML = `<span class="lbl">Quick picks</span>` +
+    ['ramp','draw','removal','wipe'].map(k=>`<button class="chip" type="button" data-qf="${k}" aria-pressed="${state.intent.funcs.includes(k)}">${FUNCS[k].label}</button>`).join('') +
+    quickThemes.map(k=>`<button class="chip" type="button" data-qt="${k}" aria-pressed="false">${THEMES[k].label}</button>`).join('');
+}
+$('#tokens').addEventListener('click',e=>{
+  const b = e.target.closest('[data-tok]'); if(b){ tokRm[+b.dataset.tok](); renderIntent(); runSearch(); return; }
+  if(e.target.closest('#openFilters')) openFilters();
+  if(e.target.closest('#clearIntent')){ state.intent={themes:[],funcs:[],tribe:null,type:'',mv:'',price:'',phrase:'',free:''}; renderIntent(); runSearch(); }
+});
+$('#quick').addEventListener('click',e=>{
+  const f=e.target.closest('[data-qf]'), t=e.target.closest('[data-qt]');
+  if(f){ const k=f.dataset.qf, a=state.intent.funcs; a.includes(k)?a.splice(a.indexOf(k),1):a.push(k); }
+  else if(t){ state.intent.themes.push(t.dataset.qt); }
+  else return;
+  renderIntent(); runSearch();
+});
+$('#stepsX').addEventListener('click',()=>{ state.tipsHidden=true; $('#steps').hidden=true; save(); });
+
+/* ======================= Filters sheet ======================= */
+const TYPES = ['','creature','instant','sorcery','artifact','enchantment','planeswalker','land'];
+const MVS = ['','1','2','3','4','5','6'];
+let draft;
+function renderFilters(){
+  $('#fThemes').innerHTML = (draft.tribe?`<button type="button" class="chip" aria-pressed="true" data-ftribe="1">${h(plural(draft.tribe))} ×</button>`:'') +
+    Object.entries(THEMES).map(([k,v])=>`<button type="button" class="chip" data-ft="${k}" aria-pressed="${draft.themes.includes(k)}">${v.label}</button>`).join('');
+  $('#fRoles').innerHTML = Object.entries(FUNCS).map(([k,v])=>`<button type="button" class="chip" data-fr="${k}" aria-pressed="${draft.funcs.includes(k)}">${v.label}</button>`).join('');
+  $('#fType').innerHTML = TYPES.map(t=>`<button type="button" data-fy="${t}" aria-pressed="${draft.type===t}">${t?cap(t):'Any'}</button>`).join('');
+  $('#fMv').innerHTML = MVS.map(m=>`<button type="button" data-fm="${m}" aria-pressed="${draft.mv===m}">${m||'Any'}</button>`).join('');
+  $('#fPrice').value = draft.price; $('#fText').value = draft.phrase;
+}
+function openFilters(){ draft = JSON.parse(JSON.stringify(state.intent)); renderFilters(); $('#filtDlg').showModal(); }
+$('#filtForm').addEventListener('click',e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  const tg = (arr,k)=>arr.includes(k)?arr.splice(arr.indexOf(k),1):arr.push(k);
+  if(b.dataset.ft){ tg(draft.themes,b.dataset.ft); }
+  else if(b.dataset.ftribe){ draft.tribe=null; }
+  else if(b.dataset.fr){ tg(draft.funcs,b.dataset.fr); }
+  else if(b.dataset.fy!=null){ draft.type=b.dataset.fy; }
+  else if(b.dataset.fm!=null){ draft.mv=b.dataset.fm; }
+  else if(b.id==='fReset'){ draft={themes:[],funcs:[],tribe:null,type:'',mv:'',price:'',phrase:'',free:draft.free}; }
+  else return;
+  draft.price=$('#fPrice').value; draft.phrase=$('#fText').value.trim();
+  renderFilters();
+});
+$('#filtDlg').addEventListener('close',()=>{
+  if($('#filtDlg').returnValue!=='apply') return;
+  draft.price=$('#fPrice').value; draft.phrase=$('#fText').value.trim();
+  state.intent=draft; renderIntent(); runSearch();
+});
+
+/* ======================= Search ======================= */
+const cache = new Map();
+const inDeck = c => state.deck.cards.some(x=>x.name===c.name) || (state.deck.commander && state.deck.commander.name===c.name);
+let seqS = 0;
 async function runSearch(append=false){
-  readForm();
   const st = Object.assign({commander:state.deck.commander}, state.intent);
   const q = buildQuery(st);
-  $('#readout').hidden = false;
-  $('#readChips').innerHTML = (state.readBits||['Using your selected chips and filters']).map(b=>`<span>${h(b)}</span>`).join('');
-  $('#queryText').textContent = q;
-  $('#queryLink').href = 'https://scryfall.com/search?order=edhrec&q='+encodeURIComponent(q);
-  const seq = ++searchSeq;
-  $('#status').className='status'; $('#status').textContent='Searching…';
+  $('#query').innerHTML = `${h(q)} &nbsp;<a href="https://scryfall.com/search?order=edhrec&q=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open on Scryfall ↗</a>`;
+  const seq = ++seqS;
+  $('#status').className='status';
+  if(!append){ $('#status').textContent='Searching…'; $('#results').innerHTML = Array(8).fill('<div class="card"><div class="skel"></div></div>').join(''); }
   $('#goBtn').disabled = true;
   try{
     const j = append && state.next ? await sf(state.next) : await searchCards(q);
-    if(seq!==searchSeq) return;
+    if(seq!==seqS) return;
     const an = deckAnalysis();
     const ctx = {themes:st.themes, funcs:st.funcs, tribe:st.tribe, gaps:an.gaps, deckThemes:an.deckThemes};
     const fresh = (j.data||[]).map(cardLite).map(c=>Object.assign(c, scoreCard(c,ctx)));
-    state.results = append ? state.results.concat(fresh) : fresh;
-    state.results.sort((a,b)=>b.score-a.score);
+    state.results = (append ? state.results.concat(fresh) : fresh).sort((a,b)=>b.score-a.score);
     state.next = j.has_more ? j.next_page : null;
-    $('#status').textContent = j.not_found || !state.results.length ? 'No cards match. Try removing a filter or a chip.' : `${(j.total_cards||state.results.length).toLocaleString()} matches · showing ${state.results.length}, best fit first`;
+    const total = j.total_cards||state.results.length;
+    $('#rTitle').textContent = state.intent.free ? 'Cards matching “'+state.intent.free+'”' : intentTokens().length ? 'Best matches' : 'Commander staples in your colors';
+    $('#status').textContent = state.results.length ? `${total.toLocaleString()} cards · best fit first` : '';
     renderResults();
   }catch(err){
-    if(seq!==searchSeq) return;
-    $('#status').className='status err'; $('#status').textContent = err.message;
-  }finally{ if(seq===searchSeq) $('#goBtn').disabled=false; }
+    if(seq!==seqS) return;
+    $('#results').innerHTML=''; $('#status').className='status err'; $('#status').textContent = err.message;
+  }finally{ if(seq===seqS) $('#goBtn').disabled=false; }
 }
-$('#intentForm').addEventListener('submit',e=>{ e.preventDefault(); runSearch(); });
 $('#moreBtn').addEventListener('click',()=>runSearch(true));
 
-const inDeck = c => state.deck.cards.some(x=>x.name===c.name) || (state.deck.commander && state.deck.commander.name===c.name);
-const cache = new Map();
-function tile(c){
+function tile(c, i){
   cache.set(c.id,c);
-  const added = inDeck(c);
+  const added = inDeck(c) && !multiOk(c);
+  const reasons = (c.why||[]).slice(0,3).map(w=>w.k?`<span class="${w.k}">${h(w.s)}</span>`:h(w.s)).join(' · ');
   return `<div class="card">
-    <button class="art" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}${c.score!=null?`<span class="fit">fit ${c.score.toFixed(1)}</span>`:''}</button>
-    <div class="meta"><span class="name">${h(c.name)}</span><button class="add ${added?'in':''}" data-add="${c.id}">${added?'In deck':'+ Add'}</button></div>
-    <div class="meta"><span class="mono" style="font-size:.8rem;color:var(--muted)">MV ${c.mv} · ${money(c.usd)}</span></div>
-    <div class="why">${(c.why||[]).slice(0,4).map(([cls,t])=>`<span class="${cls}">${h(t)}</span>`).join('')}</div>
+    <div class="artwrap">
+      <button class="art" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>
+      ${i!=null && i<3 && c.score>=6 ? `<span class="top">${gem(9)} TOP PICK</span>`:''}
+      <button class="plus ${added?'in':''}" data-add="${c.id}" aria-label="${added?h(c.name)+' is in your deck':'Add '+h(c.name)}">${added?'<svg width="16" height="16"><use href="#i-check"/></svg>':'+'}</button>
+    </div>
+    <div class="cname">${h(c.name)}</div>
+    <div class="csub num">MV ${c.mv} · ${money(c.usd)}</div>
+    ${reasons?`<div class="reason">${reasons}</div>`:''}
   </div>`;
 }
 function renderResults(){
-  $('#results').innerHTML = state.results.map(tile).join('');
+  if(!state.results.length){
+    $('#results').innerHTML = `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">Nothing matches all of that</b><span>Try removing a filter above, or describe it a different way.</span></div>`;
+  } else $('#results').innerHTML = state.results.map((c,i)=>tile(c,i)).join('');
   $('#moreBtn').hidden = !state.next;
 }
 document.addEventListener('click',e=>{
   const o = e.target.closest('[data-open]'); if(o){ openCard(cache.get(o.dataset.open)); return; }
-  const a = e.target.closest('[data-add]'); if(a){ const c = cache.get(a.dataset.add); if(c && !inDeck(c)) addCard(c); else if(c && multiOk(c)) addCard(c); }
+  const a = e.target.closest('[data-add]'); if(a){
+    const c = cache.get(a.dataset.add); if(!c) return;
+    if(inDeck(c) && !multiOk(c)) removeCard(c.name, true); else addCard(c);
+  }
 });
 
 /* ======================= Deck ops ======================= */
 function addCard(c, qty=1, quiet=false){
-  if(state.example){ state.example=false; }
   const ex = state.deck.cards.find(x=>x.name===c.name);
-  if(ex){ if(multiOk(ex)) ex.qty+=qty; else { if(!quiet) toast(c.name+' is already in the deck'); return; } }
+  if(ex){ if(multiOk(ex)) ex.qty+=qty; else return; }
   else { const {score,why,...lite} = c; state.deck.cards.push(Object.assign({}, lite, {qty: multiOk(c)?qty:1})); }
-  if(!quiet){ toast('Added '+c.name); }
+  if(!quiet){ state.example=false; toast('Added '+c.name); }
   deckChanged();
 }
-function removeCard(name){
+function removeCard(name, all=false){
   const i = state.deck.cards.findIndex(x=>x.name===name); if(i<0) return;
-  const c = state.deck.cards[i]; if(c.qty>1) c.qty--; else state.deck.cards.splice(i,1);
+  const c = state.deck.cards[i]; if(c.qty>1 && !all) c.qty--; else state.deck.cards.splice(i,1);
+  state.example=false; toast('Removed '+name);
   deckChanged();
 }
 function setCommander(c){
   const {score,why,...lite} = c;
   state.deck.commander = lite;
   state.deck.cards = state.deck.cards.filter(x=>x.name!==c.name);
-  $('#cmdInput').value = c.name;
   deckChanged();
 }
+function syncButtons(){
+  document.querySelectorAll('[data-add]').forEach(b=>{
+    const c=cache.get(b.dataset.add); if(!c) return;
+    const inn = inDeck(c) && !multiOk(c);
+    b.classList.toggle('in',inn);
+    b.innerHTML = inn ? '<svg width="16" height="16"><use href="#i-check"/></svg>' : '+';
+    b.setAttribute('aria-label', inn ? c.name+' is in your deck' : 'Add '+c.name);
+  });
+}
 function deckChanged(){
-  state.predictDirty = true; save(); renderDeck(); renderCmd();
-  // refresh "In deck" buttons in place
-  document.querySelectorAll('[data-add]').forEach(b=>{ const c=cache.get(b.dataset.add); if(!c) return; const inn=inDeck(c); b.classList.toggle('in',inn); b.textContent=inn?(multiOk(c)?'+ Add':'In deck'):'+ Add'; });
-  if(state.view==='predict') runPredict();
+  state.predictDirty = true; save(); renderDeck(); renderCmdPill(); renderIntent(); syncButtons();
+  if(state.view==='suggest') runPredict();
 }
 const TYPE_ORDER = ['Creature','Planeswalker','Instant','Sorcery','Artifact','Enchantment','Battle','Land'];
-function groupOf(c){ const f=front(c); if(/Land/.test(f)) return 'Land'; return TYPE_ORDER.find(t=>f.includes(t)) || 'Other'; }
+const groupOf = c => { const f=front(c); if(/Land/.test(f)) return 'Land'; return TYPE_ORDER.find(t=>f.includes(t)) || 'Other'; };
+function ring(n,t){
+  const pct = Math.min(100, n/t*100), col = n>=t ? 'var(--good)' : n===0 ? 'var(--bad)' : 'var(--gold)';
+  return `<svg width="30" height="30" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" fill="none" stroke="var(--line)" stroke-width="4"/>${n>0?`<circle cx="18" cy="18" r="14" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="${pct} 100" transform="rotate(-90 18 18)"/>`:''}${n>=t?`<path d="M12.5 18.5 16.5 22 23.5 14.5" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`:''}</svg>`;
+}
 function renderDeck(){
   const d = state.deck, cmd = d.commander;
-  $('#banner').innerHTML = (cmd && cmd.art ? `<img src="${h(cmd.art)}" alt="">` : '') +
-    `<div class="cap"><span class="label">Commander</span><h2>${cmd?h(cmd.name):'None chosen'}</h2>${cmd?pips(cmd.ci):''}</div>`;
-  $('#exampleNote').hidden = !state.example;
+  $('#dhead').innerHTML = cmd
+    ? `<div class="dhead">${cmd.art?`<img src="${h(cmd.art)}" alt="">`:''}<div class="cap"><div style="min-width:0"><span class="eyebrow">Commander</span><h3>${h(cmd.name)}</h3><div style="margin-top:6px">${pips(cmd.ci)}</div></div><button class="pill small" data-cmd>Change</button></div></div>`
+    : `<div class="dhead none">${gem(26)}<b>No commander yet</b><span class="muted" style="font-size:.88rem">Your commander sets the colors every search stays inside.</span><button class="pill small" data-cmd>Choose a commander</button></div>`;
+  $('#exNote').hidden = !state.example;
   const total = d.cards.reduce((n,c)=>n+c.qty,0) + (cmd?1:0);
-  $('#stCount').textContent = total+'/100';
-  $('#stCount').style.color = total>100 ? 'var(--bad)' : '';
-  $('#tabCount').textContent = total;
+  $('#stCount').textContent = total; $('#stCount').style.color = total>100?'var(--bad)':'';
+  $('#tabCount').textContent = total; $('#navCount').textContent = total+' / 100 cards';
   const spells = d.cards.filter(c=>!isLand(c));
   $('#stMv').textContent = spells.length ? (spells.reduce((n,c)=>n+c.mv,0)/spells.length).toFixed(2) : '–';
-  const usd = d.cards.reduce((n,c)=>n+(c.usd||0)*c.qty,0) + (cmd&&cmd.usd||0);
-  $('#stUsd').textContent = usd ? Math.round(usd).toLocaleString() : '–';
-  const buckets = Array(8).fill(0); spells.forEach(c=>buckets[Math.min(7,Math.floor(c.mv))]++);
-  const mx = Math.max(1,...buckets);
-  $('#curve').innerHTML = buckets.map((n,i)=>`<div title="${n} card${n===1?'':'s'} at MV ${i}${i===7?'+':''}"><span>${n||''}</span><i style="height:${(n/mx)*48}px"></i><span>${i===7?'7+':i}</span></div>`).join('');
-  const groups = {};
-  d.cards.forEach(c=>{ (groups[groupOf(c)] ||= []).push(c); });
+  const usd = d.cards.reduce((n,c)=>n+(c.usd||0)*c.qty,0) + ((cmd&&cmd.usd)||0);
+  $('#stUsd').textContent = usd ? '$'+Math.round(usd).toLocaleString() : '–';
+  const b = Array(8).fill(0); spells.forEach(c=>b[Math.min(7,Math.floor(c.mv))]++);
+  const mx = Math.max(1,...b);
+  $('#curve').innerHTML = b.map((n,i)=>`<div title="${n} at mana value ${i}${i===7?'+':''}"><span>${n||''}</span><i style="height:${n/mx*50}px"></i><span>${i===7?'7+':i}</span></div>`).join('');
+  const an = deckAnalysis();
+  $('#ess').innerHTML = Object.entries(FUNCS).map(([k,v])=>`<div class="ring">${ring(an.counts[k],v.target)}<div><b>${v.label}</b><span>${an.counts[k]} of ${v.target}</span></div></div>`).join('') +
+    `<div class="ring">${ring(an.counts.land,36)}<div><b>Lands</b><span>${an.counts.land} of 36</span></div></div>`;
+  const groups = {}; d.cards.forEach(c=>(groups[groupOf(c)] ||= []).push(c));
   const order = TYPE_ORDER.concat(['Other']).filter(g=>groups[g]);
-  $('#decklist').innerHTML = order.length ? order.map(g=>{
+  $('#list').innerHTML = order.length ? order.map(g=>{
     const list = groups[g].sort((a,b)=>a.mv-b.mv||a.name.localeCompare(b.name));
-    const n = list.reduce((s,c)=>s+c.qty,0);
-    return `<div class="group"><h4>${g} · ${n}</h4>${list.map(c=>{ cache.set(c.id,c); const off=!inIdentity(c);
-      return `<div class="line"><span class="q">${c.qty}</span><button class="nm ${off?'off':''}" data-open="${c.id}" title="${off?'Outside your commander\'s color identity':h(c.name)}">${h(c.name)}</button><span class="mv">${isLand(c)?'':c.mv}</span><button class="x" data-remove="${h(c.name)}" aria-label="Remove ${h(c.name)}">×</button></div>`; }).join('')}</div>`;
-  }).join('') : '<p style="color:var(--muted);margin:0">No cards yet. Add some from Search or Predictive add, or import a list.</p>';
+    return `<div class="group"><h4>${g}s · ${list.reduce((s,c)=>s+c.qty,0)}</h4>${list.map(c=>{ cache.set(c.id,c); const off=!inIdentity(c);
+      return `<div class="line"><span class="q">${c.qty}</span><button class="nm ${off?'off':''}" data-open="${c.id}" title="${off?'Outside your commander’s colors':h(c.name)}">${h(c.name)}</button><span class="mv">${isLand(c)?'':c.mv}</span><button class="rm" data-rm="${h(c.name)}" aria-label="Remove ${h(c.name)}">×</button></div>`; }).join('')}</div>`;
+  }).join('') : `<div class="empty" style="padding:16px 8px"><span>Your deck is empty. Tap <b style="color:var(--accent)">+</b> on any card to add it.</span></div>`;
 }
-$('#decklist').addEventListener('click',e=>{ const r=e.target.closest('[data-remove]'); if(r) removeCard(r.dataset.remove); });
+$('#list').addEventListener('click',e=>{ const r=e.target.closest('[data-rm]'); if(r) removeCard(r.dataset.rm); });
+$('#dhead').addEventListener('click',e=>{ if(e.target.closest('[data-cmd]')) openCmd(); });
+$('#exClear').addEventListener('click',()=>showWelcome());
 
-/* ======================= Commander picker ======================= */
-let acT;
-$('#cmdInput').addEventListener('input',e=>{
-  const v = e.target.value.trim(); clearTimeout(acT);
-  if(v.length<2) return;
-  acT = setTimeout(async()=>{
-    try{
-      const j = await sf('/cards/autocomplete?q='+encodeURIComponent(v));
-      $('#cmdList').innerHTML = (j.data||[]).map(n=>`<option value="${h(n)}">`).join('');
-      if((j.data||[]).includes(v)) pickCommander(v);
-    }catch(err){}
-  },220);
+/* ======================= Welcome ======================= */
+const STYLES = [
+  ['tokens','Flood the board with creatures'],
+  ['aristocrats','Sacrifice creatures for value'],
+  ['counters','Grow your creatures every turn'],
+  ['spells','Win with instants and sorceries'],
+  ['graveyard','Use your graveyard as a second hand'],
+  ['lifegain','Gain life and turn it into power'],
+  ['voltron','Suit up one giant threat'],
+  ['landfall','Lands that do far more than make mana'],
+  ['artifacts','Build an artifact engine'],
+  ['enchantments','Enchantress value engines'],
+  ['blink','Re-trigger enters-the-battlefield effects'],
+  ['drain','Bleed every opponent out'],
+];
+const STYLE_NAMES = {aristocrats:'Sacrifice', spells:'Spellslinger', counters:'+1/+1 Counters', drain:'Drain'};
+const W_TRIBES = ['vampire','elf','goblin','zombie','dragon','angel','merfolk','dinosaur','cat','sliver','wizard','knight'];
+const PLURAL = {elf:'Elves',dwarf:'Dwarves',wolf:'Wolves',werewolf:'Werewolves',merfolk:'Merfolk',fox:'Foxes',mouse:'Mice',sphinx:'Sphinxes',ally:'Allies',myr:'Myr',fish:'Fish',elk:'Elk',samurai:'Samurai'};
+const plural = t => PLURAL[t] || cap(t)+'s';
+function renderWelcome(){
+  $('#wTypes').innerHTML = STYLES.map(([k,d])=>`<button class="type" type="button" data-style="${k}">${gem(16)}<b>${h(STYLE_NAMES[k]||THEMES[k].label)}</b><span>${h(d)}</span></button>`).join('');
+  $('#wTribes').innerHTML = `<span class="lbl">Or build around a creature type</span>` + W_TRIBES.map(t=>`<button class="chip" type="button" data-wtribe="${t}">${plural(t)}</button>`).join('');
+  const d = state.deck, real = !state.example && (d.commander || d.cards.length);
+  $('#wContinue').textContent = real ? 'Continue to deckbuilder →' : 'Continue to deckbuilder →';
+  $('#wNote').textContent = real
+    ? `Continue keeps working on your ${d.commander?d.commander.name+' ':''}deck. Picking a style above starts a new one.`
+    : 'Jump straight in with an example deck you can clear anytime.';
+}
+function showWelcome(){ renderWelcome(); $('#welcome').hidden=false; $('#welcome').scrollTop=0; setTimeout(()=>$('#wq').focus(),50); }
+function hideWelcome(){ $('#welcome').hidden=true; window.scrollTo({top:0}); }
+function startNew(intent, label){
+  state.startedNew = true;
+  state.deck = {commander:null, cards:[]}; state.example=false;
+  state.intent = Object.assign({themes:[],funcs:[],tribe:null,type:'',mv:'',price:'',phrase:'',free:''}, intent);
+  deckChanged(); hideWelcome(); setView('discover');
+  const q = buildQuery({commander:null, themes:state.intent.themes, funcs:[], tribe:state.intent.tribe});
+  openCmd({label, q});
+}
+$('#wTypes').addEventListener('click',e=>{
+  const b=e.target.closest('[data-style]'); if(!b) return;
+  const k=b.dataset.style; startNew({themes:[k]}, (STYLE_NAMES[k]||THEMES[k].label).toLowerCase()+' decks');
 });
-$('#cmdInput').addEventListener('change',e=>pickCommander(e.target.value.trim()));
-async function pickCommander(name){
-  if(!name || (state.deck.commander && state.deck.commander.name===name)) return;
-  try{
-    const c = cardLite(await sf('/cards/named?exact='+encodeURIComponent(name)));
-    if(!c.id) return;
-    const ok = (/Legendary/.test(c.type) && /Creature/.test(c.type)) || /can be your commander/i.test(c.oracle);
-    if(!ok){ toast(c.name+" can't be a commander"); return; }
-    state.example = false;
-    setCommander(c); runSearch();
-  }catch(err){ toast(err.message); }
-}
-function renderCmd(){
-  const c = state.deck.commander;
-  $('#cmdShow').innerHTML = c ? `${c.img?`<img src="${h(c.img)}" alt="">`:''}<div><div style="font-weight:700">${h(c.name)}</div>${pips(c.ci)} <span class="label" style="margin-left:4px">identity</span></div>` : '';
-}
+$('#wTribes').addEventListener('click',e=>{
+  const b=e.target.closest('[data-wtribe]'); if(!b) return;
+  const t=b.dataset.wtribe; startNew({tribe:t}, plural(t).toLowerCase());
+});
+$('#wSpot').addEventListener('submit',e=>{
+  e.preventDefault();
+  const v=$('#wq').value.trim(); if(!v){ $('#wq').focus(); return; }
+  const p = parseDescription(v);
+  if(!(p.themes.length || p.tribe)){
+    // nothing deck-shaped recognized: treat it like a normal search inside the builder
+    hideWelcome(); setView('discover'); applyDescription(v); renderIntent(); runSearch();
+    if(!state.deck.commander) openCmd();
+    return;
+  }
+  $('#wq').value='';
+  startNew({themes:p.themes, funcs:p.funcs, tribe:p.tribe, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||''}, 'your deck idea');
+});
+$('#wContinue').addEventListener('click',hideWelcome);
+$('#homeBtn').addEventListener('click',showWelcome);
+$('#newDeckBtn').addEventListener('click',showWelcome);
 
-/* ======================= Card dialog ======================= */
+/* ======================= Commander sheet ======================= */
+function renderCmdPill(){
+  const c = state.deck.commander;
+  $('#cmdPill').innerHTML = c
+    ? `${c.art?`<img class="por" src="${h(c.art)}" alt="">`:`<span class="por blank">${gem(14)}</span>`}<span>Building around <b>${h(c.name)}</b></span>${pips(c.ci)}<span class="chev">›</span>`
+    : `<span class="por blank">${gem(14)}</span><span><b>Choose a commander</b> to get started</span><span class="chev">›</span>`;
+}
+$('#cmdPill').addEventListener('click',()=>openCmd());
+let cmdT, cmdSeq=0, cmdFilter=null, cmdPicked=false;
+function openCmd(filter=null){
+  cmdFilter = filter; cmdPicked = false;
+  $('#cmdQ').value=''; loadCmds(''); $('#cmdDlg').showModal(); setTimeout(()=>$('#cmdQ').focus(),50);
+}
+$('#cmdQ').addEventListener('input',e=>{ clearTimeout(cmdT); cmdT=setTimeout(()=>loadCmds(e.target.value),280); });
+$('#cmdDlg').addEventListener('close',()=>{ if(cmdFilter && !cmdPicked) runSearch(); cmdFilter=null; });
+async function loadCmds(text){
+  const seq=++cmdSeq;
+  const words = text.replace(/["():<>=!]/g,' ').trim();
+  const idle = cmdFilter ? 'Commanders that fit '+cmdFilter.label+' · or search any commander above' : 'Most popular commanders';
+  $('#cmdStatus').textContent = words ? 'Searching…' : idle;
+  try{
+    let j;
+    if(words) j = await searchCards('is:commander legal:commander game:paper '+words);
+    else if(cmdFilter){
+      j = await searchCards('is:commander '+cmdFilter.q);
+      if(!(j.data||[]).length) j = await searchCards('is:commander legal:commander game:paper');
+    }
+    else j = await searchCards('is:commander legal:commander game:paper');
+    if(seq!==cmdSeq) return;
+    const list = (j.data||[]).slice(0,30).map(cardLite);
+    list.forEach(c=>cache.set(c.id,c));
+    $('#cmdStatus').textContent = words ? (list.length?'':'No commanders match that. Try part of the name.') : idle;
+    $('#cmdGrid').innerHTML = list.map(c=>`<button type="button" data-pick="${c.id}">${c.img?`<img src="${h(c.img)}" alt="" loading="lazy">`:''}<span>${h(c.name)}</span>${pips(c.ci)}</button>`).join('');
+  }catch(err){ if(seq===cmdSeq) $('#cmdStatus').textContent = err.message; }
+}
+$('#cmdGrid').addEventListener('click',e=>{
+  const b=e.target.closest('[data-pick]'); if(!b) return;
+  const c = cache.get(b.dataset.pick);
+  cmdPicked=true; state.example=false; setCommander(c); $('#cmdDlg').close(); toast(c.name+' is your commander'); runSearch();
+});
+
+/* ======================= Card detail ======================= */
 let dlgCard=null, dlgBack=false;
 function openCard(c){
   if(!c) return; dlgCard=c; dlgBack=false;
-  $('#dImg').src = c.img; $('#dImg').alt = c.name;
-  $('#dFlip').hidden = !c.back;
-  $('#dName').textContent = c.name;
+  $('#dImg').src=c.img; $('#dImg').alt=c.name; $('#dFlip').hidden=!c.back;
+  $('#dName').textContent=c.name;
   $('#dCost').innerHTML = c.mana ? syms(c.mana) : '';
-  $('#dType').textContent = c.type;
-  $('#dText').innerHTML = syms(c.oracle);
+  $('#dType').textContent=c.type;
+  $('#dText').innerHTML = syms(c.oracle) || '<span class="muted">No rules text.</span>';
   const roles = rolesOf(c).filter(r=>r!=='land').map(r=>FUNCS[r].label);
-  $('#dKv').innerHTML = `<span>MV <b>${c.mv}</b></span><span>Price <b>${money(c.usd)}</b></span>${c.rank?`<span>EDHREC rank <b>#${c.rank.toLocaleString()}</b></span>`:''}${roles.length?`<span>Role <b>${h(roles.join(', '))}</b></span>`:''}`;
-  $('#dWhy').innerHTML = (c.why||[]).map(([cls,t])=>`<span class="${cls}">${h(t)}</span>`).join('');
+  $('#dKv').innerHTML = `<div>Mana value<b>${c.mv}</b></div><div>Price<b>${money(c.usd)}</b></div>${c.rank?`<div>EDHREC rank<b>#${c.rank.toLocaleString()}</b></div>`:''}${roles.length?`<div>Role<b>${h(roles.join(', '))}</b></div>`:''}`;
+  $('#dWhy').innerHTML = (c.why||[]).length ? `<div style="font-weight:600">Why it’s suggested</div>`+c.why.map(w=>`<div>${gem(10)}<span>${h(w.long)}</span></div>`).join('') : '';
   const isCmd = state.deck.commander && state.deck.commander.name===c.name;
-  const inn = inDeck(c);
-  $('#dAdd').textContent = isCmd ? 'Your commander' : inn && !multiOk(c) ? 'Remove from deck' : 'Add to deck';
-  $('#dAdd').disabled = isCmd;
-  $('#dLink').href = c.uri || '#';
+  const inn = inDeck(c) && !multiOk(c);
+  $('#dAdd').textContent = isCmd ? 'Your commander' : inn ? 'Remove from deck' : 'Add to deck';
+  $('#dAdd').disabled = !!isCmd;
+  $('#dAdd').style.background = inn ? 'var(--surface-2)' : ''; $('#dAdd').style.color = inn ? 'var(--bad)' : '';
+  $('#dLink').href=c.uri||'#';
   $('#cardDlg').showModal();
 }
-$('#dFlip').addEventListener('click',()=>{ dlgBack=!dlgBack; $('#dImg').src = dlgBack ? dlgCard.back : dlgCard.img; });
+$('#dFlip').addEventListener('click',()=>{ dlgBack=!dlgBack; $('#dImg').src = dlgBack?dlgCard.back:dlgCard.img; });
 $('#dClose').addEventListener('click',()=>$('#cardDlg').close());
-$('#cardDlg').addEventListener('click',e=>{ if(e.target===$('#cardDlg')) $('#cardDlg').close(); });
-$('#dAdd').addEventListener('click',()=>{
-  const c=dlgCard; if(!c) return;
-  if(inDeck(c) && !multiOk(c)) removeCard(c.name); else addCard(c);
-  $('#cardDlg').close();
-});
+$('#dAdd').addEventListener('click',()=>{ const c=dlgCard; if(!c) return; if(inDeck(c)&&!multiOk(c)) removeCard(c.name,true); else addCard(c); $('#cardDlg').close(); });
 
-/* ======================= Predictive add ======================= */
-let predictSeq=0;
-function renderHealth(an){
-  const cells = Object.entries(FUNCS).map(([k,v])=>{
-    const n=an.counts[k], pct=Math.min(100,n/v.target*100), cls = n===0?'none':n<v.target?'low':'';
-    return `<div class="hcell"><span class="label">${v.label}</span><b>${n} / ${v.target}</b><div class="meter"><i class="${cls}" style="width:${Math.max(pct,3)}%"></i></div></div>`;
-  });
-  const lands = an.counts.land, lcls = lands<30?'low':'';
-  cells.push(`<div class="hcell"><span class="label">Lands</span><b>${lands} / 36</b><div class="meter"><i class="${lcls}" style="width:${Math.max(3,Math.min(100,lands/36*100))}%"></i></div></div>`);
-  $('#health').innerHTML = cells.join('');
-  const bits = [];
-  if(an.tribe) bits.push('Tribe: '+an.tribe);
-  an.deckThemes.forEach(k=>bits.push(THEMES[k].label+' ('+an.themeCounts[k]+')'));
-  $('#themeRead').textContent = bits.length ? 'Your deck leans toward: '+bits.join(' · ')+'. Suggestions favor cards that fit these.' : 'Add a few more cards and I can pick up what your deck is about. Targets are typical Commander counts, so treat them as a guide.';
-}
+/* ======================= Suggestions ======================= */
+let seqP=0;
 async function runPredict(){
   state.predictDirty=false;
-  const seq=++predictSeq;
-  const an = deckAnalysis(); renderHealth(an);
-  const out = $('#predictOut');
-  if(!state.deck.commander){ out.innerHTML = '<p class="status">Pick a commander on the Search tab first so suggestions stay in your colors.</p>'; return; }
-  out.innerHTML = '<p class="status">Working out what your deck needs…</p>';
+  const seq=++seqP, an=deckAnalysis(), cmd=state.deck.commander;
+  const n = state.deck.cards.reduce((s,c)=>s+c.qty,0);
+  $('#sTitle').textContent = cmd ? 'Suggestions for '+cmd.name : 'Suggestions';
+  $('#sSub').textContent = cmd ? `Based on the ${n} card${n===1?'':'s'} in your deck. Each shelf targets something your deck needs.` : '';
+  const leanBits = [];
+  if(an.tribe) leanBits.push(plural(an.tribe));
+  an.deckThemes.forEach(k=>leanBits.push(THEMES[k].label));
+  $('#leans').innerHTML = leanBits.length ? `<span class="muted" style="font-size:.88rem">Your deck leans toward</span>`+leanBits.map(b=>`<span class="tok theme" style="padding-right:12px">${h(b)}</span>`).join('') : '';
+  const out=$('#shelves');
+  if(!cmd){ out.innerHTML = `<div class="empty">${gem(22)}<b style="color:var(--ink)">Choose a commander first</b><span>Suggestions stay inside your commander’s colors.</span><button class="pill small" data-cmd2>Choose a commander</button></div>`; return; }
   const themes = Array.from(new Set(an.deckThemes.concat(state.intent.themes)));
   const tribe = an.tribe || state.intent.tribe;
-  const base = {commander:state.deck.commander, themes:[], funcs:[], tribe:null, price:state.intent.price};
-  const sections = [];
-  const plan = an.gaps.slice(0,3).map(k=>({kind:'gap', k}));
-  if(themes.length || tribe) plan.push({kind:'theme'});
-  if(!plan.length) plan.push({kind:'theme'});
+  const base = {commander:cmd, themes:[], funcs:[], tribe:null, price:state.intent.price};
+  const plan = an.gaps.slice(0,3).map(k=>({k}));
+  plan.push({theme:true});
+  const skel = '<div class="rail">'+Array(6).fill('<div class="card"><div class="skel"></div></div>').join('')+'</div>';
+  out.innerHTML = plan.map(()=>`<section class="shelf"><div class="shelf-h"><h3 class="muted">Finding cards…</h3></div>${skel}</section>`).join('');
+  const html = [];
   try{
     for(const p of plan){
-      let cards=[], title, sub;
-      if(p.kind==='gap'){
+      let cards, title, sub;
+      if(p.k){
         const f=FUNCS[p.k], have=an.counts[p.k];
-        title = 'More '+f.label.toLowerCase(); sub = `You have ${have} of about ${f.target}. These fit your colors${themes.length||tribe?' and your themes':''}.`;
+        title = 'Needs more '+f.label.toLowerCase();
+        sub = `${have} of about ${f.target} so far`+(themes.length||tribe?' · picked to fit your themes':'');
         let j = await searchCards(buildQuery(Object.assign({},base,{funcs:[p.k], themes, tribe})));
         if((j.data||[]).filter(c=>!inDeck(c)).length<6) j = await searchCards(buildQuery(Object.assign({},base,{funcs:[p.k]})));
         cards = j.data||[];
       } else {
-        title = 'On-theme picks'; sub = 'Cards that match what your deck is already doing.';
-        const j = await searchCards(buildQuery(Object.assign({},base,{themes, tribe})));
-        cards = j.data||[];
+        title = themes.length||tribe ? 'More of what your deck does' : 'Popular in your colors';
+        sub = themes.length||tribe ? 'Cards that match your deck’s themes' : 'Add a few cards and this shelf will learn your themes';
+        cards = (await searchCards(buildQuery(Object.assign({},base,{themes, tribe})))).data||[];
       }
-      if(seq!==predictSeq) return;
-      const ctx = {themes, tribe, funcs:p.k?[p.k]:[], gaps:an.gaps, deckThemes:[]};
-      const picks = cards.map(cardLite).filter(c=>!inDeck(c)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,10);
-      sections.push(`<section class="gap-section"><div class="gap-head"><h3>${h(title)}</h3><p>${h(sub)}</p></div>${picks.length?`<div class="strip">${picks.map(tile).join('')}</div>`:'<p class="status">Nothing new found here.</p>'}</section>`);
-      out.innerHTML = sections.join('') + (sections.length<plan.length?'<p class="status">Finding more…</p>':'');
+      if(seq!==seqP) return;
+      const ctx = {themes, tribe, funcs:p.k?[p.k]:[], gaps:an.gaps};
+      const picks = cards.map(cardLite).filter(c=>!inDeck(c)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,12);
+      html.push(`<section class="shelf"><div class="shelf-h"><h3>${h(title)}</h3><p>${h(sub)}</p></div>${picks.length?`<div class="rail">${picks.map(c=>tile(c)).join('')}</div>`:'<p class="status">Nothing new to suggest here.</p>'}</section>`);
+      out.innerHTML = html.join('') + plan.slice(html.length).map(()=>`<section class="shelf"><div class="shelf-h"><h3 class="muted">Finding cards…</h3></div>${skel}</section>`).join('');
     }
-    if(!an.gaps.length) out.insertAdjacentHTML('afterbegin','<p class="note">Every role is at or above its target. The picks below lean on your themes.</p>');
-  }catch(err){ if(seq===predictSeq) out.innerHTML = `<p class="status err">${h(err.message)}</p>`; }
+    if(!an.gaps.length) out.insertAdjacentHTML('afterbegin',`<div class="note">${gem(11)} Every essential is at or above a typical count. These picks lean on your themes.</div>`);
+  }catch(err){ if(seq===seqP) out.innerHTML=`<p class="status err">${h(err.message)}</p>`; }
 }
-$('#refreshPredict').addEventListener('click',runPredict);
+$('#refreshBtn').addEventListener('click',runPredict);
+$('#shelves').addEventListener('click',e=>{ if(e.target.closest('[data-cmd2]')) openCmd(); });
 
-/* ======================= Tabs ======================= */
+/* ======================= Views ======================= */
 function setView(v){
-  if(v==='deck' && matchMedia('(min-width: 901px)').matches) v='search';
+  if(v==='deck' && matchMedia('(min-width: 961px)').matches) v='discover';
   state.view=v; $('#app').dataset.view=v;
-  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', String(t.dataset.view===v)));
-  $('#view-search').hidden = v!=='search';
-  $('#view-predict').hidden = v!=='predict';
-  if(v==='predict' && state.predictDirty) runPredict();
+  document.querySelectorAll('.seg button').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
+  $('#view-discover').hidden = v!=='discover';
+  $('#view-suggest').hidden = v!=='suggest';
+  if(v==='suggest' && state.predictDirty) runPredict();
+  window.scrollTo({top:0});
 }
-document.querySelector('.tabs').addEventListener('click',e=>{ const t=e.target.closest('.tab'); if(t) setView(t.dataset.view); });
+document.querySelector('.seg').addEventListener('click',e=>{ const t=e.target.closest('button'); if(t) setView(t.dataset.view); });
 
 /* ======================= Import / copy / clear ======================= */
 function parseList(txt){
@@ -809,27 +1096,34 @@ function parseList(txt){
   }
   return out;
 }
-async function importList(txt, quiet=false){
-  const items = parseList(txt); if(!items.length) return;
-  const missing=[];
+async function fetchList(txt){
+  const items = parseList(txt), missing=[], cards=[]; let cmd=null;
   for(let i=0;i<items.length;i+=75){
     const chunk = items.slice(i,i+75);
     const j = await sf('/cards/collection',{method:'POST', body:JSON.stringify({identifiers:chunk.map(x=>({name:x.name}))})});
     (j.not_found||[]).forEach(n=>missing.push(n.name));
     for(const raw of j.data||[]){
-      const c = cardLite(raw);
-      const src = chunk.find(x=>x.name.toLowerCase()===c.name.toLowerCase() || c.name.toLowerCase().startsWith(x.name.toLowerCase()+' //')) || {qty:1};
-      if(src.cmd && !state.deck.commander) setCommander(c);
-      else addCard(c, src.qty, true);
+      const c = cardLite(raw), lc=c.name.toLowerCase();
+      const src = chunk.find(x=>x.name.toLowerCase()===lc || lc.startsWith(x.name.toLowerCase()+' //')) || {qty:1};
+      if(src.cmd && !cmd) cmd = c; else cards.push(Object.assign(c,{qty:multiOk(c)?src.qty:1}));
     }
   }
-  if(!quiet) toast(missing.length ? `Imported, but couldn't find: ${missing.slice(0,3).join(', ')}${missing.length>3?'…':''}` : 'Imported '+items.length+' lines');
+  return {cmd, cards, missing, count:items.length};
+}
+async function importList(txt){
+  const r = await fetchList(txt); if(!r.count) return;
+  if(r.cmd && !state.deck.commander) state.deck.commander = r.cmd; else if(r.cmd) r.cards.push(Object.assign(r.cmd,{qty:1}));
+  for(const c of r.cards){
+    const ex=state.deck.cards.find(x=>x.name===c.name);
+    if(ex){ if(multiOk(ex)) ex.qty+=c.qty; } else if(!(state.deck.commander && state.deck.commander.name===c.name)) state.deck.cards.push(c);
+  }
   deckChanged();
+  toast(r.missing.length ? `Imported. Couldn’t find: ${r.missing.slice(0,3).join(', ')}${r.missing.length>3?'…':''}` : 'Imported '+r.count+' cards');
 }
 $('#importBtn').addEventListener('click',()=>{ $('#importText').value=''; $('#importDlg').showModal(); });
 $('#importDlg').addEventListener('close',()=>{ if($('#importDlg').returnValue==='import'){ state.example=false; importList($('#importText').value).catch(e=>toast(e.message)); } });
 function listText(){
-  const d=state.deck; const lines=[];
+  const d=state.deck, lines=[];
   if(d.commander) lines.push('1 '+d.commander.name,'');
   d.cards.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>lines.push(c.qty+' '+c.name));
   return lines.join('\n');
@@ -839,12 +1133,10 @@ $('#copyBtn').addEventListener('click',async()=>{
   try{ await navigator.clipboard.writeText(txt); toast('Decklist copied'); }
   catch(e){ $('#copyText').value=txt; $('#copyDlg').showModal(); $('#copyText').select(); }
 });
-$('#copyClose').addEventListener('click',()=>$('#copyDlg').close());
 $('#clearBtn').addEventListener('click',()=>$('#confirmDlg').showModal());
 $('#confirmDlg').addEventListener('close',()=>{
   if($('#confirmDlg').returnValue!=='yes') return;
-  state.deck={commander:null,cards:[]}; state.example=false; $('#cmdInput').value='';
-  deckChanged(); toast('Deck cleared');
+  state.deck={commander:null,cards:[]}; state.example=false; deckChanged(); toast('Deck cleared');
 });
 
 /* ======================= Boot ======================= */
@@ -868,17 +1160,24 @@ Deck
 4 Plains
 3 Mountain`;
 async function boot(){
-  renderChips(); renderDeck(); renderCmd();
   const saved = load();
+  if(saved){ state.tipsHidden = !!saved.tipsHidden; }
+  $('#steps').hidden = state.tipsHidden;
+  renderDeck(); renderCmdPill(); renderIntent();
+  if(saved && saved.deck) { state.deck = saved.deck; state.example = !!saved.example; }
+  showWelcome();
   if(saved && (saved.deck.commander || saved.deck.cards.length)){
     state.deck = saved.deck; state.example = !!saved.example;
-    if(state.deck.commander) $('#cmdInput').value = state.deck.commander.name;
-    renderDeck(); renderCmd();
-    if(state.example) $('#desc').value = 'vampires that drain opponents and make tokens';
+    if(state.example) applyDescription('vampires that drain opponents and make tokens');
+    deckChanged();
   } else {
-    $('#desc').value = 'vampires that drain opponents and make tokens';
-    $('#status').textContent = 'Loading the example deck…';
-    try{ await importList(EXAMPLE, true); state.example = true; save(); renderDeck(); }
+    $('#status').textContent = 'Loading an example deck…';
+    try{
+      const r = await fetchList(EXAMPLE);
+      if(state.startedNew) return; // they already started their own deck from the welcome screen
+      state.deck = {commander:r.cmd, cards:r.cards};
+      state.example = true; applyDescription('vampires that drain opponents and make tokens'); deckChanged(); renderWelcome();
+    }
     catch(e){ $('#status').className='status err'; $('#status').textContent=e.message; return; }
   }
   runSearch();
