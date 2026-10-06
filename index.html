@@ -326,7 +326,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .packbtn:hover{background:var(--gold-soft)}
 .stage{position:fixed;inset:0;z-index:45;overflow:hidden auto;isolation:isolate;color:#F2EEE4;
   background:radial-gradient(900px 600px at 50% 35%,#2A2238 0%,#121019 55%,#08070C 100%);
-  display:grid;grid-template-rows:auto minmax(max-content,1fr) auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 0}
+  display:grid;grid-template-rows:auto minmax(max-content,1fr) max-content;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 0}
 .stage::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.8;
   background-image:radial-gradient(1px 1px at 14% 22%,#fff,transparent 60%),radial-gradient(1px 1px at 82% 16%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 66% 72%,#fff,transparent 60%),radial-gradient(1px 1px at 28% 80%,#fff,transparent 60%),radial-gradient(1px 1px at 90% 58%,#fff,transparent 60%),radial-gradient(1px 1px at 46% 10%,#fff,transparent 60%),radial-gradient(1px 1px at 6% 52%,#fff,transparent 60%)}
 .stage-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;max-width:1100px;width:100%;margin:0 auto}
@@ -340,6 +340,8 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .stage-foot .hint{font-size:.9rem;color:rgba(242,238,228,.7)}
 .stage .pill.ghost{background:rgba(255,255,255,.12);color:#fff}
 .stage .pill{background:#E2C376;color:#1A1405}
+.stage-foot.static{position:static;background:none;min-height:0;padding-top:18px}
+.summary{padding-bottom:8px}
 .stage-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
 .scene{perspective:1300px;width:min(290px,64vw);touch-action:none;user-select:none;-webkit-user-select:none}
@@ -504,7 +506,6 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
       <input id="wq" type="text" aria-label="Describe your deck" placeholder="e.g. “gambling”, “a deck that works like the government”, “elves that make tons of mana”">
       <button class="pill" type="submit">Start</button>
     </form>
-    <div class="w-tribes" id="wTry"></div>
     <div class="orn w-or" aria-hidden="true"><span>or pick a style</span></div>
     <div class="types" id="wTypes"></div>
     <div class="w-tribes" id="wTribes"></div>
@@ -782,7 +783,7 @@ const CONCEPTS = {
     read:'making it hard to attack you, preventing combat damage and big defenders',
     q:'(o:"can\'t attack you" or o:"prevent all combat damage" or kw:defender or o:"creatures can\'t attack")',
     re:/can't attack you|prevent all combat damage|defender|creatures can't attack/},
-  chaos:{label:'Chaos', words:['chaos','chaotic','madness','insanity','insane','anarchy','mayhem','wild','unpredictable','pandemonium','havoc'],
+  chaos:{label:'Chaos', words:['chaos','chaotic','madness','insanity','insane','anarchy','mayhem','unpredictable','pandemonium','havoc'],
     read:'random effects, madness, swapping control and wheels that hit everyone',
     q:'(o:"at random" or kw:madness or o:"exchange control" or (o:"each player discards" o:"draws") or o:"chaos")',
     re:/at random|madness|exchange control|each player discards[^]*draws|chaos/},
@@ -870,6 +871,86 @@ const CONCEPTS = {
     read:'partners, group-hug cards that help every player, and assist',
     q:'(kw:partner or kw:"friends forever" or kw:assist or (o:"each player" o:"draws") or o:"each player may")',
     re:/partner|friends forever|assist|each player (draws|may)/},
+  space:{label:'Space', words:['space','outer space','cosmic','galaxy','galaxies','stars','planets','planet','astronaut','astronauts','aliens','alien','ufo','ufos','sci-fi','scifi','spaceship','spaceships','starship','rocket','rockets','nasa'],
+    read:'aliens, spacecraft, planets, and the station and warp mechanics',
+    q:'(t:alien or t:spacecraft or t:planet or kw:station or kw:warp)',
+    re:/\balien|spacecraft|\bplanet|station|warp/},
+  music:{label:'Music', words:['music','musical','musician','musicians','band','bands','concert','concerts','song','songs','singer','singing','bard','bards','dance','dancing','rave','dj','edm','orchestra','symphony','choir','opera','jazz','hip hop'],
+    read:'bards and songs, hymns, anthems and other musical cards',
+    q:'(t:bard or name:song or name:hymn or name:anthem or name:symphony or name:chorus or name:ballad or name:dirge or name:lullaby)',
+    re:/\bbard|song|hymn|anthem|symphony|chorus|ballad|dirge|lullaby/},
+  revenge:{label:'Revenge', words:['revenge','vengeance','vengeful','vendetta','grudge','grudges','retaliation','retaliate','payback','eye for an eye','spite','spiteful','punish','punisher','punishment','karma'],
+    read:'punishing opponents for attacking you, damaging you, or casting spells',
+    q:'(o:"is dealt damage" or o:"deals damage to you" or o:"whenever an opponent casts" or o:"attacks you" or kw:bloodthirst)',
+    re:/is dealt damage|deals damage to you|whenever an opponent casts|attacks you|bloodthirst/},
+  stealth:{label:'Stealth', words:['stealth','stealthy','sneaky','sneak','sneak attack','unblockable','evasive','shadows','shadow','infiltration','infiltrate','hidden','invisible','invisibility','camouflage','ninjas'],
+    read:'unblockable creatures, ninjutsu, shadow, skulk and menace',
+    q:'(o:"can\'t be blocked" or kw:ninjutsu or kw:shadow or kw:skulk or kw:menace)',
+    re:/can't be blocked|ninjutsu|\bshadow|skulk|menace/},
+  apocalypse:{label:'Apocalypse', words:['apocalypse','apocalyptic','post-apocalyptic','end of the world','doomsday','armageddon','extinction','wasteland','nuclear','destroy everything','end times','ragnarok'],
+    read:'wiping the board, mass sacrifice and destroying everything',
+    q:'(o:"destroy all" or o:"exile all" or o:"sacrifice all" or o:"each player sacrifices" or name:apocalypse or name:armageddon)',
+    re:/(destroy|exile|sacrifice) all|each player sacrifices|apocalypse|armageddon/},
+  farming:{label:'Farming', words:['farm','farms','farming','farmer','farmers','harvest','harvesting','crops','agriculture','ranch','rancher','barn','cottagecore','countryside','homestead','livestock'],
+    read:'peasants, plants, farm animals, Food and harvest effects',
+    q:'(t:peasant or t:plant or t:ox or t:goat or t:sheep or t:boar or o:"harvest" or o:"food token")',
+    re:/peasant|\bplant|\box\b|goat|sheep|boar|harvest|\bfood\b/},
+  fairytale:{label:'Fairy tale', words:['fairy tale','fairy tales','fairytale','fairytales','storybook','once upon a time','princess','princesses','prince','enchanted forest','fable','fables','bedtime story','happily ever after','folklore'],
+    read:'adventure cards, Role tokens, faeries, bargain and celebration',
+    q:'(layout:adventure or o:"role token" or t:faerie or kw:bargain or kw:celebration)',
+    re:/adventure|role token|faerie|bargain|celebration/},
+  haunted:{label:'Haunted house', words:['haunted house','horror movie','horror movies','slasher','slashers','scary','jump scare','creepy house','survival horror','escape room','nightmare house','final girl'],
+    read:'Rooms, manifest dread, eerie, survival and impending',
+    q:'(t:room or kw:"manifest dread" or kw:eerie or kw:survival or kw:impending)',
+    re:/\broom\b|manifest dread|eerie|survival|impending/},
+  western:{label:'Wild West', words:['western','westerns','cowboy','cowboys','cowgirl','wild west','sheriff','saloon','showdown','gunslinger','gunslingers','frontier','desert','high noon','bounty','bounty hunter','rodeo','horses'],
+    read:'plot, spree, saddle and mounts, and “commit a crime”',
+    q:'(kw:plot or kw:spree or kw:saddle or o:"commit a crime" or t:mount)',
+    re:/\bplot|spree|saddle|commit a crime|\bmount/},
+  growing:{label:'Growing up', words:['growing up','grow up','babies','baby','kids','children','parents','parenting','generations','offspring','evolution','evolve','evolving','legacy','coming of age','leveling up','level up'],
+    read:'offspring, evolve, adapt and level up',
+    q:'(kw:offspring or kw:evolve or kw:adapt or kw:"level up")',
+    re:/offspring|evolve|adapt|level up/},
+  energy:{label:'Energy', words:['energy','electricity','electric','electrical','power plant','battery','batteries','charge','charged','charging','voltage','generator','power grid','reactor'],
+    read:'energy counters ({E}) and charge counters',
+    q:'(o:"{E}" or o:"energy counter" or o:"charge counter")',
+    re:/\{e\}|energy counter|charge counter/},
+  cult:{label:'Cults', words:['cult','cults','cultist','cultists','ritual','rituals','occult','summoning','coven','covens','secret society','dark ritual','sacrificial'],
+    read:'warlocks, rituals, coven and clerics that demand sacrifices',
+    q:'(kw:coven or t:warlock or name:ritual or o:"ritual" or (t:cleric o:"sacrifice"))',
+    re:/coven|warlock|ritual|cleric[^]*sacrifice|sacrifice[^]*cleric/},
+  transform:{label:'Transformation', words:['transform','transformation','transformations','transforming','metamorphosis','change form','day and night','full moon','two faces','two-faced','alter ego','jekyll'],
+    read:'double-faced cards, day/night and disturb',
+    q:'(is:dfc or kw:daybound or kw:disturb)',
+    re:/ \/\/ |daybound|nightbound|disturb|transform/},
+  exploration:{label:'Exploration', words:['explore','explorer','explorers','exploration','travel','traveling','travelling','journey','expedition','discovery','discoveries','map','maps','backpacking','cave','caves','spelunking','archaeology','treasure hunt','indiana jones'],
+    read:'explore, discover, Map tokens, caves and descend',
+    q:'(kw:explore or kw:discover or o:"map token" or t:cave or kw:descend)',
+    re:/explore|discover|map token|\bcave|descend/},
+  sports:{label:'Sports', words:['sports','sport','competition','competitive','tournament','arena','champion','championship','gladiator','gladiators','olympics','fight','fighting','boxing','wrestling','mma','football','basketball','team sports'],
+    read:'fight spells, provoke, melee and forcing blocks',
+    q:'(o:"fights" or o:"fight target" or o:"fight another" or kw:provoke or kw:melee or o:"must be blocked")',
+    re:/\bfights?\b|provoke|melee|must be blocked/},
+  balance:{label:'Balance', words:['balance','balanced','zen','harmony','meditation','yin yang','yin and yang','equality','fairness','symmetry','symmetrical','equilibrium','karma balance'],
+    read:'monks and symmetrical effects that hit every player equally',
+    q:'(t:monk or name:balance or name:equilibrium or name:harmony or o:"each player draws" or o:"each player sacrifices")',
+    re:/\bmonk|balance|equilibrium|harmony|each player (draws|sacrifices)/},
+  speed:{label:'Speed', words:['fast','haste','hasty','rush','rushing','sprint','sprinting','tempo','zoom','zoomies','in a hurry','gotta go fast','lightning fast','blitzkrieg'],
+    read:'haste, dash and giving your team haste',
+    q:'(kw:haste or kw:dash or o:"gain haste" or o:"have haste")',
+    re:/haste|\bdash/},
+  witchcraft:{label:'Witchcraft', words:['witch','witches','witchcraft','hex','hexes','curse','curses','cursed','voodoo','potion','potions','cauldron','hag','hags','broomstick','spellbook'],
+    read:'warlocks, Curses and auras that hex a player',
+    q:'(t:warlock or t:curse or o:"enchanted player")',
+    re:/warlock|\bcurse|enchanted player/},
+  rebellion:{label:'Rebellion', words:['rebel','rebels','rebellion','revolution','revolutionary','revolt','uprising','resistance','protest','protests','underdog','underdogs','punk','punks','overthrow','freedom fighters'],
+    read:'rebels, revolt and mentor',
+    q:'(t:rebel or kw:revolt or kw:mentor)',
+    re:/\brebel|revolt|mentor/},
+  eldritch:{label:'Eldritch horror', words:['eldritch','lovecraft','lovecraftian','cthulhu','tentacle','tentacles','cosmic horror','void','abyss','old gods','outer gods','unknowable','from beyond','otherworldly'],
+    read:'Eldrazi, annihilator, emerge, devoid and ingest',
+    q:'(t:eldrazi or kw:annihilator or kw:emerge or kw:devoid or kw:ingest)',
+    re:/eldrazi|annihilator|emerge|devoid|ingest/}
 };
 const STOP = new Set('a an the deck decks that which works work working like about with and or of to for in on my me i want wanna build building make makes making something some theme themed based around kind type style cards card lots tons really very more is are be it its who where when how what play plays playing uses use using feel feels vibe vibes full all any every this these those just kinda sort get gets thing things way would could should can will do does into out from by as at than then them they you your our we us one two'.split(' '));
 const freeWords = s => (s.toLowerCase().match(/[a-z0-9'&-]+/g)||[]).filter(w=>w.length>=3 && !STOP.has(w)).slice(0,6);
@@ -886,7 +967,12 @@ function parseDescription(raw){
   if(quoted) out.phrase = quoted[1];
   for(const [k,v] of Object.entries(THEMES)) if(v.words.some(w=>hasPhrase(text,w))) out.themes.push(k);
   for(const [k,v] of Object.entries(FUNCS)) if(v.words.some(w=>hasPhrase(text,w))) out.funcs.push(k);
-  for(const [k,v] of Object.entries(CONCEPTS)) if(v.words.some(w=>hasPhrase(text,w))) out.concepts.push(k);
+  const conceptHits = {};
+  for(const [k,v] of Object.entries(CONCEPTS)){ const hit = v.words.filter(w=>hasPhrase(text,w)); if(hit.length){ out.concepts.push(k); conceptHits[k]=hit; } }
+  // a longer phrase wins: "cosmic horror" means eldritch, not space + undead
+  const phrases = Object.values(conceptHits).flat().filter(w=>w.includes(' '));
+  const inLonger = w => phrases.some(p=>p!==w && p.length>w.length && hasPhrase(' '+p+' ', w));
+  out.concepts = out.concepts.filter(k=>!conceptHits[k].every(inLonger));
   // a concept that already means a theme shouldn't also trigger that theme's looser words
   if(out.concepts.includes('undead')) out.themes = out.themes.filter(t=>t!=='graveyard' || /graveyard/.test(text));
   if(out.concepts.includes('war')) out.themes = out.themes.filter(t=>t!=='combat' || /attack/.test(text));
@@ -897,7 +983,7 @@ function parseDescription(raw){
   // tribes
   for(const w of text.match(/[a-z]+/g)||[]){
     let base = IRREG[w] || (TRIBES.includes(w)?w:null) || (w.endsWith('s') && TRIBES.includes(w.slice(0,-1)) ? w.slice(0,-1) : null);
-    if(base && TRIBES.includes(base)){ out.tribe = base; break; }
+    if(base && TRIBES.includes(base) && !phrases.some(p=>hasPhrase(' '+p+' ', w))){ out.tribe = base; break; }
   }
   // types
   const typeMap = {creature:/\bcreatures?\b/,instant:/\binstants?\b/,sorcery:/\bsorcer(y|ies)\b/,planeswalker:/\bplaneswalkers?\b/,land:/\b(utility )?lands\b(?! matter)/};
@@ -1300,13 +1386,11 @@ const STYLES = [
   ['drain','Bleed every opponent out'],
 ];
 const STYLE_NAMES = {aristocrats:'Sacrifice', spells:'Spellslinger', counters:'+1/+1 Counters', drain:'Drain'};
-const W_TRY = ['Gambling','A deck that works like the government','A heist','Time travel','Robots','A cooking show','Dreams and nightmares'];
 const W_TRIBES = ['vampire','elf','goblin','zombie','dragon','angel','merfolk','dinosaur','cat','sliver','wizard','knight'];
 const PLURAL = {elf:'Elves',dwarf:'Dwarves',wolf:'Wolves',werewolf:'Werewolves',merfolk:'Merfolk',fox:'Foxes',mouse:'Mice',sphinx:'Sphinxes',ally:'Allies',myr:'Myr',fish:'Fish',elk:'Elk',samurai:'Samurai'};
 const plural = t => PLURAL[t] || cap(t)+'s';
 function renderWelcome(){
   $('#wTypes').innerHTML = STYLES.map(([k,d])=>`<button class="type" type="button" data-style="${k}">${gem(16)}<b>${h(STYLE_NAMES[k]||THEMES[k].label)}</b><span>${h(d)}</span></button>`).join('');
-  $('#wTry').innerHTML = `<span class="lbl">Try something weird</span>` + W_TRY.map(t=>`<button class="chip" type="button" data-wtry="${h(t)}">${h(t)}</button>`).join('');
   $('#wTribes').innerHTML = `<span class="lbl">Or build around a creature type</span>` + W_TRIBES.map(t=>`<button class="chip" type="button" data-wtribe="${t}">${plural(t)}</button>`).join('');
   const d = state.deck, real = !state.example && (d.commander || d.cards.length);
   $('#wContinue').textContent = real ? 'Continue to deckbuilder →' : 'Continue to deckbuilder →';
@@ -1339,7 +1423,6 @@ $('#wTribes').addEventListener('click',e=>{
   const b=e.target.closest('[data-wtribe]'); if(!b) return;
   const t=b.dataset.wtribe; startNew({tribe:t}, plural(t).toLowerCase());
 });
-$('#wTry').addEventListener('click',e=>{ const b=e.target.closest('[data-wtry]'); if(b) startFromText(b.dataset.wtry); });
 $('#wSpot').addEventListener('submit',e=>{
   e.preventDefault();
   const v=$('#wq').value.trim(); if(!v){ $('#wq').focus(); return; }
@@ -1851,6 +1934,7 @@ $('#eraSeg').addEventListener('click',e=>{
 });
 
 function newPack(keepNumber){
+  $('#stageFoot').classList.remove('static');
   if(!keepNumber) pk.no = bumpCount();
   $('#packNo').textContent = '#'+pk.no;
   pk.cards=null; pk.err=null; pk.idx=0; pk.ry=0; pk.rx=0; pk.state='pack';
@@ -2008,9 +2092,11 @@ function showSummary(){
   const {total,best} = packStats();
   $('#stageMid').innerHTML = `<div class="summary"><span class="eyebrow">Pack #${pk.no}</span><h2>Your pulls</h2>
     <div style="color:rgba(242,238,228,.7);font-size:.92rem;text-align:center">Worth about <b style="color:#E2C376">${money(total)}</b>${best?` · Best pull: <b style="color:#fff">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
+    <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Open another pack</button><button class="pill ghost" type="button" id="leavePack">Back to deckbuilder</button></div>
     <div class="sumgrid">${pk.cards.map((c,i)=>{ cache.set(c.id,c); const hit = isHit(c)||(c.usd||0)>=5;
       return `<button class="sumcard ${hit?'hit':''} ${c.rar}" type="button" data-open="${c.id}" style="animation-delay:${i*35}ms">${c.img?`<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" loading="lazy">`:'<span class="ph"></span>'}<span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><span>${h(c.name)}</span><small>${money(c.usd)}</small></button>`; }).join('')}</div></div>`;
-  $('#stageFoot').innerHTML = `<div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Open another pack</button><button class="pill ghost" type="button" id="leavePack">Back to deckbuilder</button></div><div class="hint">Tap any card to see it up close, add it to your deck, or find similar cards.</div>`;
+  $('#stageFoot').innerHTML = `<div class="hint">Tap any card to see it up close, add it to your deck, or find similar cards.</div>`;
+  $('#stageFoot').classList.add('static');
   $('#exportPack').onclick = exportPackImage;
   $('#againPack').onclick = ()=>newPack();
   $('#leavePack').onclick = closeStage;
