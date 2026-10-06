@@ -202,7 +202,10 @@ aside{position:sticky;top:76px;max-height:calc(100vh - 92px);overflow:auto;displ
 .curve div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;height:100%}
 .curve i{display:block;width:100%;border-radius:4px;background:linear-gradient(to top,var(--accent),color-mix(in srgb,var(--accent) 70%,var(--gold)));min-height:3px}
 .curve span{font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.ess{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ess{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
+.er{display:grid;grid-template-columns:1fr auto;gap:4px;font-size:.84rem}
+.er .num{color:var(--muted)}.er .num.ok{color:var(--good)}
+.er i{grid-column:1/-1;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent) var(--p),var(--surface-2) var(--p))}
 .ring{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:12px;background:var(--surface-2)}
 .ring svg{flex:none}
 .ring b{display:block;font-size:.84rem;font-weight:600;line-height:1.2}
@@ -287,7 +290,8 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 
 .top.match{color:var(--accent);border-color:var(--accent);font-family:var(--f-body);font-weight:700;letter-spacing:.04em}
 /* ---------- draft ---------- */
-.draftp{padding:20px;display:grid;gap:16px}
+#draftDlg{overflow:auto}
+#draftDlg .drows{max-height:none}
 .draft-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .draft-h h3{font:600 1.2rem/1.25 var(--f-body);margin-top:6px;letter-spacing:-.01em}
 .dgroup h4{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
@@ -461,7 +465,17 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .stage-mid{min-height:calc(min(300px,68vw)*1.42 + 24px)}
 .stack{left:50%;top:50%;margin-left:calc(min(300px,68vw) / -2);margin-top:calc(min(300px,68vw) * 680 / 488 / -2)}
 
+.cmdcard{position:sticky;top:0;z-index:3;display:grid;justify-items:center;gap:6px;padding:16px 16px 10px;background:var(--surface);border-radius:20px 20px 0 0;border-bottom:1px solid var(--line)}
+.cmdimg{border:0;padding:0;background:none;cursor:zoom-in;width:min(100%,250px);display:block}
+.cmdimg img{display:block;width:100%;border-radius:4.75%/3.5%;box-shadow:var(--shadow-lift)}
+.cmdfab{display:none}
+@media (min-width: 961px){ .cmd-pill{display:none} }
 @media (max-width: 960px){
+  .cmdcard{position:static}
+  .cmdfab:not([hidden]){display:block;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;width:62px;padding:0;border:0;background:none;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:zoom-in}
+  .cmdfab img{display:block;width:100%;border-radius:5px}
+  .app[data-view="deck"] ~ .cmdfab{display:none}
+
   .sim-layout{grid-template-columns:minmax(0,1fr)}
   .sim-card{position:static;grid-template-columns:120px minmax(0,1fr);align-items:start}
   .sim-card > div:last-child{grid-column:1/-1}
@@ -500,21 +514,20 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <div class="w-in">
     <div class="w-brand"><svg width="18" height="18"><use href="#i-gem"/></svg>Ripjr Deck Genie</div>
     <h1>What kind of deck do you want to build?</h1>
-    <p class="lede">Describe it however you want, even something abstract like a heist or a casino. Then pick a commander and the genie does the card hunting.</p>
     <form class="spot" id="wSpot" role="search" autocomplete="off">
       <svg width="20" height="20"><use href="#i-search"/></svg>
-      <input id="wq" type="text" aria-label="Describe your deck" placeholder="e.g. “gambling”, “a deck that works like the government”, “elves that make tons of mana”">
+      <input id="wq" type="text" aria-label="Describe your deck" placeholder="Describe your deck">
       <button class="pill" type="submit">Start</button>
     </form>
     <div class="orn w-or" aria-hidden="true"><span>or pick a style</span></div>
     <div class="types" id="wTypes"></div>
+    <div class="w-tribes" id="wLooks"></div>
     <div class="w-tribes" id="wTribes"></div>
-    <div class="orn w-or" aria-hidden="true"><svg width="12" height="12"><use href="#i-gem"/></svg></div>
     <div class="w-cont">
-      <button class="pill ghost" id="wContinue" type="button">Continue to deckbuilder →</button>
+      <button class="pill ghost" id="wContinue" type="button">Continue to deckbuilder</button>
       <p id="wNote"></p>
     </div>
-    <button class="linkbtn" id="wPack" type="button" style="color:var(--gold);font-size:.85rem">psst… want to rip open a pack?</button>
+    <button class="linkbtn" id="wPack" type="button" style="color:var(--gold);font-size:.85rem">Open a pack</button>
     <p class="fanfoot" style="padding:0">Ripjr Deck Genie is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data and images courtesy of Scryfall.</p>
   </div>
 </section>
@@ -524,7 +537,6 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     <button class="mark" id="homeBtn" type="button" aria-label="Ripjr Deck Genie home"><svg width="20" height="20"><use href="#i-gem"/></svg><span>Ripjr <span class="mark-sub">Deck Genie</span></span></button>
     <div class="seg" role="tablist" aria-label="Views">
       <button role="tab" id="tab-discover" data-view="discover" aria-selected="true">Discover</button>
-      <button role="tab" id="tab-suggest" data-view="suggest" aria-selected="false">Suggestions</button>
       <button role="tab" id="tab-similar" data-view="similar" aria-selected="false">Similar</button>
       <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
     </div>
@@ -537,59 +549,32 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <section class="view" id="view-discover">
     <div class="hero">
       <button class="cmd-pill" id="cmdPill" type="button"></button>
-      <h2>What should this deck do?</h2>
       <form class="spot" id="spot" role="search" autocomplete="off">
         <svg width="20" height="20"><use href="#i-search"/></svg>
-        <input id="q" type="text" aria-label="Describe what you want, or type a card name" placeholder="Try “vampires that drain opponents” or a card name">
+        <input id="q" type="text" aria-label="Describe what you want, or type a card name" placeholder="Describe your deck, or search a card">
         <button class="pill" id="goBtn" type="submit">Search</button>
       </form>
-      <div class="steps" id="steps">
-        <span><b>1</b>Pick a commander</span><span><b>2</b>Describe your deck</span><span><b>3</b>Tap + to add cards</span>
-        <button class="x" id="stepsX" type="button" aria-label="Hide tips">×</button>
-      </div>
       <div class="tokens" id="tokens"></div>
       <div class="genie" id="genieNote" hidden></div>
-      <div class="quick" id="quick"></div>
       <div class="query" id="query" hidden></div>
     </div>
 
-    <div class="orn" aria-hidden="true"><svg width="14" height="14"><use href="#i-gem"/></svg></div>
-
     <section style="display:grid;gap:16px">
-      <div class="rhead"><h3 id="rTitle">Results</h3><div class="dacts2"><span class="status" id="status" role="status"></span><button class="pill small" type="button" data-draft><svg width="12" height="12" style="vertical-align:-1px;margin-right:4px"><use href="#i-gem"/></svg>Draft a full list</button></div></div>
+      <div class="rhead"><h3 id="rTitle">Results</h3><div class="dacts2"><span class="status" id="status" role="status"></span><button class="pill small ghost" type="button" data-draft>Draft a list</button></div></div>
       <div class="grid" id="results"></div>
       <div class="more"><button class="pill ghost" id="moreBtn" hidden>Show more</button></div>
     </section>
   </section>
 
-  <section class="view" id="view-suggest" hidden>
-    <div class="shead">
-      <span class="eyebrow">Predictive add</span>
-      <h2 id="sTitle">Suggestions</h2>
-      <p class="muted" style="margin:0" id="sSub"></p>
-      <div class="leans" id="leans"></div>
-      <div><button class="pill ghost small" id="refreshBtn">Refresh suggestions</button></div>
-    </div>
-    <div class="panel draftp" id="draftBox">
-      <div class="draft-h"><div><span class="eyebrow">Genie draft</span><h3>A starter list, built for you</h3></div><button class="pill" id="draftGo" type="button">Draft my list</button></div>
-      <div id="draftBody"></div>
-      <div class="draft-acts" id="draftActs" hidden><span class="muted num" id="draftInfo"></span><div class="dacts2"><button class="linkbtn" id="draftAll" type="button">Select all / none</button><button class="pill ghost small" id="draftCsv" type="button">Export CSV</button><button class="pill small" id="draftAdd" type="button">Add to deck</button></div></div>
-    </div>
-    <div class="orn" aria-hidden="true"><svg width="14" height="14"><use href="#i-gem"/></svg></div>
-    <div id="shelves" style="display:grid;gap:30px"></div>
-  </section>
-
   <section class="view" id="view-similar" hidden>
     <div class="hero">
-      <span class="eyebrow">Similar cards</span>
-      <h2>Find cards like…</h2>
+      <h2>Find similar cards</h2>
       <form class="spot ac" id="simForm" role="search" autocomplete="off">
         <svg width="20" height="20"><use href="#i-search"/></svg>
-        <input id="simQ" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="simList" aria-label="Card to compare" placeholder="Type any card name, like Blood Artist">
+        <input id="simQ" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="simList" aria-label="Card to compare" placeholder="Card name">
         <button class="pill" type="submit">Compare</button>
         <ul class="ac-list" id="simList" role="listbox" hidden></ul>
       </form>
-      <p class="muted" style="margin:0;max-width:60ch;font-size:.92rem">The genie compares what a card does, its triggers, keywords, creature types and cost. You can also open any card and tap <b style="color:var(--ink)">Find similar</b>.</p>
       <span class="status" id="simStatus" role="status"></span>
     </div>
     <div class="sim-layout" id="simBody" hidden>
@@ -609,14 +594,14 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <div class="panel">
     <div id="dhead"></div>
     <div class="dbody">
-      <div class="note" id="exNote" hidden>This is an example deck so you can see how everything works. <button class="linkbtn" id="exClear" style="padding:0">Start fresh</button></div>
+      <div class="note" id="exNote" hidden>Example deck. <button class="linkbtn" id="exClear" style="padding:0">Start fresh</button></div>
       <div class="stats">
         <div class="stat"><b id="stCount">0</b><span>of 100 cards</span></div>
         <div class="stat"><b id="stMv">–</b><span>avg mana value</span></div>
         <div class="stat"><b id="stUsd">–</b><span>est. value</span></div>
       </div>
-      <div><div class="sec-t"><span>Mana curve</span><span>nonland</span></div><div class="curve" id="curve"></div></div>
-      <div><div class="sec-t"><span>Essentials</span><span>vs. typical</span></div><div class="ess" id="ess"></div></div>
+      <div><div class="sec-t"><span>Mana curve</span></div><div class="curve" id="curve"></div></div>
+      <div><div class="sec-t"><span>Essentials</span></div><div class="ess" id="ess"></div></div>
       <div class="dacts">
         <button class="linkbtn" id="importBtn">Import list</button>
         <button class="linkbtn" id="copyBtn">Copy list</button>
@@ -632,7 +617,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 
 <section class="stage" id="stage" hidden aria-label="Open a booster pack">
   <div class="stage-top">
-    <div style="display:grid;gap:4px"><span class="eyebrow">Easter egg · Pack <span id="packNo" class="num"></span></span><span style="font-size:.85rem;color:rgba(242,238,228,.65)">9 commons · 3 uncommons · 1 rare · 1 land · 1 token (or something special)</span></div>
+    <div style="display:grid;gap:4px"><span class="eyebrow">Pack <span id="packNo" class="num"></span></span></div>
     <div style="display:flex;gap:10px;align-items:center">
       <div class="seg" role="radiogroup" aria-label="Card pool" id="eraSeg">
         <button type="button" data-era="all" aria-selected="true">All of Magic</button>
@@ -645,7 +630,14 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <div class="stage-foot" id="stageFoot"></div>
 </section>
 
+<button class="cmdfab" id="cmdFab" type="button" hidden></button>
 <footer class="fanfoot">Ripjr Deck Genie is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data and images courtesy of Scryfall.</footer>
+
+<dialog id="draftDlg" aria-label="Draft a list"><div class="sheet">
+  <div class="sheet-h"><h3>Draft a list</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <div id="draftBody"></div>
+  <div class="draft-acts" id="draftActs" hidden><span class="muted num" id="draftInfo"></span><div class="dacts2"><button class="linkbtn" id="draftGo" type="button">Redraft</button><button class="linkbtn" id="draftAll" type="button">Select all / none</button><button class="pill ghost small" id="draftCsv" type="button">Export CSV</button><button class="pill small" id="draftAdd" type="button">Add to deck</button></div></div>
+</div></dialog>
 
 <dialog id="cardDlg" aria-label="Card details"><div class="detail">
   <div style="display:grid;gap:10px;justify-items:center"><img id="dImg" alt=""><button class="pill ghost small" id="dFlip" hidden>Flip card</button></div>
@@ -684,8 +676,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 
 <dialog id="importDlg" aria-label="Import a decklist"><form class="sheet" method="dialog">
   <div class="sheet-h"><h3>Import a decklist</h3><button class="close" value="cancel" aria-label="Close">×</button></div>
-  <p class="muted" style="margin:0">Paste one card per line, like “1 Sol Ring”. Exports from Moxfield or Archidekt work too. Cards are added to your current deck.</p>
-  <textarea class="input" id="importText" rows="12"></textarea>
+    <textarea class="input" id="importText" rows="12" placeholder="1 Sol Ring&#10;1 Arcane Signet"></textarea>
   <div class="dacts2" style="justify-content:flex-end"><button class="pill ghost" value="cancel">Cancel</button><button class="pill" value="import">Import</button></div>
 </form></dialog>
 
@@ -697,8 +688,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 
 <dialog id="copyDlg" aria-label="Your decklist"><div class="sheet">
   <div class="sheet-h"><h3>Your decklist</h3><button class="close" data-close aria-label="Close">×</button></div>
-  <p class="muted" style="margin:0">Select all and copy.</p>
-  <textarea class="input" id="copyText" rows="14" readonly></textarea>
+    <textarea class="input" id="copyText" rows="14" readonly></textarea>
 </div></dialog>
 
 <div class="toast" id="toast" hidden role="status" aria-live="polite"><svg width="16" height="16"><use href="#i-check"/></svg><span id="toastT"></span></div>
@@ -779,7 +769,7 @@ const CONCEPTS = {
     read:'soldier armies, anthems for attacking creatures, battle cry, amass and myriad',
     q:'(t:soldier or o:"attacking creatures you control get" or kw:"battle cry" or kw:amass or kw:myriad or o:"creatures you control get +1/+1")',
     re:/\bsoldier|attacking creatures you control get|battle cry|amass|myriad|creatures you control get \+1\/\+1/},
-  peace:{label:'Peace', words:['peace','peaceful','pacifist','pacifism','hippie','defensive','defense','turtle','turtling','fortress','castle','walls','prison','pillow fort','pillowfort','fog'],
+  peace:{label:'Peace', words:['peace','peaceful','pacifist','pacifism','hippie','defensive','defense','turtle','turtling','fortress','walls','prison','pillow fort','pillowfort','fog'],
     read:'making it hard to attack you, preventing combat damage and big defenders',
     q:'(o:"can\'t attack you" or o:"prevent all combat damage" or kw:defender or o:"creatures can\'t attack")',
     re:/can't attack you|prevent all combat damage|defender|creatures can't attack/},
@@ -795,7 +785,7 @@ const CONCEPTS = {
     read:'poison, infect, toxic, wither and -1/-1 counters',
     q:'(kw:infect or kw:toxic or kw:poisonous or o:"poison counter" or o:"-1/-1 counter" or kw:wither)',
     re:/infect|toxic|poison|-1\/-1 counter|wither/},
-  machines:{label:'Machines', words:['robot','robots','machine','machines','mech','mechs','cyborg','cyborgs','technology','tech','factory','engineering','engineer','gadget','gadgets','steampunk','android','androids','automation'],
+  machines:{label:'Machines', words:['robot','robots','machine','machines','mech','mechs','cyborg','cyborgs','technology','tech','factory','engineering','engineer','gadget','gadgets','android','androids','automation'],
     read:'artifact creatures, constructs, modular and fabricate',
     q:'((t:artifact t:creature) or t:construct or kw:modular or kw:fabricate or o:"artifact creature")',
     re:/artifact creature|construct|modular|fabricate/},
@@ -891,7 +881,7 @@ const CONCEPTS = {
     read:'wiping the board, mass sacrifice and destroying everything',
     q:'(o:"destroy all" or o:"exile all" or o:"sacrifice all" or o:"each player sacrifices" or name:apocalypse or name:armageddon)',
     re:/(destroy|exile|sacrifice) all|each player sacrifices|apocalypse|armageddon/},
-  farming:{label:'Farming', words:['farm','farms','farming','farmer','farmers','harvest','harvesting','crops','agriculture','ranch','rancher','barn','cottagecore','countryside','homestead','livestock'],
+  farming:{label:'Farming', words:['farm','farms','farming','farmer','farmers','harvest','harvesting','crops','agriculture','ranch','rancher','barn','countryside','homestead','livestock'],
     read:'peasants, plants, farm animals, Food and harvest effects',
     q:'(t:peasant or t:plant or t:ox or t:goat or t:sheep or t:boar or o:"harvest" or o:"food token")',
     re:/peasant|\bplant|\box\b|goat|sheep|boar|harvest|\bfood\b/},
@@ -903,7 +893,7 @@ const CONCEPTS = {
     read:'Rooms, manifest dread, eerie, survival and impending',
     q:'(t:room or kw:"manifest dread" or kw:eerie or kw:survival or kw:impending)',
     re:/\broom\b|manifest dread|eerie|survival|impending/},
-  western:{label:'Wild West', words:['western','westerns','cowboy','cowboys','cowgirl','wild west','sheriff','saloon','showdown','gunslinger','gunslingers','frontier','desert','high noon','bounty','bounty hunter','rodeo','horses'],
+  western:{label:'Wild West', words:['western','westerns','cowboy','cowboys','cowgirl','wild west','sheriff','saloon','showdown','gunslinger','gunslingers','frontier','high noon','bounty','bounty hunter','rodeo','horses'],
     read:'plot, spree, saddle and mounts, and “commit a crime”',
     q:'(kw:plot or kw:spree or kw:saddle or o:"commit a crime" or t:mount)',
     re:/\bplot|spree|saddle|commit a crime|\bmount/},
@@ -950,7 +940,47 @@ const CONCEPTS = {
   eldritch:{label:'Eldritch horror', words:['eldritch','lovecraft','lovecraftian','cthulhu','tentacle','tentacles','cosmic horror','void','abyss','old gods','outer gods','unknowable','from beyond','otherworldly'],
     read:'Eldrazi, annihilator, emerge, devoid and ingest',
     q:'(t:eldrazi or kw:annihilator or kw:emerge or kw:devoid or kw:ingest)',
-    re:/eldrazi|annihilator|emerge|devoid|ingest/}
+    re:/eldrazi|annihilator|emerge|devoid|ingest/},
+  /* ---- Aesthetics: matched on the illustration or frame, not the rules text ---- */
+  darkacademia:{label:'Dark academia', aesthetic:true, words:['dark academia','academia','scholarly','old library','candlelit','tweed','ivy league','gothic library'],
+    read:'art with books, libraries, candles and scholars, leaning on Strixhaven',
+    tags:['book','books','library','candle','scroll','quill','reading','writing','scholar'], extra:'e:stx or e:sta'},
+  gothic:{label:'Gothic', aesthetic:true, words:['gothic','goth','gothic horror','victorian','castle','castles','cathedral','gargoyle','gargoyles','bats','candelabra'],
+    read:'art with castles, bats, moons and cathedrals, leaning on Innistrad',
+    tags:['castle','bat','cathedral','gargoyle','moon','candle','church'], extra:'e:isd or e:dka or e:soi or e:emn or e:mid or e:vow'},
+  cottagecore:{label:'Cottagecore', aesthetic:true, words:['cottagecore','cottage','cozy','cosy','wholesome vibes','tea party','flowers','wildflowers','mushrooms','woodland critters','storybook cottage'],
+    read:'art with cottages, flowers, mushrooms and cozy critters, leaning on Bloomburrow',
+    tags:['cottage','flower','flowers','mushroom','tea','garden','basket','bread'], extra:'e:blb'},
+  cyberpunk:{label:'Cyberpunk', aesthetic:true, words:['cyberpunk','neon','synthwave','vaporwave','futuristic','blade runner','neon city','hacker','hackers'],
+    read:'art with neon, cityscapes, screens and holograms, leaning on Neon Dynasty',
+    tags:['neon','city','cityscape','hologram','screen','skyscraper','cyborg'], extra:'e:neo'},
+  steampunk:{label:'Steampunk', aesthetic:true, words:['steampunk','clockwork','gears','cogs','airship','airships','brass','victorian tech','inventor','inventors'],
+    read:'art with gears, clockwork and airships, leaning on Kaladesh',
+    tags:['gear','gears','clockwork','airship','cog','goggles','pipe'], extra:'e:kld or e:aer'},
+  celestial:{label:'Celestial', aesthetic:true, words:['celestial','moonlight','moonlit','night sky','constellation','constellations','astrology','zodiac','starry','starlight','cosmos'],
+    read:'art with moons, stars and night skies, leaning on Theros',
+    tags:['moon','star','stars','night-sky','night sky','constellation','eclipse','planet'], extra:'e:ths or e:bng or e:jou or e:thb'},
+  nautical:{label:'Nautical', aesthetic:true, words:['nautical','pirate aesthetic','pirate ship','pirate ships','ships','sailing','sails','high seas','treasure map','shipwreck','seafaring'],
+    read:'art with ships, sails, anchors and treasure maps, leaning on Ixalan',
+    tags:['ship','sailing-ship','pirate-ship','sail','anchor','treasure-map','shipwreck','parrot'], extra:'e:xln or e:rix'},
+  grimdark:{label:'Grimdark', aesthetic:true, words:['grimdark','gore','gory','metal','heavy metal','metal album','brutal','skulls','bones','edgy','dark fantasy','blood'],
+    read:'art with skulls, bones, chains, blood and ruins',
+    tags:['skull','skulls','bone','bones','chain','chains','blood','ruins','corpse'], extra:''},
+  ethereal:{label:'Ethereal', aesthetic:true, words:['ethereal','airy','light and airy','dreamy','wings','feathers','pastel','glowing','radiant','luminous'],
+    read:'art with wings, feathers, clouds and glowing light',
+    tags:['wings','feather','feathers','cloud','clouds','halo','light-rays','glowing'], extra:''},
+  desert:{label:'Desert', aesthetic:true, words:['desert','deserts','sand','sandy','dunes','pyramid','pyramids','sun-bleached','sunbaked','egyptian','oasis','arid'],
+    read:'art with sand, dunes and pyramids, leaning on Amonkhet',
+    tags:['desert','sand','dune','pyramid','oasis','cactus'], extra:'e:akh or e:hou'},
+  fashion:{label:'Fashion', aesthetic:true, words:['fashion','fashionable','capes','cape','hoods','hooded','masks','masked','crowns','hats','drip','outfits','well dressed','dapper','couture'],
+    read:'art with capes, hoods, masks, crowns and hats',
+    tags:['cape','hood','hooded','mask','crown','hat','cloak','jewelry'], extra:''},
+  oldframe:{label:'Old-school frame', aesthetic:true, words:['old school','old-school','retro','vintage','old frame','old frames','old border','classic frame','90s','nostalgia','nostalgic','oldschool'],
+    read:'printings in the original 1993 and 1997 card frames',
+    tags:[], extra:'frame:1993 or frame:1997'},
+  bling:{label:'Modern bling', aesthetic:true, words:['bling','blinged','borderless','full art','fullart','showcase','extended art','alt art','alternate art','pimp','pimped','flashy','fancy','premium'],
+    read:'borderless, full-art, showcase and extended-art printings',
+    tags:[], extra:'border:borderless or is:full or frame:showcase or frame:extendedart'}
 };
 const STOP = new Set('a an the deck decks that which works work working like about with and or of to for in on my me i want wanna build building make makes making something some theme themed based around kind type style cards card lots tons really very more is are be it its who where when how what play plays playing uses use using feel feels vibe vibes full all any every this these those just kinda sort get gets thing things way would could should can will do does into out from by as at than then them they you your our we us one two'.split(' '));
 const freeWords = s => (s.toLowerCase().match(/[a-z0-9'&-]+/g)||[]).filter(w=>w.length>=3 && !STOP.has(w)).slice(0,6);
@@ -1009,7 +1039,7 @@ function buildQuery(st){
   if(st.mv!=null && st.mv!=='') parts.push('mv<='+st.mv);
   if(st.price) parts.push('usd<='+st.price);
   if(st.phrase) parts.push('o:"'+st.phrase.replace(/"/g,'')+'"');
-  const themeQ = (st.themes||[]).map(k=>THEMES[k].q).concat((st.concepts||[]).map(k=>CONCEPTS[k].q));
+  const themeQ = (st.themes||[]).map(k=>THEMES[k].q).concat((st.concepts||[]).map(k=>CONCEPTS[k].q)).filter(Boolean);
   if(st.tribe) themeQ.push('(t:'+st.tribe+' or o:'+st.tribe+')');
   if(themeQ.length) parts.push('('+themeQ.map(x=>'('+x+')').join(' or ')+')');
   const fq = (st.funcs||[]).map(k=>FUNCS[k].q);
@@ -1035,7 +1065,8 @@ function cardLite(c){
     ci:c.color_identity||[], usd: p.usd ? +p.usd : (p.usd_foil ? +p.usd_foil : null),
     uri:c.scryfall_uri, rank:c.edhrec_rank||null,
     mana:c.mana_cost || f.map(x=>x.mana_cost).filter(Boolean).join(' // '),
-    flavor:c.flavor_text || f.map(x=>x.flavor_text||'').join(' ')
+    flavor:c.flavor_text || f.map(x=>x.flavor_text||'').join(' '),
+    setCode:(c.set||'').toUpperCase(), cn:c.collector_number||''
   };
 }
 const front = c => c.type.split(' // ')[0];
@@ -1071,10 +1102,30 @@ async function sf(pathOrUrl, opts={}){
   }
   return j;
 }
-const searchCards = (q, order='edhrec') => sf('/cards/search?order='+order+'&unique=cards&q='+encodeURIComponent(q));
+const searchCards = (q, order='edhrec', unique='cards') => sf('/cards/search?order='+order+'&unique='+unique+'&q='+encodeURIComponent(q));
 
 
 /* ======================= State ======================= */
+const TAGS_KEY='ripjr.tags';
+let tagOK = {}; try{ tagOK = JSON.parse(localStorage.getItem(TAGS_KEY)||'{}'); }catch(e){}
+const isAes = k => CONCEPTS[k] && CONCEPTS[k].aesthetic;
+async function readyConcepts(keys){
+  for(const k of (keys||[])){
+    const c = CONCEPTS[k]; if(!c || !c.aesthetic || c.q) continue;
+    const ok = [];
+    for(const t of c.tags){
+      if(tagOK[t]===undefined){
+        try{ const j = await sf('/cards/search?q='+encodeURIComponent('art:'+(t.includes(' ')?'"'+t+'"':t))); tagOK[t] = !!(j.data && j.data.length); }
+        catch(e){ tagOK[t] = false; }
+      }
+      if(tagOK[t]) ok.push('art:'+(t.includes(' ')?'"'+t+'"':t));
+    }
+    try{ localStorage.setItem(TAGS_KEY, JSON.stringify(tagOK)); }catch(e){}
+    const parts = ok.concat(c.extra ? [c.extra] : []);
+    c.q = parts.length ? '('+parts.join(' or ')+')' : '';
+  }
+}
+const uniqFor = st => (st.concepts||[]).some(isAes) ? 'art' : 'cards';
 const blankIntent = () => ({themes:[], funcs:[], tribe:null, concepts:[], type:'', mv:'', price:'', phrase:'', free:''});
 const state = {
   view:'discover',
@@ -1104,7 +1155,8 @@ function scoreCard(c, ctx){
   const t = ctext(c); const why = []; let s = 0;
   const th = ctx.themes||[], fn = ctx.funcs||[];
   for(const k of th) if(THEMES[k].re.test(t)){ s+=3; why.push({k:'t', s:THEMES[k].label, long:'Matches your '+THEMES[k].label.toLowerCase()+' theme'}); }
-  for(const k of (ctx.concepts||[])) if(CONCEPTS[k].re.test(t)){ s+=3.5; why.push({k:'t', s:CONCEPTS[k].label, long:'Fits your '+CONCEPTS[k].label.toLowerCase()+' idea: '+CONCEPTS[k].read}); }
+  for(const k of (ctx.concepts||[])) if(isAes(k)){ s+=3; why.push({k:'t', s:CONCEPTS[k].label, long:'Its art fits the '+CONCEPTS[k].label.toLowerCase()+' look'}); }
+  else if(CONCEPTS[k].re.test(t)){ s+=3.5; why.push({k:'t', s:CONCEPTS[k].label, long:'Fits your '+CONCEPTS[k].label.toLowerCase()+' idea: '+CONCEPTS[k].read}); }
   if(ctx.free){ const fw=freeWords(ctx.free), nm=c.name.toLowerCase(), fl=(c.flavor||'').toLowerCase();
     if(fw.length && fw.every(w=>nm.includes(w))){ s+=10; why.push({k:'t', s:'Name match', long:'Its name matches what you typed'}); }
     else { const hit=fw.filter(w=>nm.includes(w)||fl.includes(w)||t.includes(w)); if(hit.length){ s+=2*hit.length; why.push({k:'t', s:'Mentions “'+hit[0]+'”', long:'Its name, type, rules or flavor text mention “'+hit.join('”, “')+'”'}); } } }
@@ -1170,42 +1222,27 @@ let tokRm = [];
 function renderIntent(){
   const toks = intentTokens(); tokRm = toks.map(t=>t.rm);
   $('#tokens').innerHTML =
-    toks.map((t,n)=>`<span class="tok ${t.cls}">${t.cls==='concept'?gem(11):''}${h(t.label)}<button type="button" data-tok="${n}" aria-label="Remove ${h(t.label)}">×</button></span>`).join('') +
+    toks.map((t,n)=>`<span class="tok ${t.cls}">${h(t.label)}<button type="button" data-tok="${n}" aria-label="Remove ${h(t.label)}">×</button></span>`).join('') +
     `<button class="linkbtn" type="button" id="openFilters"><svg width="14" height="14" style="vertical-align:-2px;margin-right:4px"><use href="#i-sliders"/></svg>Filters</button>` +
-    (toks.length ? `<button class="linkbtn" type="button" id="clearIntent" style="color:var(--muted)">Clear all</button>` : '');
+    (toks.length ? `<button class="linkbtn" type="button" id="clearIntent" style="color:var(--muted)">Clear</button>` : '');
   renderGenie();
-  // quick chips: the four core roles + whatever the deck leans toward
-  const an = deckAnalysis();
-  const quickThemes = Array.from(new Set(an.deckThemes)).filter(k=>!state.intent.themes.includes(k)).slice(0,3);
-  $('#quick').innerHTML = `<span class="lbl">Quick picks</span>` +
-    ['ramp','draw','removal','wipe'].map(k=>`<button class="chip" type="button" data-qf="${k}" aria-pressed="${state.intent.funcs.includes(k)}">${FUNCS[k].label}</button>`).join('') +
-    quickThemes.map(k=>`<button class="chip" type="button" data-qt="${k}" aria-pressed="false">${THEMES[k].label}</button>`).join('');
 }
 function genieText(i){
   const parts = (i.concepts||[]).map(k=>`<b>${h(CONCEPTS[k].label)}</b> as ${h(CONCEPTS[k].read)}`);
-  if(parts.length) return 'The genie read '+parts.join('; and ')+'.';
-  if(i.free) return `Nothing in the genie’s playbook matched <b>“${h(i.free)}”</b> directly, so it’s searching card names, types, rules text and flavor text for it.`;
+  if(parts.length) return 'Reading '+parts.join('; ')+'.';
+  if(i.free) return `Searching names, types, rules and flavor text for <b>“${h(i.free)}”</b>.`;
   return '';
 }
 function renderGenie(){
   const txt = genieText(state.intent);
   $('#genieNote').hidden = !txt;
-  $('#genieNote').innerHTML = txt ? gem(16)+`<span>${txt} <button class="linkbtn" type="button" data-draft style="padding:0">Draft a full list from this →</button></span>` : '';
+  $('#genieNote').innerHTML = txt ? `<span>${txt}</span>` : '';
 }
 $('#tokens').addEventListener('click',e=>{
   const b = e.target.closest('[data-tok]'); if(b){ tokRm[+b.dataset.tok](); renderIntent(); runSearch(); return; }
   if(e.target.closest('#openFilters')) openFilters();
   if(e.target.closest('#clearIntent')){ state.intent=blankIntent(); renderIntent(); runSearch(); }
 });
-$('#quick').addEventListener('click',e=>{
-  const f=e.target.closest('[data-qf]'), t=e.target.closest('[data-qt]');
-  if(f){ const k=f.dataset.qf, a=state.intent.funcs; a.includes(k)?a.splice(a.indexOf(k),1):a.push(k); }
-  else if(t){ state.intent.themes.push(t.dataset.qt); }
-  else return;
-  renderIntent(); runSearch();
-});
-$('#stepsX').addEventListener('click',()=>{ state.tipsHidden=true; $('#steps').hidden=true; save(); });
-
 /* ======================= Filters sheet ======================= */
 const TYPES = ['','creature','instant','sorcery','artifact','enchantment','planeswalker','land'];
 const MVS = ['','1','2','3','4','5','6'];
@@ -1245,6 +1282,7 @@ const inDeck = c => state.deck.cards.some(x=>x.name===c.name) || (state.deck.com
 let seqS = 0;
 async function runSearch(append=false){
   const st = Object.assign({commander:state.deck.commander}, state.intent);
+  if((st.concepts||[]).some(k=>isAes(k) && !CONCEPTS[k].q)){ $('#status').className='status'; $('#status').textContent='Reading the art…'; await readyConcepts(st.concepts); }
   const q = buildQuery(st);
   $('#query').innerHTML = `${h(q)} &nbsp;<a href="https://scryfall.com/search?order=edhrec&q=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open on Scryfall ↗</a>`;
   const seq = ++seqS;
@@ -1252,7 +1290,7 @@ async function runSearch(append=false){
   if(!append){ $('#status').textContent='Searching…'; $('#results').innerHTML = Array(8).fill('<div class="card"><div class="skel"></div></div>').join(''); }
   $('#goBtn').disabled = true;
   try{
-    const j = append && state.next ? await sf(state.next) : await searchCards(q);
+    const j = append && state.next ? await sf(state.next) : await searchCards(q, 'edhrec', uniqFor(st));
     if(seq!==seqS) return;
     const an = deckAnalysis();
     const ctx = {themes:st.themes, funcs:st.funcs, tribe:st.tribe, concepts:st.concepts, free:st.free, gaps:an.gaps, deckThemes:an.deckThemes};
@@ -1261,7 +1299,7 @@ async function runSearch(append=false){
     state.next = j.has_more ? j.next_page : null;
     const total = j.total_cards||state.results.length;
     $('#rTitle').textContent = state.intent.free ? 'Cards about “'+state.intent.free+'”' : (state.intent.concepts||[]).length ? 'Cards for a '+state.intent.concepts.map(k=>CONCEPTS[k].label.toLowerCase()).join(' + ')+' deck' : intentTokens().length ? 'Best matches' : 'Commander staples in your colors';
-    $('#status').textContent = state.results.length ? `${total.toLocaleString()} cards · best fit first` : '';
+    $('#status').textContent = state.results.length ? `${total.toLocaleString()} cards` : '';
     renderResults();
   }catch(err){
     if(seq!==seqS) return;
@@ -1277,7 +1315,7 @@ function tile(c, i){
   return `<div class="card">
     <div class="artwrap">
       <button class="art" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>
-      ${c.match!=null ? `<span class="top match">${c.match}% MATCH</span>` : i!=null && i<3 && c.score>=6 ? `<span class="top">${gem(9)} TOP PICK</span>`:''}
+      ${c.match!=null ? `<span class="top match">${c.match}%</span>` : ''}
       <button class="plus ${added?'in':''}" data-add="${c.id}" aria-label="${added?h(c.name)+' is in your deck':'Add '+h(c.name)}">${added?'<svg width="16" height="16"><use href="#i-check"/></svg>':'+'}</button>
     </div>
     <div class="cname">${h(c.name)}</div>
@@ -1329,8 +1367,7 @@ function syncButtons(){
   });
 }
 function deckChanged(){
-  state.predictDirty = true; save(); renderDeck(); renderCmdPill(); renderIntent(); syncButtons();
-  if(state.view==='suggest') runPredict();
+  save(); renderDeck(); renderCmdPill(); renderIntent(); syncButtons();
   if(state.draft) renderDraft();
 }
 const TYPE_ORDER = ['Creature','Planeswalker','Instant','Sorcery','Artifact','Enchantment','Battle','Land'];
@@ -1341,9 +1378,13 @@ function ring(n,t){
 }
 function renderDeck(){
   const d = state.deck, cmd = d.commander;
+  if(cmd) cache.set(cmd.id, cmd);
   $('#dhead').innerHTML = cmd
-    ? `<div class="dhead">${cmd.art?`<img src="${h(cmd.art)}" alt="">`:''}<div class="cap"><div style="min-width:0"><span class="eyebrow">Commander</span><h3>${h(cmd.name)}</h3><div style="margin-top:6px">${pips(cmd.ci)}</div></div><button class="pill small" data-cmd>Change</button></div></div>`
-    : `<div class="dhead none">${gem(26)}<b>No commander yet</b><span class="muted" style="font-size:.88rem">Your commander sets the colors every search stays inside.</span><button class="pill small" data-cmd>Choose a commander</button></div>`;
+    ? `<div class="cmdcard"><button class="cmdimg" type="button" data-open="${cmd.id}" aria-label="View ${h(cmd.name)}">${cmd.img?`<img src="${h(cmd.img)}" alt="${h(cmd.name)}">`:`<b>${h(cmd.name)}</b>`}</button><button class="linkbtn" type="button" data-cmd>Change commander</button></div>`
+    : `<div class="dhead none"><b>No commander yet</b><button class="pill small" data-cmd>Choose a commander</button></div>`;
+  const fab = $('#cmdFab');
+  fab.hidden = !cmd;
+  if(cmd){ fab.dataset.open = cmd.id; fab.innerHTML = cmd.img ? `<img src="${h(cmd.img)}" alt="">` : ''; fab.setAttribute('aria-label','View '+cmd.name); }
   $('#exNote').hidden = !state.example;
   const total = d.cards.reduce((n,c)=>n+c.qty,0) + (cmd?1:0);
   $('#stCount').textContent = total; $('#stCount').style.color = total>100?'var(--bad)':'';
@@ -1356,15 +1397,15 @@ function renderDeck(){
   const mx = Math.max(1,...b);
   $('#curve').innerHTML = b.map((n,i)=>`<div title="${n} at mana value ${i}${i===7?'+':''}"><span>${n||''}</span><i style="height:${n/mx*50}px"></i><span>${i===7?'7+':i}</span></div>`).join('');
   const an = deckAnalysis();
-  $('#ess').innerHTML = Object.entries(FUNCS).map(([k,v])=>`<div class="ring">${ring(an.counts[k],v.target)}<div><b>${v.label}</b><span>${an.counts[k]} of ${v.target}</span></div></div>`).join('') +
-    `<div class="ring">${ring(an.counts.land,36)}<div><b>Lands</b><span>${an.counts.land} of 36</span></div></div>`;
+  const row = (label,n,t) => `<div class="er"><span>${label}</span><span class="num ${n>=t?'ok':''}">${n}/${t}</span><i style="--p:${Math.min(100,n/t*100)}%"></i></div>`;
+  $('#ess').innerHTML = Object.entries(FUNCS).map(([k,v])=>row(v.label,an.counts[k],v.target)).join('') + row('Lands',an.counts.land,36);
   const groups = {}; d.cards.forEach(c=>(groups[groupOf(c)] ||= []).push(c));
   const order = TYPE_ORDER.concat(['Other']).filter(g=>groups[g]);
   $('#list').innerHTML = order.length ? order.map(g=>{
     const list = groups[g].sort((a,b)=>a.mv-b.mv||a.name.localeCompare(b.name));
     return `<div class="group"><h4>${g}s · ${list.reduce((s,c)=>s+c.qty,0)}</h4>${list.map(c=>{ cache.set(c.id,c); const off=!inIdentity(c);
       return `<div class="line"><span class="q">${c.qty}</span><button class="nm ${off?'off':''}" data-open="${c.id}" title="${off?'Outside your commander’s colors':h(c.name)}">${h(c.name)}</button><span class="mv">${isLand(c)?'':c.mv}</span><button class="rm" data-rm="${h(c.name)}" aria-label="Remove ${h(c.name)}">×</button></div>`; }).join('')}</div>`;
-  }).join('') : `<div class="empty" style="padding:16px 8px"><span>Your deck is empty. Tap <b style="color:var(--accent)">+</b> on any card to add it.</span></div>`;
+  }).join('') : `<div class="empty" style="padding:16px 8px"><span>No cards yet.</span></div>`;
 }
 $('#list').addEventListener('click',e=>{ const r=e.target.closest('[data-rm]'); if(r) removeCard(r.dataset.rm); });
 $('#dhead').addEventListener('click',e=>{ if(e.target.closest('[data-cmd]')) openCmd(); });
@@ -1390,13 +1431,14 @@ const W_TRIBES = ['vampire','elf','goblin','zombie','dragon','angel','merfolk','
 const PLURAL = {elf:'Elves',dwarf:'Dwarves',wolf:'Wolves',werewolf:'Werewolves',merfolk:'Merfolk',fox:'Foxes',mouse:'Mice',sphinx:'Sphinxes',ally:'Allies',myr:'Myr',fish:'Fish',elk:'Elk',samurai:'Samurai'};
 const plural = t => PLURAL[t] || cap(t)+'s';
 function renderWelcome(){
-  $('#wTypes').innerHTML = STYLES.map(([k,d])=>`<button class="type" type="button" data-style="${k}">${gem(16)}<b>${h(STYLE_NAMES[k]||THEMES[k].label)}</b><span>${h(d)}</span></button>`).join('');
-  $('#wTribes').innerHTML = `<span class="lbl">Or build around a creature type</span>` + W_TRIBES.map(t=>`<button class="chip" type="button" data-wtribe="${t}">${plural(t)}</button>`).join('');
+  $('#wTypes').innerHTML = STYLES.map(([k,d])=>`<button class="type" type="button" data-style="${k}"><b>${h(STYLE_NAMES[k]||THEMES[k].label)}</b></button>`).join('');
+  $('#wLooks').innerHTML = `<span class="lbl">Looks</span>` + Object.entries(CONCEPTS).filter(([k,v])=>v.aesthetic).map(([k,v])=>`<button class="chip" type="button" data-look="${k}">${h(v.label)}</button>`).join('');
+  $('#wTribes').innerHTML = `<span class="lbl">Creature types</span>` + W_TRIBES.map(t=>`<button class="chip" type="button" data-wtribe="${t}">${plural(t)}</button>`).join('');
   const d = state.deck, real = !state.example && (d.commander || d.cards.length);
-  $('#wContinue').textContent = real ? 'Continue to deckbuilder →' : 'Continue to deckbuilder →';
+  $('#wContinue').textContent = 'Continue to deckbuilder';
   $('#wNote').textContent = real
-    ? `Continue keeps working on your ${d.commander?d.commander.name+' ':''}deck. Picking a style above starts a new one.`
-    : 'Jump straight in with an example deck you can clear anytime.';
+    ? `Your ${d.commander?d.commander.name+' ':''}deck is saved.`
+    : '';
 }
 function showWelcome(){ renderWelcome(); $('#welcome').hidden=false; $('#welcome').scrollTop=0; setTimeout(()=>$('#wq').focus(),50); }
 function hideWelcome(){ $('#welcome').hidden=true; window.scrollTo({top:0}); }
@@ -1406,8 +1448,8 @@ function startNew(intent, label){
   state.intent = Object.assign(blankIntent(), intent);
   deckChanged(); hideWelcome(); setView('discover');
   const i = state.intent;
-  const q = buildQuery({commander:null, themes:i.themes, concepts:i.concepts, funcs:i.funcs, tribe:i.tribe, free:i.free});
-  openCmd({label, q});
+  openCmd({label, prep:()=>readyConcepts(i.concepts), unique:(i.concepts||[]).some(isAes)?'art':'cards',
+    q:()=>buildQuery({commander:null, themes:i.themes, concepts:i.concepts, funcs:i.funcs, tribe:i.tribe, free:i.free})});
 }
 function startFromText(v){
   const p = parseDescription(v);
@@ -1418,6 +1460,10 @@ function startFromText(v){
 $('#wTypes').addEventListener('click',e=>{
   const b=e.target.closest('[data-style]'); if(!b) return;
   const k=b.dataset.style; startNew({themes:[k]}, (STYLE_NAMES[k]||THEMES[k].label).toLowerCase()+' decks');
+});
+$('#wLooks').addEventListener('click',e=>{
+  const b=e.target.closest('[data-look]'); if(!b) return;
+  const k=b.dataset.look; startNew({concepts:[k]}, CONCEPTS[k].label.toLowerCase());
 });
 $('#wTribes').addEventListener('click',e=>{
   const b=e.target.closest('[data-wtribe]'); if(!b) return;
@@ -1451,20 +1497,21 @@ $('#cmdDlg').addEventListener('close',()=>{ if(cmdFilter && !cmdPicked) runSearc
 async function loadCmds(text){
   const seq=++cmdSeq;
   const words = text.replace(/["():<>=!]/g,' ').trim();
-  const idle = cmdFilter ? 'Commanders that fit '+cmdFilter.label+' · or search any commander above' : 'Most popular commanders';
+  const idle = cmdFilter ? 'Fits '+cmdFilter.label : 'Most popular';
   $('#cmdStatus').textContent = words ? 'Searching…' : idle;
   try{
     let j;
     if(words) j = await searchCards('is:commander legal:commander game:paper '+words);
     else if(cmdFilter){
-      j = await searchCards('is:commander '+cmdFilter.q);
+      if(cmdFilter.prep){ await cmdFilter.prep(); cmdFilter.prep=null; }
+      j = await searchCards('is:commander '+cmdFilter.q(), 'edhrec', cmdFilter.unique||'cards');
       if(!(j.data||[]).length) j = await searchCards('is:commander legal:commander game:paper');
     }
     else j = await searchCards('is:commander legal:commander game:paper');
     if(seq!==cmdSeq) return;
     const list = (j.data||[]).slice(0,30).map(cardLite);
     list.forEach(c=>cache.set(c.id,c));
-    $('#cmdStatus').textContent = words ? (list.length?'':'No commanders match that. Try part of the name.') : idle;
+    $('#cmdStatus').textContent = words ? (list.length?'':'No matches.') : idle;
     $('#cmdGrid').innerHTML = list.map(c=>`<button type="button" data-pick="${c.id}">${c.img?`<img src="${h(c.img)}" alt="" loading="lazy">`:''}<span>${h(c.name)}</span>${pips(c.ci)}</button>`).join('');
   }catch(err){ if(seq===cmdSeq) $('#cmdStatus').textContent = err.message; }
 }
@@ -1482,10 +1529,10 @@ function openCard(c){
   $('#dName').textContent=c.name;
   $('#dCost').innerHTML = c.mana ? syms(c.mana) : '';
   $('#dType').textContent=c.type;
-  $('#dText').innerHTML = syms(c.oracle) || '<span class="muted">No rules text.</span>';
+  $('#dText').innerHTML = syms(c.oracle) || '';
   const roles = rolesOf(c).filter(r=>r!=='land').map(r=>FUNCS[r].label);
   $('#dKv').innerHTML = `<div>Mana value<b>${c.mv}</b></div><div>Price<b>${money(c.usd)}</b></div>${c.rank?`<div>EDHREC rank<b>#${c.rank.toLocaleString()}</b></div>`:''}${roles.length?`<div>Role<b>${h(roles.join(', '))}</b></div>`:''}`;
-  $('#dWhy').innerHTML = (c.why||[]).length ? `<div style="font-weight:600">Why it’s suggested</div>`+c.why.map(w=>`<div>${gem(10)}<span>${h(w.long)}</span></div>`).join('') : '';
+  $('#dWhy').innerHTML = (c.why||[]).length ? c.why.map(w=>`<div><span>${h(w.long)}</span></div>`).join('') : '';
   const isCmd = state.deck.commander && state.deck.commander.name===c.name;
   const inn = inDeck(c) && !multiOk(c);
   $('#dAdd').textContent = isCmd ? 'Your commander' : inn ? 'Remove from deck' : 'Add to deck';
@@ -1497,56 +1544,6 @@ function openCard(c){
 $('#dFlip').addEventListener('click',()=>{ dlgBack=!dlgBack; $('#dImg').src = dlgBack?dlgCard.back:dlgCard.img; });
 $('#dClose').addEventListener('click',()=>$('#cardDlg').close());
 $('#dAdd').addEventListener('click',()=>{ const c=dlgCard; if(!c) return; if(inDeck(c)&&!multiOk(c)) removeCard(c.name,true); else addCard(c); $('#cardDlg').close(); });
-
-/* ======================= Suggestions ======================= */
-let seqP=0;
-async function runPredict(){
-  state.predictDirty=false;
-  const seq=++seqP, an=deckAnalysis(), cmd=state.deck.commander;
-  const n = state.deck.cards.reduce((s,c)=>s+c.qty,0);
-  $('#sTitle').textContent = cmd ? 'Suggestions for '+cmd.name : 'Suggestions';
-  $('#sSub').textContent = cmd ? `Based on the ${n} card${n===1?'':'s'} in your deck. Each shelf targets something your deck needs.` : '';
-  const leanBits = [];
-  if(an.tribe) leanBits.push(plural(an.tribe));
-  an.deckThemes.forEach(k=>leanBits.push(THEMES[k].label));
-  $('#leans').innerHTML = leanBits.length ? `<span class="muted" style="font-size:.88rem">Your deck leans toward</span>`+leanBits.map(b=>`<span class="tok theme" style="padding-right:12px">${h(b)}</span>`).join('') : '';
-  const out=$('#shelves');
-  if(!cmd){ out.innerHTML = `<div class="empty">${gem(22)}<b style="color:var(--ink)">Choose a commander first</b><span>Suggestions stay inside your commander’s colors.</span><button class="pill small" data-cmd2>Choose a commander</button></div>`; return; }
-  const themes = Array.from(new Set(an.deckThemes.concat(state.intent.themes)));
-  const tribe = an.tribe || state.intent.tribe;
-  const base = {commander:cmd, themes:[], funcs:[], tribe:null, price:state.intent.price};
-  const plan = an.gaps.slice(0,3).map(k=>({k}));
-  plan.push({theme:true});
-  const skel = '<div class="rail">'+Array(6).fill('<div class="card"><div class="skel"></div></div>').join('')+'</div>';
-  out.innerHTML = plan.map(()=>`<section class="shelf"><div class="shelf-h"><h3 class="muted">Finding cards…</h3></div>${skel}</section>`).join('');
-  const html = [];
-  try{
-    for(const p of plan){
-      let cards, title, sub;
-      if(p.k){
-        const f=FUNCS[p.k], have=an.counts[p.k];
-        title = 'Needs more '+f.label.toLowerCase();
-        sub = `${have} of about ${f.target} so far`+(themes.length||tribe?' · picked to fit your themes':'');
-        let j = await searchCards(buildQuery(Object.assign({},base,{funcs:[p.k], themes, tribe})));
-        if((j.data||[]).filter(c=>!inDeck(c)).length<6) j = await searchCards(buildQuery(Object.assign({},base,{funcs:[p.k]})));
-        cards = j.data||[];
-      } else {
-        title = themes.length||tribe ? 'More of what your deck does' : 'Popular in your colors';
-        sub = themes.length||tribe ? 'Cards that match your deck’s themes' : 'Add a few cards and this shelf will learn your themes';
-        cards = (await searchCards(buildQuery(Object.assign({},base,{themes, tribe})))).data||[];
-      }
-      if(seq!==seqP) return;
-      const ctx = {themes, tribe, funcs:p.k?[p.k]:[], gaps:an.gaps};
-      const picks = cards.map(cardLite).filter(c=>!inDeck(c)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,12);
-      html.push(`<section class="shelf"><div class="shelf-h"><h3>${h(title)}</h3><p>${h(sub)}</p></div>${picks.length?`<div class="rail">${picks.map(c=>tile(c)).join('')}</div>`:'<p class="status">Nothing new to suggest here.</p>'}</section>`);
-      out.innerHTML = html.join('') + plan.slice(html.length).map(()=>`<section class="shelf"><div class="shelf-h"><h3 class="muted">Finding cards…</h3></div>${skel}</section>`).join('');
-    }
-    if(!an.gaps.length) out.insertAdjacentHTML('afterbegin',`<div class="note">${gem(11)} Every essential is at or above a typical count. These picks lean on your themes.</div>`);
-  }catch(err){ if(seq===seqP) out.innerHTML=`<p class="status err">${h(err.message)}</p>`; }
-}
-$('#refreshBtn').addEventListener('click',runPredict);
-$('#shelves').addEventListener('click',e=>{ if(e.target.closest('[data-cmd2]')) openCmd(); });
-
 
 /* ======================= CSV export ======================= */
 const csvCell = v => { const s = String(v??''); return /[",\n\r]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
@@ -1560,8 +1557,8 @@ function downloadCSV(filename, header, rows){
   }catch(e){ $('#copyText').value=text; $('#copyDlg').showModal(); $('#copyText').select(); }
 }
 const slug = s => (s||'deck').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const CARD_COLS = ['Name','Type','Mana Value','Mana Cost','Color Identity','Roles','Price (USD)','EDHREC Rank','Scryfall URL'];
-const cardCols = c => [c.name, c.type, c.mv, c.mana||'', (c.ci||[]).join('')||'C', rolesOf(c).filter(r=>r!=='land').map(r=>FUNCS[r].label).join('; '), c.usd!=null?c.usd.toFixed(2):'', c.rank||'', c.uri||''];
+const CARD_COLS = ['Name','Set','Collector Number','Type','Mana Value','Mana Cost','Color Identity','Roles','Price (USD)','EDHREC Rank','Scryfall URL'];
+const cardCols = c => [c.name, c.setCode||'', c.cn||'', c.type, c.mv, c.mana||'', (c.ci||[]).join('')||'C', rolesOf(c).filter(r=>r!=='land').map(r=>FUNCS[r].label).join('; '), c.usd!=null?c.usd.toFixed(2):'', c.rank||'', c.uri||''];
 function exportDeckCSV(){
   const d = state.deck; if(!d.commander && !d.cards.length){ toast('Your deck is empty'); return; }
   const rows = [];
@@ -1591,20 +1588,20 @@ function addMany(cards){
 const DRAFT_NEEDS = {ramp:8, draw:7, removal:6, wipe:2};
 let seqD = 0;
 async function runDraft(){
-  const box = $('#draftBox');
-  if(!state.deck.commander){ openCmd(); toast('Pick a commander first'); return; }
+  if(!state.deck.commander){ $('#draftDlg').close(); openCmd(); toast('Pick a commander first'); return; }
+  await readyConcepts(state.intent.concepts);
   const seq = ++seqD, cmd = state.deck.commander, an = deckAnalysis(), i = state.intent;
   const themes = Array.from(new Set((i.themes||[]).concat(an.deckThemes)));
   const concepts = i.concepts||[], tribe = i.tribe || an.tribe, free = i.free;
   const idea = [...concepts.map(k=>CONCEPTS[k].label), ...(tribe?[plural(tribe)]:[]), ...themes.map(k=>THEMES[k].label), ...(free?['“'+free+'”']:[])];
-  $('#draftBody').innerHTML = `<div class="status">Drafting around ${idea.length?h(idea.join(', ')):'the most-played cards in your colors'}…</div>` + '<div class="drows">'+Array(6).fill('<div class="drow"><span></span><div class="thumb skel"></div><div class="skel" style="height:14px;border-radius:6px;aspect-ratio:auto"></div></div>').join('')+'</div>';
+  $('#draftBody').innerHTML = `<div class="status">${idea.length?h(idea.join(', ')):'Popular in your colors'}</div>` + '<div class="drows">'+Array(6).fill('<div class="drow"><span></span><div class="thumb skel"></div><div class="skel" style="height:14px;border-radius:6px;aspect-ratio:auto"></div></div>').join('')+'</div>';
   $('#draftActs').hidden = true;
   const ctx = {themes, concepts, tribe, free, gaps:an.gaps};
   const taken = new Set(state.deck.cards.map(c=>c.name).concat(cmd.name));
   const pick = (cards, n) => cards.map(cardLite).filter(c=>!taken.has(c.name)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,n).map(c=>{ taken.add(c.name); return c; });
   const groups = [];
   try{
-    const core = await searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price}));
+    const core = await searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price}), 'edhrec', concepts.some(isAes)?'art':'cards');
     if(seq!==seqD) return;
     groups.push({title: idea.length ? 'On your idea' : 'Popular in your colors', key:'core', items: pick(core.data||[], 18)});
     for(const [k,n] of Object.entries(DRAFT_NEEDS)){
@@ -1620,9 +1617,9 @@ async function runDraft(){
 }
 function renderDraft(){
   const d = state.draft;
-  if(!d){ $('#draftBody').innerHTML = `<p class="muted" style="margin:0">The genie builds a starter list from your idea plus the ramp, card draw and removal every Commander deck needs. You pick what to keep.</p>`; $('#draftActs').hidden=true; $('#draftGo').textContent='Draft my list'; return; }
+  if(!d){ $('#draftBody').innerHTML = ''; $('#draftActs').hidden=true; return; }
   const total = d.groups.reduce((n,g)=>n+g.items.length,0);
-  if(!total){ $('#draftBody').innerHTML = `<div class="empty" style="padding:20px 8px">${gem(20)}<b style="color:var(--ink)">Nothing new to add</b><span>Everything the genie found is already in your deck. Try a different idea on Discover, or loosen your price filter.</span></div>`; $('#draftActs').hidden=true; $('#draftGo').textContent='Redraft'; return; }
+  if(!total){ $('#draftBody').innerHTML = `<div class="empty" style="padding:20px 8px"><span>Nothing new to add.</span></div>`; $('#draftActs').hidden=true; return; }
   const cost = d.groups.flatMap(g=>g.items).filter(c=>d.sel.has(c.name)).reduce((n,c)=>n+(c.usd||0),0);
   $('#draftBody').innerHTML = d.groups.map(g=>`<div class="dgroup"><h4>${h(g.title)} · ${g.items.length}</h4><div class="drows">${g.items.map(c=>{ cache.set(c.id,c);
     const why = (c.why||[]).slice(0,2).map(w=>w.k?`<span class="${w.k}">${h(w.s)}</span>`:h(w.s)).join(' · ');
@@ -1635,7 +1632,7 @@ function renderDraft(){
   $('#draftAdd').textContent = n ? `Add ${n} card${n===1?'':'s'} to deck` : 'All added';
   $('#draftAdd').disabled = !n;
   $('#draftInfo').textContent = `${total} suggestions · selected ≈ $${Math.round(cost).toLocaleString()}`;
-  $('#draftActs').hidden=false; $('#draftGo').textContent='Redraft';
+  $('#draftActs').hidden=false;
 }
 $('#draftBody').addEventListener('change',e=>{
   const cb = e.target.closest('[data-dsel]'); if(!cb || !state.draft) return;
@@ -1646,7 +1643,13 @@ $('#draftGo').addEventListener('click',runDraft);
 $('#draftAdd').addEventListener('click',()=>{ const d=state.draft; if(!d) return; addMany(d.groups.flatMap(g=>g.items).filter(c=>d.sel.has(c.name))); renderDraft(); });
 $('#draftAll').addEventListener('click',()=>{ const d=state.draft; if(!d) return; const all=d.groups.flatMap(g=>g.items.map(c=>c.name)); const on = d.sel.size<all.length; d.sel = new Set(on?all:[]); renderDraft(); });
 $('#draftCsv').addEventListener('click',()=>{ const d=state.draft; if(!d) return; exportListCSV('ripjr-draft-'+slug(state.deck.commander&&state.deck.commander.name)+'.csv', d.groups, ['Why suggested'], c=>[(c.why||[]).map(w=>w.long).join('; ')]); });
-document.addEventListener('click',e=>{ if(e.target.closest('[data-draft]')){ setView('suggest'); runDraft(); } });
+let draftKey='';
+document.addEventListener('click',e=>{ if(!e.target.closest('[data-draft]')) return;
+  if(!state.deck.commander){ openCmd(); toast('Pick a commander first'); return; }
+  $('#draftDlg').showModal();
+  const key = JSON.stringify([state.intent, state.deck.commander.name, state.deck.cards.length]);
+  if(!state.draft || key!==draftKey){ draftKey=key; runDraft(); } else renderDraft();
+});
 
 /* ======================= Similar cards ======================= */
 const TRIGGERS = {
@@ -1669,7 +1672,7 @@ function features(c){
   const sub = (f.split('—')[1]||'').trim();
   return {
     roles:new Set(rolesOf(c).filter(r=>r!=='land')), themes:new Set(themesOf(c)),
-    concepts:new Set(Object.keys(CONCEPTS).filter(k=>CONCEPTS[k].re.test(t))),
+    concepts:new Set(Object.keys(CONCEPTS).filter(k=>CONCEPTS[k].re && CONCEPTS[k].re.test(t))),
     kw:new Set((c.kw||[]).map(k=>k.toLowerCase())), subs:new Set(sub?sub.split(/\s+/):[]),
     types:new Set(MAIN_TYPES.filter(x=>new RegExp('\\b'+x+'\\b').test(f))), trig,
     mv:c.mv, ci:new Set(c.ci||[]), land:isLand(c)
@@ -1733,8 +1736,8 @@ function renderSimHead(){
   const chips = [...[...f.roles].map(k=>FUNCS[k].label), ...[...f.trig].map(k=>TRIGGERS[k].label), ...[...f.themes].map(k=>THEMES[k].label), ...[...f.kw].map(cap), ...[...f.subs].map(cap)];
   $('#simBody').hidden = false;
   $('#simCard').innerHTML = `<button class="art" data-open="${c.id}" aria-label="View ${h(c.name)}" style="cursor:zoom-in">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}">`:''}</button>
-    <div><div class="eyebrow">Comparing to</div><h3 style="font:600 1.15rem/1.25 var(--f-body);margin-top:6px">${h(c.name)}</h3><div class="muted" style="font-size:.85rem">${h(c.type)} · MV ${c.mv} · ${money(c.usd)}</div></div>
-    <div><div class="sec-t"><span>What the genie looks at</span></div><div class="chips">${chips.length?chips.map(x=>`<span class="tok" style="padding-right:12px">${h(x)}</span>`).join(''):'<span class="muted" style="font-size:.85rem">Mostly its type and mana value. It doesn’t do much the genie can name.</span>'}</div></div>`;
+    <div><h3 style="font:600 1.15rem/1.25 var(--f-body)">${h(c.name)}</h3><div class="muted" style="font-size:.85rem">${h(c.type)} · MV ${c.mv} · ${money(c.usd)}</div></div>
+    <div><div class="chips">${chips.length?chips.map(x=>`<span class="tok" style="padding-right:12px">${h(x)}</span>`).join(''):''}</div></div>`;
   $('#simColorsWrap').hidden = !state.deck.commander;
   $('#simColorsLbl').textContent = state.deck.commander ? 'Only '+state.deck.commander.name+'’s colors' : '';
 }
@@ -1794,11 +1797,8 @@ function setView(v){
   state.view=v; $('#app').dataset.view=v;
   document.querySelectorAll('.seg button').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
   $('#view-discover').hidden = v!=='discover';
-  $('#view-suggest').hidden = v!=='suggest';
   $('#view-similar').hidden = v!=='similar';
   if(v==='similar' && !sim.card) setTimeout(()=>$('#simQ').focus(),50);
-  if(v==='suggest' && !state.draft) renderDraft();
-  if(v==='suggest' && state.predictDirty) runPredict();
   window.scrollTo({top:0});
 }
 document.querySelector('.seg').addEventListener('click',e=>{ const t=e.target.closest('button'); if(t) setView(t.dataset.view); });
@@ -1898,7 +1898,7 @@ async function rollPack(era){
     ...Array.from({length:9}, ()=>({rar:'common', qs:['r:common -t:basic'+base+E]})),
     ...Array.from({length:3}, ()=>({rar:'uncommon', qs:['r:uncommon'+base+E]})),
     {rar: mythic?'mythic':'rare', qs:[(mythic?'r:mythic':'r:rare')+base+E, 'r:rare'+base]},
-    {rar:'basic', basic:BASICS[Math.floor(Math.random()*BASICS.length)], qs:['','']},
+    {rar:'basic', basic:BASICS[Math.floor(Math.random()*BASICS.length)], qs:['','','t:basic game:paper']},
     {rar:'token', qs:['t:token include:extras game:paper', 'layout:token include:extras', 't:token']},
   ];
   if(Math.random() < SPECIAL_ODDS){
@@ -1911,7 +1911,7 @@ async function rollPack(era){
     for(let attempt=0; attempt<3 && !card; attempt++){
       const q = s.qs[Math.min(attempt, s.qs.length-1)];
       try{
-        const raw = s.basic
+        const raw = s.basic && attempt<2
           ? await randomPrint('!"'+s.basic+'" game:paper -st:memorabilia -is:oversized'+(attempt===0?E:''))
           : await sf('/cards/random?q='+encodeURIComponent(q));
         if(!raw || !raw.id) continue;
@@ -1977,8 +1977,7 @@ function renderPack(){
       </div>
       <div class="frontui"><div class="tearline"></div><div class="tearprog" id="tearprog"></div><div class="tearzone" id="tearzone"></div></div>
     </div></div>`;
-  $('#stageFoot').innerHTML = `<div class="hint">Drag the pack to spin it. Swipe across the top to tear it open.</div>
-    <div class="stage-acts"><button class="pill ghost" type="button" id="flipBtn">Flip pack</button><button class="pill" type="button" id="openBtn">Tear it open</button></div>`;
+  $('#stageFoot').innerHTML = `<div class="stage-acts"><button class="pill ghost" type="button" id="flipBtn">Flip</button><button class="pill" type="button" id="openBtn">Open</button></div>`;
   $('#flipBtn').onclick = ()=>{ pk.ry += 180; applyPack(true); };
   $('#openBtn').onclick = tearOpen;
   applyPack(true);
@@ -2058,7 +2057,7 @@ function renderStack(){
   const c = cards[pk.idx];
   $('#stageFoot').innerHTML = `<div class="cardinfo"><span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><b>${h(c.name)}</b><span class="counter">${h(c.set)}${c.usd!=null?' · '+money(c.usd):''}</span></div>
     <div class="dots">${cards.map((_,i)=>`<i class="${i<=pk.idx?'on':''}"></i>`).join('')}</div>
-    <div class="hint">${c.rar==='special'?`<b style="color:#BFEAFF">✦ Special slot!</b> A ${h(c.special)} card took the token’s place.`:pk.idx===0?'Swipe the card away, or tap it, to see the next one.':pk.idx===n-1?'Last one. Swipe to see everything you pulled.':`${pk.idx+1} of ${n}`}</div>`;
+    ${c.rar==='special'?'<div class="hint" style="color:#BFEAFF">✦ Special slot</div>':''}`;
   bindCard();
 }
 function bindCard(){
@@ -2102,12 +2101,12 @@ function packStats(){
 function showSummary(){
   pk.state='summary';
   const {total,best} = packStats();
-  $('#stageMid').innerHTML = `<div class="summary"><span class="eyebrow">Pack #${pk.no}</span><h2>Your pulls</h2>
+  $('#stageMid').innerHTML = `<div class="summary"><h2>Your pulls</h2>
     <div style="color:rgba(242,238,228,.7);font-size:.92rem;text-align:center">Worth about <b style="color:#E2C376">${money(total)}</b>${best?` · Best pull: <b style="color:#fff">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
-    <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Open another pack</button><button class="pill ghost" type="button" id="leavePack">Back to deckbuilder</button></div>
+    <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Another pack</button><button class="pill ghost" type="button" id="leavePack">Done</button></div>
     <div class="sumgrid">${pk.cards.map((c,i)=>{ cache.set(c.id,c); const hit = isHit(c)||(c.usd||0)>=5;
       return `<button class="sumcard ${hit?'hit':''} ${c.rar}" type="button" data-open="${c.id}" style="animation-delay:${i*35}ms">${c.img?`<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" loading="lazy">`:'<span class="ph"></span>'}<span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><span>${h(c.name)}</span><small>${money(c.usd)}</small></button>`; }).join('')}</div></div>`;
-  $('#stageFoot').innerHTML = `<div class="hint">Tap any card to see it up close, add it to your deck, or find similar cards.</div>`;
+  $('#stageFoot').innerHTML = '';
   $('#stageFoot').classList.add('static');
   $('#exportPack').onclick = exportPackImage;
   $('#againPack').onclick = ()=>newPack();
@@ -2197,7 +2196,6 @@ Deck
 async function boot(){
   const saved = load();
   if(saved){ state.tipsHidden = !!saved.tipsHidden; }
-  $('#steps').hidden = state.tipsHidden;
   renderDeck(); renderCmdPill(); renderIntent();
   if(saved && saved.deck) { state.deck = saved.deck; state.example = !!saved.example; }
   showWelcome();
