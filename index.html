@@ -2270,6 +2270,13 @@ async function randomFromSearch(q, n, {order='artist', unique='cards'} = {}){
   }
   return out;
 }
+// old school packs: the special slot is a dual land or a piece of the Power 9, old printings only
+const DUALS = ['Tundra','Underground Sea','Badlands','Taiga','Savannah','Scrubland','Volcanic Island','Bayou','Plateau','Tropical Island'];
+const POWER9 = ['Black Lotus','Ancestral Recall','Time Walk','Timetwister','Mox Pearl','Mox Sapphire','Mox Jet','Mox Ruby','Mox Emerald'];
+const OLD_SPECIALS = [
+  {label:'Dual land', q:'('+DUALS.map(n=>'!"'+n+'"').join(' or ')+') date<2003-10-02 game:paper -is:oversized'},
+  {label:'Power 9', q:'('+POWER9.map(n=>'!"'+n+'"').join(' or ')+') date<2003-10-02 game:paper -is:oversized'}
+];
 const SPECIALS = [
   {label:'Secret Lair', q:'e:sld game:paper'},
   {label:'Judge promo', q:'is:judge_gift game:paper'},
@@ -2306,11 +2313,11 @@ async function rollPack(era, tok={}){
   // token, or about 1 pack in 4, something special
   let last = null;
   if(Math.random() < SPECIAL_ODDS){
-    const sp = SPECIALS[Math.floor(Math.random()*SPECIALS.length)];
+    const pool = old ? OLD_SPECIALS : SPECIALS, sp = pool[Math.floor(Math.random()*pool.length)];
     try{ const raw = await sf('/cards/random?q='+encodeURIComponent(sp.q)); if(raw && raw.id) last = tag(raw,'special',{special:sp.label}); }catch(e){ if(e.message===RATE_MSG) throw e; }
   }
   if(!last){
-    for(const q of ['t:token include:extras game:paper','t:token']){
+    for(const q of old ? ['t:token is:old'] : ['t:token include:extras game:paper','t:token']){
       try{ const raw = await sf('/cards/random?q='+encodeURIComponent(q)); if(raw && raw.id){ last = tag(raw,'token'); break; } }catch(e){ if(e.message===RATE_MSG) throw e; }
     }
   }
