@@ -2022,7 +2022,7 @@ async function rollPack(era){
 const SFX_NAMES = ['tear','hit','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7'];
 const SFX_EXT = ['mp3','m4a','wav'];
 const HIT_PRICE = 5;   // buzz (and sound, when HIT_SOUND is on) for any card worth more than this (USD)
-const HIT_SOUND = false; // turned off until the reveal timing is tuned
+const HIT_SOUND = true; // turned off until the reveal timing is tuned
 const feel = { on: (()=>{ try{ return localStorage.getItem('ripjr.sound')!=='off'; }catch(e){ return true; } })(), ctx:null, buf:{}, loading:false, tilt:false };
 function unlockAudio(){
   // must run inside a tap/click so iPhone allows sound for the rest of the session
