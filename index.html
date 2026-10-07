@@ -368,7 +368,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   display:grid;grid-template-rows:auto minmax(max-content,1fr) max-content;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 0}
 .stage::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.18;
   background-image:radial-gradient(1px 1px at 14% 22%,#fff,transparent 60%),radial-gradient(1px 1px at 82% 16%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 66% 72%,#fff,transparent 60%),radial-gradient(1px 1px at 28% 80%,#fff,transparent 60%),radial-gradient(1px 1px at 90% 58%,#fff,transparent 60%),radial-gradient(1px 1px at 46% 10%,#fff,transparent 60%),radial-gradient(1px 1px at 6% 52%,#fff,transparent 60%)}
-.stage-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;max-width:1100px;width:100%;margin:0 auto}
+.stage-top{position:relative;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;max-width:1100px;width:100%;margin:0 auto}
 .stage-top .eyebrow{color:#A3A19C}
 .stage .seg{background:rgba(255,255,255,.08);margin:0}
 .stage .seg button{color:#F2EEE4}
@@ -395,7 +395,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/var(--z) 51% repeat-x,conic-gradient(from 135deg at top,#0000,#000 1deg 89deg,#0000 90deg) top/var(--z) 51% repeat-x;
           mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/var(--z) 51% repeat-x,conic-gradient(from 135deg at top,#0000,#000 1deg 89deg,#0000 90deg) top/var(--z) 51% repeat-x}
 .wrap{position:absolute;inset:0;background:linear-gradient(100deg,#E9E8E4 0%,#FFFFFF 22%,#EDECE8 44%,#FFFFFF 63%,#E4E3DE 100%)}
-.brown{position:absolute;left:0;right:0;top:14%;height:71.6%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.12 0 0 0 0 0.05 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(100deg,#8D552F 0%,#9A5E34 22%,#965A31 44%,#9F6237 63%,#87502C 100%)}
+.brown{position:absolute;left:0;right:0;top:14%;height:71.6%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.12 0 0 0 0 0.05 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(100deg,var(--c0) 0%,var(--cm) 22%,var(--c2) 44%,var(--c3) 63%,var(--c4) 100%)}
 .crimp{position:absolute;left:0;right:0;height:10.5%;background:repeating-linear-gradient(90deg,rgba(0,0,0,.09) 0 1.4px,rgba(255,255,255,.6) 1.4px 2.6px,transparent 2.6px 4.4px),linear-gradient(#F7F7F4,#E6E5E0)}
 .crimp.t{top:0;border-bottom:1px solid rgba(0,0,0,.08)}
 .crimp.b{bottom:0;border-top:1px solid rgba(0,0,0,.08)}
@@ -403,25 +403,23 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .sheen{position:absolute;inset:0;pointer-events:none;opacity:.55;
   background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.75) 45%,rgba(200,220,255,.45) 50%,transparent 62%);
   background-size:260% 100%;background-position:calc(50% + var(--ry-n,0) * 80%) 0}
-.backcopy{position:absolute;top:15.5%;bottom:16%;left:6%;right:6%;display:grid;grid-template-columns:1fr 13% 1fr;align-items:center;color:#F3E4C4}
-.backcopy .col{display:grid;gap:10px;justify-items:center;text-align:center;align-content:center}
-.backcopy svg{color:#F0D58C}
-.backcopy b{font:700 .78rem/1.3 var(--f-display);letter-spacing:.14em;color:#FBEFD2;text-shadow:0 1px 0 rgba(0,0,0,.35)}
-.backcopy p{margin:0;font-size:.6rem;line-height:1.5;color:#EBD9B4}
-.backcopy .label{background:#F3E6C8;border-radius:3px;padding:6px 6px 4px;display:grid;gap:3px;justify-items:center;box-shadow:0 1px 2px rgba(0,0,0,.3)}
-.backcopy .bar{width:72px;height:30px;background:repeating-linear-gradient(90deg,#222 0 2px,transparent 2px 4px,#222 4px 5px,transparent 5px 8px,#222 8px 11px,transparent 11px 12px)}
-.backcopy .label small{font:600 .5rem/1 var(--f-body);letter-spacing:.12em;color:#3A2A1A}
+.backcopy{position:absolute;inset:14% 0 14.4%;pointer-events:none}
+.backcopy .side{position:absolute;left:9%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);white-space:nowrap;font:700 1rem/1 var(--f-display);letter-spacing:.22em;color:#F3E4C4;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.backcopy .label{position:absolute;right:11%;bottom:7%;background:#F3EFE6;border-radius:3px;padding:6px 7px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.backcopy .bar{width:70px;height:34px;background:repeating-linear-gradient(90deg,#222 0 2px,transparent 2px 4px,#222 4px 5px,transparent 5px 8px,#222 8px 11px,transparent 11px 12px)}
 .flap{position:absolute;top:0;bottom:0;left:45.5%;width:9%;
-  background:repeating-linear-gradient(0deg,rgba(40,20,5,.2) 0 1.2px,rgba(255,235,210,.18) 1.2px 2.4px,transparent 2.4px 4px),linear-gradient(90deg,rgba(0,0,0,.14),rgba(255,255,255,.12) 40%,rgba(0,0,0,.04) 75%,rgba(0,0,0,.18)),linear-gradient(#F3F3F0 0 14%,#9A5E34 14% 85.6%,#F3F3F0 85.6%);
+  background:repeating-linear-gradient(0deg,rgba(40,20,5,.2) 0 1.2px,rgba(255,235,210,.18) 1.2px 2.4px,transparent 2.4px 4px),linear-gradient(90deg,rgba(0,0,0,.14),rgba(255,255,255,.12) 40%,rgba(0,0,0,.04) 75%,rgba(0,0,0,.18)),linear-gradient(#F3F3F0 0 14%,var(--cm) 14% 85.6%,#F3F3F0 85.6%);
   border-left:1px solid rgba(0,0,0,.25);box-shadow:4px 0 7px -1px rgba(0,0,0,.45)}
 .fin{position:absolute;top:12.3%;height:77.3%;left:45.5%;width:9%;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg) translateZ(calc(var(--hz) + 2.5px));
-  background:repeating-linear-gradient(0deg,rgba(40,20,5,.2) 0 1.2px,rgba(255,235,210,.18) 1.2px 2.4px,transparent 2.4px 4px),linear-gradient(90deg,rgba(0,0,0,.14),rgba(255,255,255,.12) 40%,rgba(0,0,0,.04) 75%,rgba(0,0,0,.18)),linear-gradient(#F3F3F0 0 2.2%,#9A5E34 2.2% 94.8%,#F3F3F0 94.8%);
+  background:repeating-linear-gradient(0deg,rgba(40,20,5,.2) 0 1.2px,rgba(255,235,210,.18) 1.2px 2.4px,transparent 2.4px 4px),linear-gradient(90deg,rgba(0,0,0,.14),rgba(255,255,255,.12) 40%,rgba(0,0,0,.04) 75%,rgba(0,0,0,.18)),linear-gradient(#F3F3F0 0 2.2%,var(--cm) 2.2% 94.8%,#F3F3F0 94.8%);
   border-left:1px solid rgba(0,0,0,.25);box-shadow:4px 0 8px -1px rgba(0,0,0,.5);border-radius:1px}
 .tearzone{position:absolute;left:-6%;right:-6%;top:-14%;height:42%;z-index:3;cursor:ew-resize;touch-action:none}
 .tearline{position:absolute;left:4%;right:4%;top:12.4%;height:0;border-top:1.5px dashed rgba(0,0,0,.28)}
 .tearline::before{content:"";position:absolute;left:-4%;top:-7px;border:6px solid transparent;border-left:9px solid rgba(0,0,0,.35)}
 .tearprog{opacity:0;position:absolute;left:0;top:12.4%;height:3px;margin-top:-1.5px;width:0;background:linear-gradient(90deg,rgba(226,195,118,0),#FFE7A0);box-shadow:0 0 12px 3px rgba(255,220,140,.8);border-radius:2px;z-index:4}
 .piece{position:absolute;inset:0;transform-style:preserve-3d}
+.scene.swapin{animation:swapin .42s cubic-bezier(.2,.8,.2,1)}
+@keyframes swapin{from{opacity:0;transform:translateY(14px) scale(.96)}}
 .pack.opening{cursor:default}
 .pack.opening .piece.p-top{animation:tearoff .75s cubic-bezier(.3,.1,.3,1) forwards}
 .pack.opening .tearline,.pack.opening .tearzone{display:none}
@@ -444,11 +442,11 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .rar.common i{background:#77777A}.rar.uncommon i{background:#B7BBC0}.rar.rare i{background:#CFC4A8}.rar.mythic i{background:#C9A890}.rar.basic i{background:#8E968C}.rar.token i{background:#9C98A6}
 .rar.special i{background:conic-gradient(#D9D2C4,#C9CFD6,#D6CBD2,#D9D2C4)}
 .rar.special{color:#E4E6EA}
-.pc.glow-gold{overflow:visible;box-shadow:0 18px 40px rgba(0,0,0,.55)}
+.pc.glow-gold{overflow:visible;background:transparent;box-shadow:none}
 .pc.glow-gold img{position:relative;border-radius:4.75%/3.5%}
-.pc.glow-gold::before{content:"";position:absolute;inset:-2px;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--spin),#D4A23A 0deg,#F2C866 40deg,#FFF1C9 60deg,#F2C866 80deg,#D4A23A 140deg,#8A6420 220deg,#D4A23A 360deg);animation:spin 3.2s linear infinite}
+.pc.glow-gold::before{content:"";position:absolute;inset:-3px;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--spin),#D4A23A 0deg,#F2C866 40deg,#FFF1C9 60deg,#F2C866 80deg,#D4A23A 140deg,#8A6420 220deg,#D4A23A 360deg);animation:spin 3.2s linear infinite}
 .pc.glow-gold::after{content:"";position:absolute;inset:-6px;border-radius:inherit;z-index:-2;background:conic-gradient(from var(--spin),rgba(212,162,58,.25),rgba(242,200,102,.9) 60deg,rgba(212,162,58,.25) 140deg,rgba(212,162,58,.15) 360deg);filter:blur(16px);animation:spin 3.2s linear infinite}
-.pc.glow-rainbow{overflow:visible;box-shadow:0 18px 40px rgba(0,0,0,.55)}
+.pc.glow-rainbow{overflow:visible;background:transparent;box-shadow:none}
 .pc.glow-rainbow img{position:relative;border-radius:4.75%/3.5%}
 .pc.glow-rainbow::before{content:"";position:absolute;inset:-3px;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--spin),#FF6B9A,#FFB86B,#FFF3C4 45deg,#8BEA7B 90deg,#6BD3FF 160deg,#9D86FF 230deg,#FF6BD6 300deg,#FF6B9A);animation:spin 2.6s linear infinite}
 .pc.glow-rainbow::after{content:"";position:absolute;inset:-10px;border-radius:inherit;z-index:-2;background:conic-gradient(from var(--spin),rgba(255,107,154,.9),rgba(255,184,107,.9),rgba(139,234,123,.85) 90deg,rgba(107,211,255,.9) 160deg,rgba(157,134,255,.9) 230deg,rgba(255,107,214,.9) 300deg,rgba(255,107,154,.9));filter:blur(20px);opacity:.9;animation:spin 2.6s linear infinite,rainbowPulse 2.2s ease-in-out infinite alternate}
@@ -479,7 +477,9 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 @media (max-width:700px){ .sumgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px} .stage-top > div:last-child{width:100%;justify-content:space-between} }
 @media (max-width:600px){ .stage .seg{order:0;width:auto;margin:0} .stage .seg button{flex:none;white-space:nowrap;padding:6px 12px} }
 
-.pack{--t:min(18px,4.4vw);--hz:calc(var(--t) / 2);--tilt:10deg}
+.pack{--t:min(18px,4.4vw);--hz:calc(var(--t) / 2);--tilt:10deg;--c0:#8D552F;--cm:#9A5E34;--c2:#965A31;--c3:#9F6237;--c4:#87502C;--cd:#8A532E}
+#stage[data-era="modern"] .pack{--c0:#272B4E;--cm:#2B3055;--c2:#292E52;--c3:#2D3257;--c4:#25294A;--cd:#262A4C}
+#stage[data-era="all"] .pack{--c0:#583571;--cm:#603A7B;--c2:#5D3778;--c3:#643D7F;--c4:#54326C;--cd:#56346E}
 .packart{background-image:var(--packart)}
 .puff{position:absolute;inset:10.5% 0;pointer-events:none;background:radial-gradient(120% 70% at 50% 48%,transparent 55%,rgba(0,0,0,.10) 100%),linear-gradient(90deg,rgba(0,0,0,.10),transparent 9%,transparent 91%,rgba(0,0,0,.12))}
 .band{position:absolute;left:0;right:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -498,12 +498,12 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .band.f-cb > .fi,.band.b-cb > .fi{top:-843.396%;height:943.396%}
 /* side gussets: full thickness along the body, tapering to the seals */
 .wall{position:absolute;top:0;bottom:0;width:var(--t);backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.12) 50%,rgba(0,0,0,.28)),linear-gradient(#ECEBE7 0 14%,#9A5E34 14% 85.6%,#ECEBE7 85.6%);
+  background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.12) 50%,rgba(0,0,0,.28)),linear-gradient(#ECEBE7 0 14%,var(--cm) 14% 85.6%,#ECEBE7 85.6%);
   clip-path:polygon(50% 0,100% 10.5%,100% 89.5%,50% 100%,0 89.5%,0 10.5%);transition:clip-path .35s}
 .wall.l{left:calc(var(--t) / -2);transform:rotateY(-90deg)}
 .wall.r{right:calc(var(--t) / -2);transform:rotateY(90deg)}
 .pack.opening .wall{clip-path:polygon(0 12.4%,100% 12.4%,100% 89.5%,50% 100%,0 89.5%)}
-.pack.opening .p-body .wall{background:linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,.1) 50%,rgba(0,0,0,.4)),linear-gradient(#DDDCD7 0 14%,#8A532E 14% 85.6%,#DDDCD7 85.6%)}
+.pack.opening .p-body .wall{background:linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,.1) 50%,rgba(0,0,0,.4)),linear-gradient(#DDDCD7 0 14%,var(--cd) 14% 85.6%,#DDDCD7 85.6%)}
 .frontui{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(calc(var(--hz) + 1px))}
 .scene{position:relative}
 .pshadow{position:absolute;left:12%;right:12%;bottom:-34px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);filter:blur(3px);transition:opacity .6s;pointer-events:none}
@@ -698,8 +698,9 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     <div style="display:grid;gap:4px"><span class="eyebrow">Pack <span id="packNo" class="num"></span></span></div>
     <div style="display:flex;gap:10px;align-items:center">
       <div class="seg" role="radiogroup" aria-label="Card pool" id="eraSeg">
-        <button type="button" data-era="all" aria-selected="true">All of Magic</button>
+        <button type="button" data-era="all" aria-selected="true">Any</button>
         <button type="button" data-era="old" aria-selected="false">Old school</button>
+        <button type="button" data-era="modern" aria-selected="false">Modern</button>
       </div>
       <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close" id="stageClose" aria-label="Close packs">×</button>
     </div>
@@ -2279,15 +2280,16 @@ const pk = {era:'all', state:'idle', cards:null, loading:null, err:null, idx:0, 
 const packCount = () => { try{ return +localStorage.getItem('ripjr.packs')||0; }catch(e){ return 0; } };
 function bumpCount(){ const n = packCount()+1; try{ localStorage.setItem('ripjr.packs', n); }catch(e){} return n; }
 
-async function rollPack(era){
-  const old = era==='old', E = old ? ' date<2003-07-28' : '';
+async function rollPack(era, tok={}){
+  const chk = v => { if(tok.dead) throw new Error('cancelled'); return v; };
+  const old = era==='old', E = old ? ' date<2003-10-02' : era==='modern' ? ' date>=2003-10-02' : ''; // Mirrodin (2003-10-02) splits old school from modern
   const mythic = !old && Math.random() < 1/8;
   const base = ' is:booster game:paper';
   const tag = (raw, rar, extra={}) => Object.assign(cardLite(raw), {rar, set: raw.set_name||''}, extra);
   const out = [];
   // 9 commons, 3 uncommons
-  const commons = await randomFromSearch('r:common -t:basic'+base+E, 9);
-  const uncommons = await randomFromSearch('r:uncommon'+base+E, 3);
+  const commons = chk(await randomFromSearch('r:common -t:basic'+base+E, 9));
+  const uncommons = chk(await randomFromSearch('r:uncommon'+base+E, 3));
   if(commons.length < 9 || uncommons.length < 3) throw new Error('Scryfall didn’t hand back enough cards. Try opening again.');
   commons.forEach(c=>out.push(tag(c,'common')));
   uncommons.forEach(c=>out.push(tag(c,'uncommon')));
@@ -2296,10 +2298,11 @@ async function rollPack(era){
   if(!rare) throw new Error('Scryfall didn’t hand back a rare. Try opening again.');
   out.push(tag(rare, rare.rarity==='mythic' ? 'mythic' : 'rare'));
   // basic land: a random printing of a random basic
+  chk();
   const B = BASICS[Math.floor(Math.random()*BASICS.length)];
   let land = (await randomFromSearch('!"'+B+'" game:paper -st:memorabilia -is:oversized'+E, 1, {order:'released', unique:'prints'}))[0];
   if(!land) land = await sf('/cards/random?q='+encodeURIComponent('t:basic game:paper'));
-  out.push(tag(land,'basic'));
+  chk(); out.push(tag(land,'basic'));
   // token, or about 1 pack in 4, something special
   let last = null;
   if(Math.random() < SPECIAL_ODDS){
@@ -2433,34 +2436,56 @@ function openStage(){
 function closeStage(){ $('#stage').hidden = true; document.documentElement.style.overflow=''; pk.state='idle'; }
 $('#stageClose').addEventListener('click', closeStage);
 $('#eraSeg').addEventListener('click',e=>{
-  pk.prefetch = null;
-  const b=e.target.closest('[data-era]'); if(!b || pk.state==='opening') return;
+  const b=e.target.closest('[data-era]'); if(!b || pk.state==='opening' || b.dataset.era===pk.era) return;
   pk.era=b.dataset.era;
   document.querySelectorAll('#eraSeg button').forEach(x=>x.setAttribute('aria-selected', String(x===b)));
-  if(pk.state==='pack') newPack(true);
+  buzz('tick');
+  newPack(pk.state==='pack', true);
 });
 
-function newPack(keepNumber){
+function newPack(keepNumber, swap){
   pk.tiltBase = null;
   $('#stageFoot').classList.remove('static');
   if(!keepNumber) pk.no = bumpCount();
   $('#packNo').textContent = '#'+pk.no;
   pk.cards=null; pk.err=null; pk.idx=0; pk.ry=0; pk.rx=0; pk.state='pack';
   const era = pk.era;
-  const pre = pk.prefetch && pk.prefetch.era===era ? pk.prefetch.p : null; pk.prefetch = null;
-  pk.loading = (pre || rollPack(era)).then(c=>{ if(pk.era===era) pk.cards=c; }).catch(e=>{ pk.err=e; });
+  const pre = pk.prefetch && pk.prefetch.era===era ? pk.prefetch.p : null; pk.prefetchTok = pk.prefetch && pk.prefetch.tok; if(!pre && pk.prefetch) pk.prefetch.tok.dead = true; pk.prefetch = null;
+  if(pk.tok) pk.tok.dead = true;
+  const tok = pk.tok = (pre && pk.prefetchTok) || {};
+  pk.loading = (pre || rollPack(era, tok)).then(c=>{ if(pk.tok===tok) pk.cards=c; }).catch(e=>{ if(pk.tok===tok) pk.err=e; });
   renderPack();
+  if(swap){ const sc=$('#scene'); if(sc){ sc.classList.add('swapin'); setTimeout(()=>sc.classList.remove('swapin'),450); } }
 }
 
 const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="sheen"></div>`;
 const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="sheen"></div>
-  <div class="backcopy">
-    <div class="col">${gem(22)}<b style="letter-spacing:0;text-transform:none">ripjr.com<br>deckgenie</b><p>15 randomized game cards</p><p>9 commons<br>3 uncommons<br>1 rare or mythic<br>1 basic land<br>1 token, or about 1 in 4 packs, a special surprise</p></div>
-    <div></div>
-    <div class="col"><p>Drawn at random from Scryfall’s database of ${pk.era==='old'?'old-school (pre-2003)':'every'} booster card.</p><div class="label"><div class="bar"></div><small>NO PURCHASE NECESSARY</small></div><p>Unlimited packs.<br>Tear along the top.</p></div>
-  </div>`;
+  <div class="backcopy"><span class="side">ripjrs delight</span><div class="label"><div class="bar"></div></div></div>`;
+// pack colors: old school keeps the original; modern and any recolor its brown (same hue shift as the band colors)
+const ART_TINT = {modern:[165,.75,.55], all:[195,.8,.8]};
+const artCache = {old: PACK_ART};
+(()=>{ const im = new Image(); im.onload = ()=>{
+  for(const [k,[hue,sm,vm]] of Object.entries(ART_TINT)){
+    const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(im,0,0); const d = x.getImageData(0,0,c.width,c.height), a = d.data;
+    for(let i=0;i<a.length;i+=4){
+      const r=a[i]/255,g=a[i+1]/255,b=a[i+2]/255, mx=Math.max(r,g,b), mn=Math.min(r,g,b), dl=mx-mn;
+      if(!mx || !dl) continue;
+      let h = mx===r ? ((g-b)/dl)%6 : mx===g ? (b-r)/dl+2 : (r-g)/dl+4; h = (h<0?h+6:h)/6*255;
+      const s0 = dl/mx;
+      if(h<8 || h>38 || s0*255<=40) continue;
+      const S = Math.min(1,s0*sm), V = Math.min(1,mx*vm), H = hue/255*6, f = H-Math.floor(H), p=V*(1-S), q=V*(1-S*f), t=V*(1-S*(1-f));
+      const rgb = [[V,t,p],[q,V,p],[p,V,t],[p,q,V],[t,p,V],[V,p,q]][Math.floor(H)%6];
+      a[i]=rgb[0]*255; a[i+1]=rgb[1]*255; a[i+2]=rgb[2]*255;
+    }
+    x.putImageData(d,0,0); artCache[k] = c.toDataURL('image/jpeg',.88);
+  }
+  if(!$('#stage').hidden && pk.state==='pack') $('#stage').style.setProperty('--packart', `url(${packArt(pk.era)})`);
+}; im.src = PACK_ART; })();
+const packArt = era => artCache[era] || PACK_ART;
 function renderPack(){
-  $('#stage').style.setProperty('--packart', `url(${PACK_ART})`);
+  $('#stage').dataset.era = pk.era;
+  $('#stage').style.setProperty('--packart', `url(${packArt(pk.era)})`);
   const F = packFront(), B = packBack();
   $('#stageMid').innerHTML = `<div class="scene" id="scene"><div class="pshadow"></div><div class="pack snap" id="pack" tabindex="0" aria-label="Booster pack. Drag to spin, swipe across the top to tear it open.">
       <div class="piece p-top">
@@ -2548,7 +2573,7 @@ async function tearOpen(){
   setTimeout(()=>{ const sc=$('#scene'); if(sc) sc.remove(); }, 900);
   pk.state='reveal';
   // start rolling the next pack now so "Another pack" is instant
-  const nextP = rollPack(pk.era); nextP.catch(()=>{}); pk.prefetch = {era: pk.era, p: nextP};
+  const nTok = {}, nextP = rollPack(pk.era, nTok); nextP.catch(()=>{}); pk.prefetch = {era: pk.era, p: nextP, tok: nTok};
 }
 
 const stackTr = k => k ? `translateY(${k*7}px) rotate(${(k%2?1:-1)*k*1.6}deg) scale(${1-k*0.025})` : 'none';
@@ -2665,7 +2690,7 @@ async function exportPackImage(){
   x.fillText('ripjr.com deckgenie', pad, 64); if('letterSpacing' in x) x.letterSpacing='0px';
   x.fillStyle='#ECEBE8'; x.font='700 56px "El Messiri", Georgia, serif'; x.fillText(`Pack #${pk.no}`, pad, 126);
   x.fillStyle='rgba(242,238,228,.65)'; x.font=`400 22px ${sans}`;
-  x.fillText(`${new Date().toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})} · ${pk.era==='old'?'Old school':'All of Magic'}`, pad, 156);
+  x.fillText(`${new Date().toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})} · ${pk.era==='old'?'Old school':pk.era==='modern'?'Modern':'Any era'}`, pad, 156);
   const {total,best} = packStats();
   x.textAlign='right'; x.fillStyle='rgba(242,238,228,.65)'; x.font=`400 20px ${sans}`; x.fillText('PACK VALUE', W-pad, 90);
   x.fillStyle='#ECEBE8'; x.font=`700 46px ${sans}`; x.fillText(money(total), W-pad, 138); x.textAlign='left';
