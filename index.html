@@ -547,7 +547,9 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 }
 @media (max-width: 600px){
   .nav-in{gap:10px}
-  #newDeckBtn{margin-left:auto}
+  #newDeckBtn{margin-left:auto;order:2}
+  .nav-in .musicbtn,#navSound{order:2}
+  .nav-in::after{content:"";order:1;flex-basis:100%;height:0}
   .seg{margin-inline:0;width:100%;order:3}
   .seg button{flex:1;padding:6px 8px}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
@@ -610,7 +612,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
       <button role="tab" id="tab-list" data-view="list" aria-selected="false">Decklist</button>
       <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
     </div>
-    <span class="nav-count num" id="navCount"></span><button class="helpbtn" type="button" data-help title="How the genie works" aria-label="How the genie works">?</button><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
+    <span class="nav-count num" id="navCount"></span><button class="helpbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="helpbtn" id="navSound" type="button" aria-label="Sound and haptics"></button><button class="helpbtn" type="button" data-help title="How the genie works" aria-label="How the genie works">?</button><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
   </div>
 </header>
 
@@ -702,7 +704,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
         <button type="button" data-era="old" aria-selected="false">Old school</button>
         <button type="button" data-era="modern" aria-selected="false">Modern</button>
       </div>
-      <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close" id="stageClose" aria-label="Close packs">×</button>
+      <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close" id="stageClose" aria-label="Close packs">×</button>
     </div>
   </div>
   <div class="stage-mid" id="stageMid"></div>
@@ -1667,13 +1669,13 @@ function addCard(c, qty=1, quiet=false){
   const ex = state.deck.cards.find(x=>x.name===c.name);
   if(ex){ if(multiOk(ex)) ex.qty+=qty; else return; }
   else { const {score,why,...lite} = c; state.deck.cards.push(Object.assign({}, lite, {qty: multiOk(c)?qty:1})); }
-  if(!quiet){ state.example=false; toast('Added '+c.name); }
+  if(!quiet){ state.example=false; toast('Added '+c.name); sfx('add'); }
   deckChanged();
 }
 function removeCard(name, all=false){
   const i = state.deck.cards.findIndex(x=>x.name===name); if(i<0) return;
   const c = state.deck.cards[i]; if(c.qty>1 && !all) c.qty--; else state.deck.cards.splice(i,1);
-  state.example=false; toast('Removed '+name);
+  state.example=false; toast('Removed '+name); sfx('remove');
   deckChanged();
 }
 function setCommander(c){
@@ -1897,9 +1899,9 @@ $('#cmdGrid').addEventListener('click',e=>{
 });
 
 /* ======================= Card detail ======================= */
-let dlgCard=null, dlgBack=false;
+let dlgCard=null, dlgBack=false, dlgActed=false;
 function openCard(c){
-  if(!c) return; dlgCard=c; dlgBack=false;
+  if(!c) return; dlgCard=c; dlgBack=false; dlgActed=false; sfx('select');
   $('#dImg').src=c.img; $('#dImg').alt=c.name; $('#dFlip').hidden=!c.back;
   $('#dName').textContent=c.name;
   $('#dCost').innerHTML = c.mana ? syms(c.mana) : '';
@@ -1918,7 +1920,15 @@ function openCard(c){
 }
 $('#dFlip').addEventListener('click',()=>{ dlgBack=!dlgBack; $('#dImg').src = dlgBack?dlgCard.back:dlgCard.img; });
 $('#dClose').addEventListener('click',()=>$('#cardDlg').close());
-$('#dAdd').addEventListener('click',()=>{ const c=dlgCard; if(!c) return; if(inDeck(c)&&!multiOk(c)) removeCard(c.name,true); else addCard(c); $('#cardDlg').close(); });
+$('#cardDlg').addEventListener('close',()=>{ if(!dlgActed) sfx('deselect'); });
+// hover over a card in the results or thesaurus grid (mouse only)
+let hoverLast=null, hoverT=0;
+document.addEventListener('pointerover',e=>{
+  if(e.pointerType!=='mouse') return;
+  const a = e.target.closest('#results .art, #simGrid .art'); if(!a || a===hoverLast) { if(!a) hoverLast=null; return; }
+  hoverLast = a; const now = performance.now(); if(now-hoverT < 70) return; hoverT = now; sfx('hover');
+});
+$('#dAdd').addEventListener('click',()=>{ dlgActed=true; const c=dlgCard; if(!c) return; if(inDeck(c)&&!multiOk(c)) removeCard(c.name,true); else addCard(c); $('#cardDlg').close(); });
 
 /* ======================= CSV export ======================= */
 const csvCell = v => { const s = String(v??''); return /[",\n\r]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
@@ -2164,7 +2174,7 @@ async function pickSimilar(name){
     setSimilar(cardLite(j));
   }catch(err){ $('#simStatus').className='status err'; $('#simStatus').textContent=err.message; }
 }
-$('#dSimilar').addEventListener('click',()=>{ const c=dlgCard; $('#cardDlg').close(); setView('similar'); if(c) setSimilar(c); });
+$('#dSimilar').addEventListener('click',()=>{ dlgActed=true; const c=dlgCard; $('#cardDlg').close(); setView('similar'); if(c) setSimilar(c); });
 
 /* ======================= Views ======================= */
 function setView(v){
@@ -2244,7 +2254,7 @@ const PACK_ART = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAU
 const RAR_LABEL = {common:'Common', uncommon:'Uncommon', rare:'Rare', mythic:'Mythic rare', basic:'Basic land', token:'Token', special:'Special'};
 const rarLabel = c => c.special || RAR_LABEL[c.rar];
 // Glow: special slot gets rainbow, any other card over HIT_PRICE gets gold, everything else none
-const glowOf = c => c.rar==='special' ? 'rainbow' : (c.usd||0) > HIT_PRICE ? 'gold' : '';
+const glowOf = c => c.rar==='special' ? 'rainbow' : (c.usd||0) >= HIT_PRICE ? 'gold' : '';
 const isHit = c => !!glowOf(c);
 // About 1 pack in 4 swaps the token for something special
 const SPECIAL_ODDS = 0.25;
@@ -2331,16 +2341,20 @@ async function rollPack(era, tok={}){
 
 /* ---------- feel: sound, haptics, tilt ---------- */
 // Sound clips live next to index.html (or in an "sfx" folder). Missing files are simply silent.
-const SFX_NAMES = ['tear','hit','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7'];
+const SFX_NAMES = ['tear','hit','hit2','hit3','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7',
+  'delight','hover','select','deselect','add','remove'];
+// volume per sound (0 = silent, 1 = full). Anything not listed plays at 0.9
+const SFX_VOLUME = {hit:0.55, hit2:0.65, hit3:0.75, delight:0.8, hover:0.3, select:0.6, deselect:0.5, add:0.7, remove:0.6};
+const MUSIC_VOLUME = 0.35;   // background music level
+const MUSIC_DEFAULT = true;  // false = music starts off until someone turns it on
 const SFX_EXT = ['mp3','m4a','wav'];
-const HIT_PRICE = 5;   // buzz (and sound, when HIT_SOUND is on) for any card worth more than this (USD)
+const HIT_PRICE = 5;   // gold glow, hit sound and buzz for any card worth this much or more (USD)
 const HIT_SOUND = true;  // set to false to turn the $5 hit sound off
-const HIT_VOLUME = 0.55; // 0 = silent, 1 = full; the $5 hit sound plays at this level
+// which hit sound a card gets: hit for $5–19.99, hit2 for $20–99.99, hit3 for $100+
+const hitTier = c => { const u = c.usd||0; return u>=100 ? 'hit3' : u>=20 ? 'hit2' : u>=HIT_PRICE ? 'hit' : ''; };
 const feel = { on: (()=>{ try{ return localStorage.getItem('ripjr.sound')!=='off'; }catch(e){ return true; } })(), ctx:null, buf:{}, loading:false, tilt:false };
-function unlockAudio(){
-  // must run inside a tap/click so iPhone allows sound for the rest of the session
+function initAudio(){
   if(!feel.ctx){ const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return; feel.ctx = new AC(); }
-  if(feel.ctx.state==='suspended') feel.ctx.resume();
   if(!feel.loading){
     feel.loading = true;
     // looks next to index.html first, then in an "sfx" folder; .mp3, then .m4a, then .wav
@@ -2352,6 +2366,52 @@ function unlockAudio(){
     SFX_NAMES.forEach(k=>load(k));
   }
 }
+function unlockAudio(){
+  // must run inside a tap/click so iPhone allows sound for the rest of the session
+  initAudio(); if(!feel.ctx) return;
+  if(feel.ctx.state==='suspended') feel.ctx.resume();
+  if(feel.musicOn) startMusic();
+}
+// ---- background music (music.mp3 next to index.html); the music buttons only appear once the file exists
+feel.musicOn = (()=>{ try{ const v = localStorage.getItem('ripjr.music'); return v ? v==='on' : MUSIC_DEFAULT; }catch(e){ return MUSIC_DEFAULT; } })();
+let musicSrc = null, musicBuf = null, musicLoading = false, musicNode = null, musicGain = null, musicAt = 0, musicOffset = 0;
+(async()=>{
+  for(const u of ['music.wav','music.mp3','music.m4a','sfx/music.wav','sfx/music.mp3','sfx/music.m4a']){
+    try{ const r = await fetch(u, {method:'HEAD'}); if(r.ok){ musicSrc = u; break; } }catch(e){}
+  }
+  if(musicSrc) document.querySelectorAll('.musicbtn').forEach(b=>b.hidden=false);
+  setMusicUI();
+})();
+// the whole file is decoded once, then looped sample-perfect (no gap at the loop point)
+function startMusic(){
+  if(!musicSrc || document.hidden || !feel.ctx || musicNode) return;
+  if(!musicBuf){
+    if(musicLoading) return; musicLoading = true;
+    fetch(musicSrc).then(r=>r.arrayBuffer()).then(b=>new Promise((res,rej)=>feel.ctx.decodeAudioData(b,res,rej)))
+      .then(d=>{ musicBuf = d; if(feel.musicOn) startMusic(); }).catch(()=>{ musicLoading = false; });
+    return;
+  }
+  if(!musicGain){ musicGain = feel.ctx.createGain(); musicGain.gain.value = MUSIC_VOLUME; musicGain.connect(feel.ctx.destination); }
+  musicNode = feel.ctx.createBufferSource(); musicNode.buffer = musicBuf; musicNode.loop = true; musicNode.connect(musicGain);
+  musicNode.start(0, musicOffset % musicBuf.duration); musicAt = feel.ctx.currentTime - musicOffset;
+}
+function stopMusic(){
+  if(!musicNode) return;
+  musicOffset = (feel.ctx.currentTime - musicAt) % musicBuf.duration;   // pick up where it left off
+  try{ musicNode.stop(); }catch(e){} musicNode.disconnect(); musicNode = null;
+}
+function setMusicUI(){
+  document.querySelectorAll('.musicbtn').forEach(b=>{ b.setAttribute('aria-pressed', String(feel.musicOn)); b.title = feel.musicOn ? 'Music on' : 'Music off'; b.innerHTML = feel.musicOn ? ICON_MUSIC : ICON_MUSIC_OFF; });
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.musicbtn')) return;
+  feel.musicOn = !feel.musicOn; try{ localStorage.setItem('ripjr.music', feel.musicOn?'on':'off'); }catch(er){}
+  setMusicUI(); unlockAudio(); if(!feel.musicOn) stopMusic();
+});
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopMusic(); else if(feel.musicOn && feel.ctx && feel.ctx.state!=='suspended') startMusic(); });
+// first tap or key anywhere wakes the audio
+['pointerdown','keydown'].forEach(t=>document.addEventListener(t, unlockAudio, {capture:true, passive:true}));
+initAudio();
 // Swipe: random pick from whichever swipe clips loaded, never the same one twice in a row
 let lastSwipe = null;
 function swipeSfx(vol){
@@ -2361,12 +2421,13 @@ function swipeSfx(vol){
   lastSwipe = choices[Math.floor(Math.random()*choices.length)];
   sfx(lastSwipe, vol);
 }
-function sfx(name, vol=0.9){
+function sfx(name, vol){
+  if(vol==null) vol = SFX_VOLUME[name] ?? 0.9;
   if(!feel.on || !feel.ctx || !feel.buf[name]) return;
   try{ const src = feel.ctx.createBufferSource(), g = feel.ctx.createGain(); g.gain.value = vol; src.buffer = feel.buf[name]; src.connect(g).connect(feel.ctx.destination); src.start(); }catch(e){}
 }
 // Haptics: Android uses the vibration API; iPhone (iOS 18+) gets a light tick from toggling a hidden switch.
-const HAPTIC = { tick:8, tear:[30,40,70], swipe:12, hit:[20,50,20,50,90] };
+const HAPTIC = { tick:8, tear:[30,40,70], swipe:12, hit:[20,50,20,50,90], hit2:[20,40,20,40,20,40,120], hit3:[30,40,30,40,30,40,30,40,200] };
 let iosSwitch = null;
 function buzz(kind){
   if(!feel.on) return;
@@ -2384,13 +2445,16 @@ function buzz(kind){
 }
 function setSound(on){
   feel.on = on; try{ localStorage.setItem('ripjr.sound', on?'on':'off'); }catch(e){}
-  const b = $('#soundBtn'); b.setAttribute('aria-pressed', String(on)); b.title = on ? 'Sound and haptics on' : 'Sound and haptics off';
-  b.innerHTML = on ? ICON_SOUND : ICON_MUTE;
+  document.querySelectorAll('#soundBtn,#navSound').forEach(b=>{ b.setAttribute('aria-pressed', String(on)); b.title = on ? 'Sound and haptics on' : 'Sound and haptics off';
+  b.innerHTML = on ? ICON_SOUND : ICON_MUTE; });
 }
+const ICON_MUSIC = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>';
+const ICON_MUSIC_OFF = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path d="M3 3l18 18"/></svg>';
 const ICON_SOUND = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const ICON_MUTE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
 const ICON_TILT = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2" transform="rotate(-14 12 12)"/><path d="M3 8a10 10 0 0 0 0 8M21 8a10 10 0 0 1 0 8"/></svg>';
-$('#soundBtn').addEventListener('click',()=>{ unlockAudio(); setSound(!feel.on); if(feel.on) buzz('tick'); });
+['#soundBtn','#navSound'].forEach(id=>$(id).addEventListener('click',()=>{ unlockAudio(); setSound(!feel.on); if(feel.on) buzz('tick'); }));
+setTimeout(()=>{ setSound(feel.on); setMusicUI(); });
 
 // Tilt: phone motion moves the pack and the top card
 let tiltRaf = 0, tiltG = 0, tiltB = 0;
@@ -2615,7 +2679,7 @@ function renderStack(fresh=true){
     <div class="dots">${cards.map((_,i)=>`<i class="${i<=pk.idx?'on':''}"></i>`).join('')}</div>
     ${c.rar==='special'?'<div class="hint" style="color:#ECEBE8;font-family:var(--f-display)">Special slot</div>':''}`;
   bindCard();
-  if(HIT_SOUND && (c.usd||0) > HIT_PRICE) setTimeout(()=>sfx('hit', HIT_VOLUME), pk.idx===0 ? 700 : 60);
+  const ht = hitTier(c); if(HIT_SOUND && ht){ const k = ['hit3','hit2','hit'].slice(['hit3','hit2','hit'].indexOf(ht)).find(x=>feel.buf[x]); if(k) setTimeout(()=>sfx(k), pk.idx===0 ? 700 : 60); }
 }
 function bindCard(){
   const el = $('#topcard'); if(!el || el.dataset.bound) return;
@@ -2638,7 +2702,7 @@ function flyOff(dir, dy){
   flying = true;
   swipeSfx(0.7);
   const next = pk.cards[pk.idx+1];
-  buzz(next && (next.usd||0) > HIT_PRICE ? 'hit' : 'swipe');   // buzz now, while it still counts as the tap
+  buzz((next && hitTier(next)) || 'swipe');   // buzz now, while it still counts as the tap
   el.classList.add('fly'); el.id = ''; el.classList.remove('is-top');
   el.style.transform = `translate(${dir*120}vw,${(dy||0)-60}px) rotate(${dir*28}deg)`; el.style.opacity='0';
   pk.idx++;
@@ -2749,8 +2813,8 @@ $('#saveShare').addEventListener('click', async ()=>{
 });
 $('#saveDl').addEventListener('click', ()=>{ if(!savePending) return; const a=document.createElement('a'); a.href=savePending.url; a.download=savePending.name; document.body.appendChild(a); a.click(); a.remove(); });
 $('#saveDlg').addEventListener('close', ()=>{ if(savePending){ setTimeout(()=>URL.revokeObjectURL(savePending.url), 1000); savePending=null; } });
-$('#packBtn').addEventListener('click', openStage);
-$('#wPack').addEventListener('click', ()=>{ hideWelcome(); openStage(); });
+$('#packBtn').addEventListener('click', ()=>{ sfx('delight'); openStage(); });
+$('#wPack').addEventListener('click', ()=>{ sfx('delight'); hideWelcome(); openStage(); });
 
 /* ======================= Boot ======================= */
 const EXAMPLE = `Commander
