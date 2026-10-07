@@ -284,6 +284,15 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .bubble::before{content:"";position:absolute;left:-11px;top:50%;width:26px;height:26px;background:var(--surface);border-radius:5px;transform:translateY(-50%) rotate(45deg)}
 .w-in .bubble h1{position:relative;margin:0;font:700 clamp(1.8rem,4.2vw,2.9rem)/1.08 var(--f-display);max-width:none}
 @keyframes genieSay{from{opacity:0;transform:scale(.82) translateX(-10px)}}
+/* little remark from the genie in the top bar when you add a card (desktop) */
+.nsay{position:fixed;z-index:60;pointer-events:none;background:var(--surface);color:var(--ink);font:600 1rem/1.2 var(--f-display);padding:10px 16px 11px;border-radius:16px;box-shadow:var(--shadow-lift);white-space:nowrap;transform-origin:22px 0;animation:nsayIn .42s cubic-bezier(.2,.9,.3,1.3) both}
+.nsay::before{content:"";position:absolute;left:16px;top:-6px;width:13px;height:13px;background:var(--surface);border-radius:3px;transform:rotate(45deg)}
+.nsay.out{animation:nsayOut .3s ease-in forwards}
+@keyframes nsayIn{from{opacity:0;transform:scale(.6) translateY(-6px)}}
+@keyframes nsayOut{to{opacity:0;transform:scale(.9) translateY(-4px)}}
+#homeBtn.bob img{animation:bob .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bob{40%{transform:translateY(-4px) rotate(-4deg)}}
+@media (prefers-reduced-motion: reduce){.nsay,.nsay.out,#homeBtn.bob img{animation-duration:.01s}}
 @media (max-width:640px){
   .genie-says{flex-direction:column;gap:18px;text-align:center}
   .bubble{transform-origin:top center;padding:20px 22px}
@@ -1473,6 +1482,24 @@ const pips = ci => '<span class="pips">'+(ci.length?ci:['C']).map(c=>`<i class="
 const money = n => n==null ? '—' : '$'+n.toFixed(2);
 const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
 const gem = (w=12) => `<svg width="${w}" height="${w}" aria-hidden="true"><use href="#i-gem"/></svg>`;
+// the genie sometimes compliments a card you add (desktop only, never twice in a row, not too often)
+const GENIE_LINES = ['Wonderful choice.', 'Interesting pick.', 'Ooh. I like that one.', 'Good taste.'];
+const GENIE_CHANCE = 0.35, GENIE_COOLDOWN = 9000;
+let genieLast = '', genieAt = 0;
+function genieRemark(){
+  if(!matchMedia('(hover: hover) and (pointer: fine) and (min-width: 900px)').matches) return;
+  const g = $('#homeBtn'); if(!g || !g.offsetParent || document.querySelector('dialog[open]')) return;
+  const now = Date.now(); if(now - genieAt < GENIE_COOLDOWN || Math.random() > GENIE_CHANCE) return;
+  genieAt = now;
+  const pool = GENIE_LINES.filter(l=>l!==genieLast); genieLast = pool[Math.floor(Math.random()*pool.length)];
+  document.querySelectorAll('.nsay').forEach(x=>x.remove());
+  const r = g.querySelector('img').getBoundingClientRect(), b = document.createElement('div');
+  b.className = 'nsay'; b.setAttribute('role','status'); b.textContent = genieLast;
+  b.style.left = Math.round(r.left + r.width/2 - 22) + 'px'; b.style.top = Math.round(r.bottom + 10) + 'px';
+  document.body.appendChild(b);
+  g.classList.remove('bob'); void g.offsetWidth; g.classList.add('bob');
+  setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(), 320); }, 2400);
+}
 function toast(msg){ $('#toastT').textContent=msg; const t=$('#toast'); t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2200); }
 document.addEventListener('click',e=>{ const c=e.target.closest('[data-close]'); if(c) c.closest('dialog').close(); });
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{ if(e.target===d) d.close(); }));
@@ -1669,7 +1696,7 @@ function addCard(c, qty=1, quiet=false){
   const ex = state.deck.cards.find(x=>x.name===c.name);
   if(ex){ if(multiOk(ex)) ex.qty+=qty; else return; }
   else { const {score,why,...lite} = c; state.deck.cards.push(Object.assign({}, lite, {qty: multiOk(c)?qty:1})); }
-  if(!quiet){ state.example=false; toast('Added '+c.name); sfx('add'); }
+  if(!quiet){ state.example=false; toast('Added '+c.name); sfx('add'); genieRemark(); }
   deckChanged();
 }
 function removeCard(name, all=false){
