@@ -1940,7 +1940,9 @@ async function rollPack(era){
 
 /* ---------- feel: sound, haptics, tilt ---------- */
 // Drop your clips in a folder named "sfx" next to index.html. Missing files are simply silent.
-const SFX_FILES = { tear:'sfx/tear.mp3', swipe:'sfx/swipe.mp3', hit:'sfx/hit.mp3' };
+// Each name is tried as .mp3, then .m4a, then .wav.
+const SFX_NAMES = ['tear','hit','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7'];
+const SFX_EXT = ['mp3','m4a','wav'];
 const HIT_PRICE = 5;   // reveal sound + buzz for any card worth more than this (USD)
 const feel = { on: (()=>{ try{ return localStorage.getItem('ripjr.sound')!=='off'; }catch(e){ return true; } })(), ctx:null, buf:{}, loading:false, tilt:false };
 function unlockAudio(){
@@ -1949,10 +1951,21 @@ function unlockAudio(){
   if(feel.ctx.state==='suspended') feel.ctx.resume();
   if(!feel.loading){
     feel.loading = true;
-    Object.entries(SFX_FILES).forEach(([k,url])=>{
-      fetch(url).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((res,rej)=>feel.ctx.decodeAudioData(b,res,rej))).then(d=>{ feel.buf[k]=d; }).catch(()=>{});
-    });
+    const load = (k,i=0) => { if(i>=SFX_EXT.length) return;
+      fetch('sfx/'+k+'.'+SFX_EXT[i]).then(r=>r.ok?r.arrayBuffer():Promise.reject())
+        .then(b=>new Promise((res,rej)=>feel.ctx.decodeAudioData(b,res,rej))).then(d=>{ feel.buf[k]=d; })
+        .catch(()=>load(k,i+1)); };
+    SFX_NAMES.forEach(k=>load(k));
   }
+}
+// Swipe: random pick from whichever swipe clips loaded, never the same one twice in a row
+let lastSwipe = null;
+function swipeSfx(vol){
+  const pool = SFX_NAMES.filter(k=>k.startsWith('swipe') && feel.buf[k]);
+  if(!pool.length) return;
+  const choices = pool.length>1 ? pool.filter(k=>k!==lastSwipe) : pool;
+  lastSwipe = choices[Math.floor(Math.random()*choices.length)];
+  sfx(lastSwipe, vol);
 }
 function sfx(name, vol=0.9){
   if(!feel.on || !feel.ctx || !feel.buf[name]) return;
@@ -2182,7 +2195,7 @@ let flying=false;
 function flyOff(dir, dy){
   const el = $('#topcard'); if(!el || flying) return;
   flying = true;
-  sfx('swipe', 0.7); buzz('swipe');
+  swipeSfx(0.7); buzz('swipe');
   el.classList.add('fly');
   el.style.transform = `translate(${dir*120}vw,${(dy||0)-60}px) rotate(${dir*28}deg)`; el.style.opacity='0';
   setTimeout(()=>{ flying=false; pk.idx++; if(pk.idx>=pk.cards.length) showSummary(); else renderStack(); }, 300);
