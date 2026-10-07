@@ -301,6 +301,20 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .w-or{width:min(520px,100%)}
 .w-or span{font-size:.85rem;color:var(--muted)}
 .w-cont{display:grid;gap:8px;justify-items:center}
+.helpbtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:700 .95rem/1 var(--f-display);display:grid;place-items:center;flex:none}
+.helpbtn:hover{color:var(--ink);border-color:var(--muted)}
+#helpDlg{width:min(640px,calc(100vw - 32px))}
+.help{gap:20px}
+.hsteps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:12px}
+.hsteps li{counter-increment:s;display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;align-items:start;line-height:1.45}
+.hsteps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .95rem/30px var(--f-display);text-align:center}
+.hgroup{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:16px}
+.hgroup h4{margin:0;font:700 1.1rem/1.2 var(--f-display)}
+.hgroup > p{margin:0;font-size:.9rem}
+.hrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hl{font-size:.8rem;font-weight:600;color:var(--muted);min-width:104px}
+.htips{margin:0;padding-left:18px;display:grid;gap:6px;line-height:1.45}
+@media (max-width:600px){ .hl{min-width:100%} #helpDlg{width:100%} }
 .delight{position:relative;isolation:isolate;border:0;cursor:pointer;padding:13px 28px;border-radius:999px;font:700 1.05rem/1 var(--f-display);letter-spacing:.01em;color:#2B1D14;
   background:linear-gradient(135deg,#F6D37A,#E2A83A 45%,#F3C969);box-shadow:0 0 0 1px rgba(150,95,20,.35),0 0 18px 4px rgba(226,168,58,.45),0 0 44px 10px rgba(226,168,58,.22);animation:delightGlow 2.8s ease-in-out infinite}
 .delight::before{content:"";position:absolute;inset:-3px;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--spin),rgba(255,236,170,.0),rgba(255,244,207,.95) 40deg,rgba(255,226,140,.4) 90deg,rgba(255,236,170,0) 160deg,rgba(255,236,170,0) 360deg);filter:blur(5px);opacity:1;animation:spin 3.2s linear infinite}
@@ -579,6 +593,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     </form>
     <div class="w-cont">
       <button class="pill ghost" id="wContinue" type="button">Start from scratch</button>
+      <button class="linkbtn" type="button" data-help>How does the genie work?</button>
       <p id="wNote"></p>
     </div>
     <button class="delight" id="wPack" type="button">Experjence Delight</button>
@@ -595,7 +610,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
       <button role="tab" id="tab-list" data-view="list" aria-selected="false">Decklist</button>
       <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
     </div>
-    <span class="nav-count num" id="navCount"></span><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
+    <span class="nav-count num" id="navCount"></span><button class="helpbtn" type="button" data-help title="How the genie works" aria-label="How the genie works">?</button><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
   </div>
 </header>
 
@@ -700,6 +715,43 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <div class="sheet-h"><h3>Draft a list</h3><button class="close" data-close aria-label="Close">×</button></div>
   <div id="draftBody"></div>
   <div class="draft-acts" id="draftActs" hidden><span class="muted num" id="draftInfo"></span><div class="dacts2"><button class="linkbtn" id="draftGo" type="button">Redraft</button><button class="linkbtn" id="draftAll" type="button">Select all / none</button><button class="pill ghost small" id="draftCsv" type="button">Export CSV</button><button class="pill small" id="draftAdd" type="button">Add to deck</button></div></div>
+</div></dialog>
+
+<dialog id="helpDlg" aria-label="How the genie works"><div class="sheet help">
+  <div class="sheet-h"><h3>How the genie works</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <ol class="hsteps">
+    <li><span><b>Make a wish.</b> Describe the deck however you like. The genie turns your words into card searches.</span></li>
+    <li><span><b>Pick a commander.</b> Every suggestion stays inside your commander's colors.</span></li>
+    <li><span><b>Tap + to add.</b> Each card says why it was picked. Tap a card to read it or find similar ones.</span></li>
+    <li><span><b>Fine-tune.</b> Remove any pill under the search bar, or open Filters for type, cost, price and exact card text.</span></li>
+    <li><span><b>Draft a list.</b> One tap builds a starter list from your idea plus the ramp, card draw and removal every deck needs.</span></li>
+  </ol>
+  <div class="hgroup">
+    <h4>Things the genie understands</h4>
+    <p class="muted">Mix as many as you want. Tap one to try it.</p>
+    <div class="hrow"><span class="hl">Strategies</span><button class="chip" data-try="tokens">tokens</button><button class="chip" data-try="sacrifice">sacrifice</button><button class="chip" data-try="reanimator">reanimator</button><button class="chip" data-try="spellslinger">spellslinger</button><button class="chip" data-try="extra combat">extra combat</button></div>
+    <div class="hrow"><span class="hl">Creature types</span><button class="chip" data-try="vampires">vampires</button><button class="chip" data-try="dragons">dragons</button><button class="chip" data-try="elves">elves</button><button class="chip" data-try="pirates">pirates</button></div>
+    <div class="hrow"><span class="hl">Ideas</span><button class="chip" data-try="gambling">gambling</button><button class="chip" data-try="a deck that works like the government">the government</button><button class="chip" data-try="a heist">a heist</button><button class="chip" data-try="vikings">vikings</button><button class="chip" data-try="circus">circus</button></div>
+    <div class="hrow"><span class="hl">Looks</span><button class="chip" data-try="dark academia">dark academia</button><button class="chip" data-try="gothic">gothic</button><button class="chip" data-try="cottagecore">cottagecore</button><button class="chip" data-try="old school frames">old-school frames</button></div>
+    <div class="hrow"><span class="hl">Together</span><button class="chip" data-try="gothic vampires that drain opponents">gothic vampires that drain</button><button class="chip" data-try="budget elves with lots of ramp">budget elves with ramp</button></div>
+  </div>
+  <div class="hgroup">
+    <h4>Handy phrases</h4>
+    <ul class="htips">
+      <li><b>"budget"</b> or <b>"under $5"</b> caps the price.</li>
+      <li><b>"cheap"</b> keeps the mana cost low.</li>
+      <li>Put words in <b>"quotes"</b> to find that exact card text, like <b>"whenever you attack"</b>.</li>
+      <li>Type a card's name to find that card.</li>
+    </ul>
+  </div>
+  <div class="hgroup">
+    <h4>Everything else</h4>
+    <ul class="htips">
+      <li><b>Thesaurus</b> finds cards that work like any card you name.</li>
+      <li><b>Decklist</b> shows your whole deck. Hover a name to see the card, then copy it or export a spreadsheet.</li>
+      <li><b>Experjence Delight</b> opens a booster pack. Swipe across the top to tear it, then swipe the cards away.</li>
+    </ul>
+  </div>
 </div></dialog>
 
 <dialog id="saveDlg" aria-label="Save your pulls"><div class="sheet">
@@ -1123,7 +1175,7 @@ const CONCEPTS = {
     q:'(t:equipment or o:"equipped creature" or kw:craft or o:"attach target equipment")',
     re:/equipment|equipped creature|\bcraft|attach target equipment/},
   sexy:{label:'Sexy', aesthetic:true, words:['sexy','spicy','thirst','thirsty','thirst trap','waifu','waifus','husbando','seductive','seduction','alluring','sultry','steamy','fan service','fanservice','risque','risqué','va va voom','bombshell'],
-    read:'art showing cleavage, midriffs, bare legs and revealing outfits (characters tagged as children or young are always left out)',
+    read:'art showing cleavage, midriffs, bare legs and revealing outfits',
     tags:['cleavage','midriff','thighs','bare-legs','bare-shoulders','navel','revealing-clothing','lingerie','seductive','bikini'], extra:'',
     exclude:['child','children','kid','teenager','youth','young','baby']},
   /* ---- Aesthetics: matched on the illustration or frame, not the rules text ---- */
@@ -1293,18 +1345,24 @@ function inIdentity(c){ return !state.deck.commander || c.ci.every(x=>state.deck
 
 /* ======================= Scryfall client (throttled) ======================= */
 const API = 'https://api.scryfall.com';
-let nextSlot = 0;
+// Scryfall's limits: 2 requests/sec for search, named, random and collection; 10/sec for everything else.
+// Going over locks us out for 30 seconds, so each kind of request waits its turn.
+const RATE_MSG = "You're ripping packs too fast! Wait a minute and come back.";
+const lanes = {heavy:0, light:0};
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 async function sf(pathOrUrl, opts={}){
-  const now = Date.now(); const wait = Math.max(0, nextSlot-now); nextSlot = Math.max(now,nextSlot)+110;
-  if(wait) await sleep(wait);
+  const heavy = /\/cards\/(search|named|random|collection)/.test(pathOrUrl);
+  const lane = heavy ? 'heavy' : 'light', gap = heavy ? 560 : 120;
+  const now = Date.now(), at = Math.max(now, lanes[lane]); lanes[lane] = at + gap;
+  if(at > now) await sleep(at - now);
   const url = pathOrUrl.startsWith('http') ? pathOrUrl : API+pathOrUrl;
   let r;
   try{ r = await fetch(url, Object.assign({headers:{'Accept':'application/json', ...(opts.body?{'Content-Type':'application/json'}:{})}}, opts)); }
   catch(e){
     if(location.protocol==='file:') throw new Error("Scryfall won't answer pages opened straight from a file. Put this page on a web address (GitHub Pages, Netlify Drop, or a local server) and it will connect.");
-    throw new Error("Couldn't reach Scryfall. Check your connection and try again.");
+    throw new Error(navigator.onLine === false ? "You're offline. Reconnect and try again." : RATE_MSG);
   }
+  if(r.status === 429){ lanes.heavy = Date.now() + 30000; throw new Error(RATE_MSG); }
   const j = await r.json().catch(()=>({}));
   if(j.object==='error'){
     if(j.code==='not_found') return {data:[], total_cards:0, not_found:true};
@@ -1345,27 +1403,37 @@ const searchCards = (q, order='edhrec', unique='cards') => sf('/cards/search?ord
 const TAGS_KEY='ripjr.tags';
 let tagOK = {}; try{ tagOK = JSON.parse(localStorage.getItem(TAGS_KEY)||'{}'); }catch(e){}
 const isAes = k => CONCEPTS[k] && CONCEPTS[k].aesthetic;
+let tagsTrusted = true;   // use every tag as-is; if Scryfall ever rejects a search, check them one by one instead
+function resetTagQueries(){
+  for(const c of Object.values(CONCEPTS)) if(c.aesthetic) delete c.q;
+  for(const v of Object.values(FUNCS)) if(v.q0){ v.q = v.q0; delete v.q0; }
+  for(const k in otagPending) delete otagPending[k];
+}
+async function tagSafe(fn){
+  try{ return await fn(); }
+  catch(e){
+    if(!tagsTrusted || e.message===RATE_MSG) throw e;
+    tagsTrusted = false; resetTagQueries();
+    return await fn();
+  }
+}
+const tagUsable = async (t, prefix) => {
+  if(tagsTrusted) return true;
+  const key = prefix==='otag' ? 'otag:'+t : t;
+  if(tagOK[key]===undefined){
+    try{ const j = await sf('/cards/search?q='+encodeURIComponent(prefix+':'+(t.includes(' ')?'"'+t+'"':t))); tagOK[key] = !!(j.data && j.data.length); }
+    catch(e){ if(e.message===RATE_MSG) throw e; tagOK[key] = false; }
+    try{ localStorage.setItem(TAGS_KEY, JSON.stringify(tagOK)); }catch(e){}
+  }
+  return tagOK[key];
+};
 async function readyConcepts(keys){
   for(const k of (keys||[])){
     const c = CONCEPTS[k]; if(!c || !c.aesthetic || c.q) continue;
-    const ok = [];
-    for(const t of c.tags){
-      if(tagOK[t]===undefined){
-        try{ const j = await sf('/cards/search?q='+encodeURIComponent('art:'+(t.includes(' ')?'"'+t+'"':t))); tagOK[t] = !!(j.data && j.data.length); }
-        catch(e){ tagOK[t] = false; }
-      }
-      if(tagOK[t]) ok.push('art:'+(t.includes(' ')?'"'+t+'"':t));
-    }
-    try{ localStorage.setItem(TAGS_KEY, JSON.stringify(tagOK)); }catch(e){}
+    const ok = [], ex = [];
+    for(const t of c.tags) if(await tagUsable(t,'art')) ok.push('art:'+(t.includes(' ')?'"'+t+'"':t));
+    for(const t of (c.exclude||[])) if(await tagUsable(t,'art')) ex.push('-art:'+t);
     const parts = ok.concat(c.extra ? [c.extra] : []);
-    const ex = [];
-    for(const t of (c.exclude||[])){
-      if(tagOK[t]===undefined){
-        try{ const j = await sf('/cards/search?q='+encodeURIComponent('art:'+t)); tagOK[t] = !!(j.data && j.data.length); }catch(e){ tagOK[t] = false; }
-      }
-      if(tagOK[t]) ex.push('-art:'+t);
-    }
-    try{ localStorage.setItem(TAGS_KEY, JSON.stringify(tagOK)); }catch(e){}
     c.q = parts.length ? '(('+parts.join(' or ')+')'+(ex.length?' '+ex.join(' '):'')+')' : '';
   }
 }
@@ -1376,16 +1444,9 @@ const otagPending = {};
 function readyOtags(keys = Object.keys(FUNCS)){
   return Promise.all(keys.filter(k=>FUNCS[k] && FUNCS[k].otags).map(k=> otagPending[k] ||= (async()=>{
     const v = FUNCS[k], ok = [];
-    for(const t of v.otags){
-      const key = 'otag:'+t;
-      if(tagOK[key]===undefined){
-        try{ const j = await sf('/cards/search?q='+encodeURIComponent(key)); tagOK[key] = !!(j.data && j.data.length); }catch(e){ tagOK[key] = false; }
-      }
-      if(tagOK[key]) ok.push(key);
-    }
+    for(const t of v.otags) if(await tagUsable(t,'otag')) ok.push('otag:'+t);
     v.q0 = v.q0 || v.q;
     if(ok.length) v.q = '(('+v.q0+') or '+ok.join(' or ')+')';
-    try{ localStorage.setItem(TAGS_KEY, JSON.stringify(tagOK)); }catch(e){}
   })()));
 }
 const uniqFor = st => (st.concepts||[]).some(isAes) ? 'art' : 'cards';
@@ -1545,16 +1606,15 @@ const inDeck = c => state.deck.cards.some(x=>x.name===c.name) || (state.deck.com
 let seqS = 0;
 async function runSearch(append=false){
   const st = Object.assign({commander:state.deck.commander}, state.intent);
-  if((st.funcs||[]).length) await readyOtags(st.funcs);
-  if((st.concepts||[]).some(k=>isAes(k) && !CONCEPTS[k].q)){ $('#status').className='status'; $('#status').textContent='Reading the art…'; await readyConcepts(st.concepts); }
-  const q = buildQuery(st);
+  const prep = async()=>{ if((st.funcs||[]).length) await readyOtags(st.funcs); if((st.concepts||[]).some(isAes)) await readyConcepts(st.concepts); return buildQuery(st); };
+  let q = await prep();
   $('#query').innerHTML = `${h(q)} &nbsp;<a href="https://scryfall.com/search?order=edhrec&q=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open on Scryfall ↗</a>`;
   const seq = ++seqS;
   $('#status').className='status';
   if(!append){ $('#status').textContent='Searching…'; $('#results').innerHTML = Array(8).fill('<div class="card"><div class="skel"></div></div>').join(''); }
   $('#goBtn').disabled = true;
   try{
-    const j = append && state.next ? await sf(state.next) : await searchCards(q, 'edhrec', uniqFor(st));
+    const j = append && state.next ? await sf(state.next) : await tagSafe(async()=>{ q = await prep(); return searchCards(q, 'edhrec', uniqFor(st)); });
     if(seq!==seqS) return;
     const an = deckAnalysis();
     const ctx = {themes:st.themes, funcs:st.funcs, tribe:st.tribe, concepts:st.concepts, free:st.free, gaps:an.gaps, deckThemes:an.deckThemes};
@@ -1781,6 +1841,15 @@ $('#wContinue').addEventListener('click',()=>{
   if(!state.deck.commander) openCmd();
 });
 $('#wNote').addEventListener('click',e=>{ if(e.target.closest('#wResume')){ hideWelcome(); setView('discover'); } });
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-help]')){ $('#helpDlg').showModal(); return; }
+  const t = e.target.closest('[data-try]'); if(!t) return;
+  $('#helpDlg').close();
+  const v = t.dataset.try;
+  if(!$('#welcome').hidden){ startFromText(v); return; }
+  if(!$('#stage').hidden) closeStage();
+  setView('discover'); applyDescription(v); renderIntent(); runSearch();
+});
 $('#homeBtn').addEventListener('click',showWelcome);
 $('#newDeckBtn').addEventListener('click',showWelcome);
 
@@ -1808,8 +1877,8 @@ async function loadCmds(text){
     let j;
     if(words) j = await searchCards('is:commander legal:commander game:paper '+words);
     else if(cmdFilter){
-      if(cmdFilter.prep){ await cmdFilter.prep(); cmdFilter.prep=null; }
-      j = await searchCards('is:commander '+cmdFilter.q(), 'edhrec', cmdFilter.unique||'cards');
+      const f = cmdFilter;
+      j = await tagSafe(async()=>{ if(f.prep) await f.prep(); return searchCards('is:commander '+f.q(), 'edhrec', f.unique||'cards'); });
       if(!(j.data||[]).length) j = await searchCards('is:commander legal:commander game:paper');
     }
     else j = await searchCards('is:commander legal:commander game:paper');
@@ -1906,13 +1975,13 @@ async function runDraft(){
   const pick = (cards, n) => cards.map(cardLite).filter(c=>!taken.has(c.name)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,n).map(c=>{ taken.add(c.name); return c; });
   const groups = [];
   try{
-    const core = await searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price}), 'edhrec', concepts.some(isAes)?'art':'cards');
+    const core = await tagSafe(async()=>{ await readyConcepts(concepts); await readyOtags(['ramp','draw','removal','wipe']); return searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price}), 'edhrec', concepts.some(isAes)?'art':'cards'); });
     if(seq!==seqD) return;
     groups.push({title: idea.length ? 'On your idea' : 'Popular in your colors', key:'core', items: pick(core.data||[], 18)});
     for(const [k,n] of Object.entries(DRAFT_NEEDS)){
       const need = Math.max(0, Math.min(n, FUNCS[k].target - an.counts[k]));
       if(!need) continue;
-      const j = await searchCards(buildQuery({commander:cmd, funcs:[k], price:i.price}));
+      const j = await tagSafe(async()=>{ await readyOtags([k]); return searchCards(buildQuery({commander:cmd, funcs:[k], price:i.price})); });
       if(seq!==seqD) return;
       groups.push({title: FUNCS[k].label, key:k, items: pick(j.data||[], need)});
     }
@@ -2180,13 +2249,25 @@ const isHit = c => !!glowOf(c);
 const SPECIAL_ODDS = 0.25;
 const BASICS = ['Plains','Island','Swamp','Mountain','Forest'];
 // /cards/random returns each card's default printing, so for basics pick a random printing ourselves
-async function randomPrint(q){
-  const url = p => '/cards/search?unique=prints&order=released&page='+p+'&q='+encodeURIComponent(q);
-  const first = await sf(url(1)); const total = first.total_cards||0;
-  if(!total) return null;
-  const idx = Math.floor(Math.random()*total), per = 175, page = Math.floor(idx/per)+1;
-  const j = page===1 ? first : await sf(url(page));
-  const list = j.data||[]; return list[idx % per] || list[0] || null;
+// Pick n different cards at random from a search by jumping to a random results page.
+// Results are ordered by artist so a page mixes sets and colors. Page counts are remembered.
+const searchTotals = {};
+async function randomFromSearch(q, n, {order='artist', unique='cards'} = {}){
+  const url = p => '/cards/search?unique='+unique+'&order='+order+'&page='+p+'&q='+encodeURIComponent(q);
+  const key = unique+'|'+order+'|'+q;
+  let first = null;
+  if(searchTotals[key]==null){ first = await sf(url(1)); searchTotals[key] = first.total_cards||0; }
+  const total = searchTotals[key]; if(!total) return [];
+  const pages = Math.ceil(total/175), out = [], names = new Set(), tried = new Set();
+  while(out.length < n && tried.size < Math.min(pages, 3)){
+    let page; do{ page = 1 + Math.floor(Math.random()*pages); }while(tried.has(page) && tried.size < pages);
+    tried.add(page);
+    const j = (page===1 && first) ? first : await sf(url(page));
+    const list = (j.data||[]).slice();
+    for(let a=list.length-1; a>0; a--){ const b = Math.floor(Math.random()*(a+1)); [list[a],list[b]] = [list[b],list[a]]; }
+    for(const c of list){ if(out.length>=n) break; if(unique==='cards' && names.has(c.name)) continue; names.add(c.name); out.push(c); }
+  }
+  return out;
 }
 const SPECIALS = [
   {label:'Secret Lair', q:'e:sld game:paper'},
@@ -2202,39 +2283,36 @@ async function rollPack(era){
   const old = era==='old', E = old ? ' date<2003-07-28' : '';
   const mythic = !old && Math.random() < 1/8;
   const base = ' is:booster game:paper';
-  const slots = [
-    ...Array.from({length:9}, ()=>({rar:'common', qs:['r:common -t:basic'+base+E]})),
-    ...Array.from({length:3}, ()=>({rar:'uncommon', qs:['r:uncommon'+base+E]})),
-    {rar: mythic?'mythic':'rare', qs:[(mythic?'r:mythic':'r:rare')+base+E, 'r:rare'+base]},
-    {rar:'basic', basic:BASICS[Math.floor(Math.random()*BASICS.length)], qs:['','','t:basic game:paper']},
-    {rar:'token', qs:['t:token include:extras game:paper', 'layout:token include:extras', 't:token']},
-  ];
+  const tag = (raw, rar, extra={}) => Object.assign(cardLite(raw), {rar, set: raw.set_name||''}, extra);
+  const out = [];
+  // 9 commons, 3 uncommons
+  const commons = await randomFromSearch('r:common -t:basic'+base+E, 9);
+  const uncommons = await randomFromSearch('r:uncommon'+base+E, 3);
+  if(commons.length < 9 || uncommons.length < 3) throw new Error('Scryfall didn’t hand back enough cards. Try opening again.');
+  commons.forEach(c=>out.push(tag(c,'common')));
+  uncommons.forEach(c=>out.push(tag(c,'uncommon')));
+  // rare or mythic
+  let rare = (await randomFromSearch((mythic?'r:mythic':'r:rare')+base+E, 1))[0] || (await randomFromSearch('r:rare'+base, 1))[0];
+  if(!rare) throw new Error('Scryfall didn’t hand back a rare. Try opening again.');
+  out.push(tag(rare, rare.rarity==='mythic' ? 'mythic' : 'rare'));
+  // basic land: a random printing of a random basic
+  const B = BASICS[Math.floor(Math.random()*BASICS.length)];
+  let land = (await randomFromSearch('!"'+B+'" game:paper -st:memorabilia -is:oversized'+E, 1, {order:'released', unique:'prints'}))[0];
+  if(!land) land = await sf('/cards/random?q='+encodeURIComponent('t:basic game:paper'));
+  out.push(tag(land,'basic'));
+  // token, or about 1 pack in 4, something special
+  let last = null;
   if(Math.random() < SPECIAL_ODDS){
     const sp = SPECIALS[Math.floor(Math.random()*SPECIALS.length)];
-    slots[slots.length-1] = {rar:'special', special:sp.label, qs:[sp.q, sp.q, 't:token include:extras game:paper']};
+    try{ const raw = await sf('/cards/random?q='+encodeURIComponent(sp.q)); if(raw && raw.id) last = tag(raw,'special',{special:sp.label}); }catch(e){ if(e.message===RATE_MSG) throw e; }
   }
-  const seen = new Set(), out = [];
-  for(const s of slots){
-    let card = null;
-    for(let attempt=0; attempt<3 && !card; attempt++){
-      const q = s.qs[Math.min(attempt, s.qs.length-1)];
-      try{
-        const raw = s.basic && attempt<2
-          ? await randomPrint('!"'+s.basic+'" game:paper -st:memorabilia -is:oversized'+(attempt===0?E:''))
-          : await sf('/cards/random?q='+encodeURIComponent(q));
-        if(!raw || !raw.id) continue;
-        const c = cardLite(raw);
-        if(s.rar!=='basic' && s.rar!=='token' && s.rar!=='special' && seen.has(c.name)) continue;
-        seen.add(c.name);
-        c.rar = s.rar==='rare' || s.rar==='mythic' ? (raw.rarity==='mythic' ? 'mythic' : 'rare') : s.rar;
-        if(s.rar==='special'){ if(attempt<2) c.special = s.special; else c.rar = 'token'; }
-        c.set = raw.set_name || '';
-        card = c;
-      }catch(e){ if(attempt===2) throw e; }
+  if(!last){
+    for(const q of ['t:token include:extras game:paper','t:token']){
+      try{ const raw = await sf('/cards/random?q='+encodeURIComponent(q)); if(raw && raw.id){ last = tag(raw,'token'); break; } }catch(e){ if(e.message===RATE_MSG) throw e; }
     }
-    if(!card) throw new Error('Scryfall didn’t hand back a card for one of the slots. Try opening again.');
-    out.push(card);
   }
+  if(!last) throw new Error('Scryfall didn’t hand back a token. Try opening again.');
+  out.push(last);
   // warm the image cache so the reveal is instant
   await Promise.all(out.map(c=>new Promise(res=>{ if(!c.img) return res(); const im=new Image(); im.crossOrigin='anonymous'; const t=setTimeout(res,7000); im.onload=im.onerror=()=>{clearTimeout(t);res();}; im.src=c.img; })));
   return out;
@@ -2355,6 +2433,7 @@ function openStage(){
 function closeStage(){ $('#stage').hidden = true; document.documentElement.style.overflow=''; pk.state='idle'; }
 $('#stageClose').addEventListener('click', closeStage);
 $('#eraSeg').addEventListener('click',e=>{
+  pk.prefetch = null;
   const b=e.target.closest('[data-era]'); if(!b || pk.state==='opening') return;
   pk.era=b.dataset.era;
   document.querySelectorAll('#eraSeg button').forEach(x=>x.setAttribute('aria-selected', String(x===b)));
@@ -2368,7 +2447,8 @@ function newPack(keepNumber){
   $('#packNo').textContent = '#'+pk.no;
   pk.cards=null; pk.err=null; pk.idx=0; pk.ry=0; pk.rx=0; pk.state='pack';
   const era = pk.era;
-  pk.loading = rollPack(era).then(c=>{ if(pk.era===era) pk.cards=c; }).catch(e=>{ pk.err=e; });
+  const pre = pk.prefetch && pk.prefetch.era===era ? pk.prefetch.p : null; pk.prefetch = null;
+  pk.loading = (pre || rollPack(era)).then(c=>{ if(pk.era===era) pk.cards=c; }).catch(e=>{ pk.err=e; });
   renderPack();
 }
 
@@ -2467,6 +2547,8 @@ async function tearOpen(){
   pk.idx=0; renderStack();
   setTimeout(()=>{ const sc=$('#scene'); if(sc) sc.remove(); }, 900);
   pk.state='reveal';
+  // start rolling the next pack now so "Another pack" is instant
+  const nextP = rollPack(pk.era); nextP.catch(()=>{}); pk.prefetch = {era: pk.era, p: nextP};
 }
 
 const stackTr = k => k ? `translateY(${k*7}px) rotate(${(k%2?1:-1)*k*1.6}deg) scale(${1-k*0.025})` : 'none';
