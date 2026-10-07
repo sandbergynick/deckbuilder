@@ -512,7 +512,14 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 @keyframes sp{to{transform:rotate(360deg)}}
 .fanfoot{max-width:1400px;margin:0 auto;padding-block:8px 28px;font-size:.72rem;line-height:1.5;color:var(--faint);text-align:center}
 @media (max-width:700px){ .sumgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px} .stage-top > div:last-child{width:100%;justify-content:space-between} }
-@media (max-width:600px){ .stage .seg{order:0;width:auto;margin:0} .stage .seg button{flex:none;white-space:nowrap;padding:6px 12px} }
+@media (max-width:600px){ .stage .seg{order:0;width:auto;margin:0} .stage .seg button{flex:none;white-space:nowrap;padding:6px 12px}
+  .stage-top #tiltBtn,.stage-top .musicbtn,.stage-top #soundBtn{display:none!important}
+  #stageMenuBtn{display:grid!important;margin-left:auto} }
+#stageMenuBtn{display:none}
+.navmenu.dark{background:#232325;box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08)}
+.navmenu.dark button{color:#ECEBE8}
+.navmenu.dark button span{color:#A3A19C}
+.navmenu.dark button:hover,.navmenu.dark button:active{background:rgba(255,255,255,.08)}
 
 .pack{--t:min(18px,4.4vw);--hz:calc(var(--t) / 2);--tilt:10deg;--c0:#8D552F;--cm:#9A5E34;--c2:#965A31;--c3:#9F6237;--c4:#87502C;--cd:#8A532E}
 #stage[data-era="modern"] .pack{--c0:#272B4E;--cm:#2B3055;--c2:#292E52;--c3:#2D3257;--c4:#25294A;--cd:#262A4C}
@@ -742,13 +749,18 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 <section class="stage" id="stage" hidden aria-label="Open a booster pack">
   <div class="stage-top">
     <div style="display:grid;gap:4px"><span class="eyebrow">Pack <span id="packNo" class="num"></span></span></div>
-    <div style="display:flex;gap:10px;align-items:center">
+    <div style="display:flex;gap:10px;align-items:center;position:relative">
       <div class="seg" role="radiogroup" aria-label="Card pool" id="eraSeg">
         <button type="button" data-era="all" aria-selected="true">Any</button>
         <button type="button" data-era="old" aria-selected="false">Old school</button>
         <button type="button" data-era="modern" aria-selected="false">Modern</button>
       </div>
-      <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close" id="stageClose" aria-label="Close packs">×</button>
+      <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close iconbtn" id="stageMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button><button class="close" id="stageClose" aria-label="Close packs">×</button>
+      <div class="navmenu dark" id="stageMenu" hidden role="menu">
+        <button type="button" role="menuitem" data-m="tilt" hidden>Tilt to look<span></span></button>
+        <button type="button" role="menuitem" data-m="music" hidden>Music<span></span></button>
+        <button type="button" role="menuitem" data-m="sound">Sound &amp; haptics<span></span></button>
+      </div>
     </div>
   </div>
   <div class="stage-mid" id="stageMid"></div>
@@ -1534,26 +1546,32 @@ function genieRemark(){
   g.classList.remove('bob'); void g.offsetWidth; g.classList.add('bob');
   setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(), 320); }, 2400);
 }
-// phone menu (⋯)
-function syncNavMenu(){
-  const m = $('#navMenu'); if(!m) return;
-  const mu = m.querySelector('[data-m="music"]'); mu.hidden = !musicSrc; mu.querySelector('span').textContent = feel.musicOn ? 'On' : 'Off';
-  m.querySelector('[data-m="sound"] span').textContent = feel.on ? 'On' : 'Off';
+// phone menus (⋯): one in the top bar, one on the pack screen
+const MENUS = [['#navMenuBtn','#navMenu'],['#stageMenuBtn','#stageMenu']];
+function syncMenus(){
+  const onoff = v => v ? 'On' : 'Off';
+  document.querySelectorAll('.navmenu').forEach(m=>{
+    const set = (k, show, val) => { const b = m.querySelector(`[data-m="${k}"]`); if(!b) return; b.hidden = !show; if(val!=null) b.querySelector('span').textContent = val; };
+    set('music', !!musicSrc, onoff(feel.musicOn));
+    set('sound', true, onoff(feel.on));
+    set('tilt', !$('#tiltBtn').hidden, onoff(feel.tilt));
+  });
 }
-function closeNavMenu(){ $('#navMenu').hidden = true; $('#navMenuBtn').setAttribute('aria-expanded','false'); }
+function closeMenus(){ MENUS.forEach(([b,m])=>{ $(m).hidden = true; $(b).setAttribute('aria-expanded','false'); }); }
 document.addEventListener('click', e=>{
-  if(e.target.closest('#navSound,.musicbtn')) return;   // the menu's own toggles click these
-  const btn = e.target.closest('#navMenuBtn'), menu = $('#navMenu');
-  if(btn){ const open = menu.hidden; if(open){ syncNavMenu(); menu.hidden = false; btn.setAttribute('aria-expanded','true'); } else closeNavMenu(); return; }
-  if(menu.hidden) return;
-  const it = e.target.closest('#navMenu button');
-  if(!it){ closeNavMenu(); return; }
-  const k = it.dataset.m;
-  if(k==='music') document.querySelector('.nav .musicbtn').click();
-  if(k==='sound') $('#navSound').click();
+  if(e.target.closest('#navSound,#soundBtn,#tiltBtn,.musicbtn')) return;   // the menus' own toggles click these
+  const pair = MENUS.find(([b])=>e.target.closest(b));
+  if(pair){ const m = $(pair[1]), open = m.hidden; closeMenus(); if(open){ syncMenus(); m.hidden = false; $(pair[0]).setAttribute('aria-expanded','true'); } return; }
+  const openM = MENUS.map(([,m])=>$(m)).find(m=>!m.hidden); if(!openM) return;
+  const it = e.target.closest('.navmenu button');
+  if(!it){ closeMenus(); return; }
+  const k = it.dataset.m, inStage = !!it.closest('#stageMenu');
+  if(k==='music') (inStage ? $('#stage .musicbtn') : document.querySelector('.nav .musicbtn')).click();
+  if(k==='sound') (inStage ? $('#soundBtn') : $('#navSound')).click();
+  if(k==='tilt') $('#tiltBtn').click();
   if(k==='new') $('#newDeckBtn').click();
-  if(k==='music' || k==='sound'){ setTimeout(syncNavMenu); return; }   // keep the menu open for toggles
-  closeNavMenu();
+  if(k==='music' || k==='sound' || k==='tilt'){ setTimeout(syncMenus, 50); setTimeout(syncMenus, 700); return; }   // keep the menu open for toggles
+  closeMenus();
 });
 function toast(msg){ $('#toastT').textContent=msg; const t=$('#toast'); t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2200); }
 document.addEventListener('click',e=>{ const c=e.target.closest('[data-close]'); if(c) c.closest('dialog').close(); });
@@ -2586,7 +2604,7 @@ function openStage(){
   $('#tiltBtn').hidden = !(('DeviceOrientationEvent' in window) && matchMedia('(pointer: coarse)').matches);
   newPack();
 }
-function closeStage(){ $('#stage').hidden = true; document.documentElement.style.overflow=''; pk.state='idle'; }
+function closeStage(){ closeMenus(); $('#stage').hidden = true; document.documentElement.style.overflow=''; pk.state='idle'; }
 $('#stageClose').addEventListener('click', closeStage);
 $('#eraSeg').addEventListener('click',e=>{
   const b=e.target.closest('[data-era]'); if(!b || pk.state==='opening' || b.dataset.era===pk.era) return;
