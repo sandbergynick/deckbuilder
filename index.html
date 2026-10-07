@@ -384,7 +384,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .fin{position:absolute;top:12.3%;height:77.3%;left:45.5%;width:9%;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg) translateZ(calc(var(--hz) + 2.5px));
   background:repeating-linear-gradient(0deg,rgba(40,20,5,.2) 0 1.2px,rgba(255,235,210,.18) 1.2px 2.4px,transparent 2.4px 4px),linear-gradient(90deg,rgba(0,0,0,.14),rgba(255,255,255,.12) 40%,rgba(0,0,0,.04) 75%,rgba(0,0,0,.18)),linear-gradient(#F3F3F0 0 2.2%,#9A5E34 2.2% 94.8%,#F3F3F0 94.8%);
   border-left:1px solid rgba(0,0,0,.25);box-shadow:4px 0 8px -1px rgba(0,0,0,.5);border-radius:1px}
-.tearzone{position:absolute;left:0;right:0;top:0;height:15%;z-index:3;cursor:ew-resize}
+.tearzone{position:absolute;left:-6%;right:-6%;top:-14%;height:42%;z-index:3;cursor:ew-resize;touch-action:none}
 .tearline{position:absolute;left:4%;right:4%;top:12.4%;height:0;border-top:1.5px dashed rgba(0,0,0,.28)}
 .tearline::before{content:"";position:absolute;left:-4%;top:-7px;border:6px solid transparent;border-left:9px solid rgba(0,0,0,.35)}
 .tearprog{opacity:0;position:absolute;left:0;top:12.4%;height:3px;margin-top:-1.5px;width:0;background:linear-gradient(90deg,rgba(226,195,118,0),#FFE7A0);box-shadow:0 0 12px 3px rgba(255,220,140,.8);border-radius:2px;z-index:4}
@@ -400,7 +400,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .stack{position:absolute;width:min(300px,68vw);aspect-ratio:488/680;touch-action:none;user-select:none;-webkit-user-select:none}
 .stack.rise{animation:rise 1s cubic-bezier(.2,.8,.25,1) both}
 @keyframes rise{from{transform:translateY(38%) scale(.9);clip-path:inset(0 0 40% 0)}60%{clip-path:inset(0 0 0 0)}to{transform:none}}
-.pc{position:absolute;inset:0;border-radius:4.75%/3.5%;overflow:hidden;background:#1d1a24;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);will-change:transform}
+.pc{position:absolute;inset:0;transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .34s,box-shadow .34s;border-radius:4.75%/3.5%;overflow:hidden;background:#1d1a24;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);will-change:transform}
 .pc img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .pc.fly{transition:transform .45s cubic-bezier(.3,.6,.4,1),opacity .45s}
 .pc.is-top{cursor:grab}
@@ -501,6 +501,16 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   .detail img{max-width:240px;justify-self:center}
   .frow{grid-template-columns:1fr}
   dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:22px 22px 0 0;max-height:92vh}
+  #cardDlg .detail{position:relative;gap:12px;padding:14px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  #cardDlg .detail img{width:auto;max-width:100%;max-height:min(50vh,400px);justify-self:center}
+  #cardDlg #dCost,#cardDlg #dType,#cardDlg #dText{display:none}
+  #cardDlg .info{gap:10px}
+  #cardDlg .sheet-h h3{font-size:1.05rem;padding-right:0}
+  #cardDlg #dClose{position:absolute;top:10px;right:10px;z-index:2;background:var(--surface);box-shadow:var(--shadow)}
+  #cardDlg .kv{gap:14px;font-size:.78rem}
+  #cardDlg .whylist div:nth-child(n+3){display:none}
+  #cardDlg .dacts2 .pill{flex:1;padding:10px 12px}
+  #cardDlg .dacts2 a{width:100%;text-align:center;font-size:.85rem}
   .spot .pill{padding:9px 14px}
 }
 @media (prefers-reduced-motion: reduce){*,*::before{transition:none!important;animation:none!important}}
@@ -642,6 +652,12 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   <div class="sheet-h"><h3>Draft a list</h3><button class="close" data-close aria-label="Close">×</button></div>
   <div id="draftBody"></div>
   <div class="draft-acts" id="draftActs" hidden><span class="muted num" id="draftInfo"></span><div class="dacts2"><button class="linkbtn" id="draftGo" type="button">Redraft</button><button class="linkbtn" id="draftAll" type="button">Select all / none</button><button class="pill ghost small" id="draftCsv" type="button">Export CSV</button><button class="pill small" id="draftAdd" type="button">Add to deck</button></div></div>
+</div></dialog>
+
+<dialog id="saveDlg" aria-label="Save your pulls"><div class="sheet">
+  <div class="sheet-h"><h3>Your pulls</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <img id="saveImg" alt="Your pack pulls" style="width:100%;border-radius:12px;display:block;-webkit-touch-callout:default">
+  <div class="dacts2"><button class="pill" id="saveShare" type="button" style="flex:1">Save to Photos</button><button class="pill ghost" id="saveDl" type="button">Download</button></div>
 </div></dialog>
 
 <dialog id="cardDlg" aria-label="Card details"><div class="detail">
@@ -1942,7 +1958,8 @@ async function rollPack(era){
 // Sound clips live next to index.html (or in an "sfx" folder). Missing files are simply silent.
 const SFX_NAMES = ['tear','hit','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7'];
 const SFX_EXT = ['mp3','m4a','wav'];
-const HIT_PRICE = 5;   // reveal sound + buzz for any card worth more than this (USD)
+const HIT_PRICE = 5;   // buzz (and sound, when HIT_SOUND is on) for any card worth more than this (USD)
+const HIT_SOUND = false; // turned off until the reveal timing is tuned
 const feel = { on: (()=>{ try{ return localStorage.getItem('ripjr.sound')!=='off'; }catch(e){ return true; } })(), ctx:null, buf:{}, loading:false, tilt:false };
 function unlockAudio(){
   // must run inside a tap/click so iPhone allows sound for the rest of the session
@@ -1986,7 +2003,8 @@ function buzz(kind){
     document.body.appendChild(iosSwitch);
   }
   const taps = Array.isArray(HAPTIC[kind]) ? Math.ceil(HAPTIC[kind].length/2) : 1;
-  for(let i=0;i<taps;i++) setTimeout(()=>{ try{ iosSwitch.click(); }catch(e){} }, i*90);
+  try{ iosSwitch.click(); }catch(e){}
+  for(let i=1;i<taps;i++) setTimeout(()=>{ try{ iosSwitch.click(); }catch(e){} }, i*90);
 }
 function setSound(on){
   feel.on = on; try{ localStorage.setItem('ripjr.sound', on?'on':'off'); }catch(e){}
@@ -2090,7 +2108,7 @@ function renderPack(){
     </div></div>`;
   $('#stageFoot').innerHTML = `<div class="stage-acts"><button class="pill ghost" type="button" id="flipBtn">Flip</button><button class="pill" type="button" id="openBtn">Open</button></div>`;
   $('#flipBtn').onclick = ()=>{ pk.ry += 180; applyPack(true); };
-  $('#openBtn').onclick = ()=>{ unlockAudio(); tearOpen(); };
+  $('#openBtn').onclick = ()=>{ unlockAudio(); buzz('tear'); tearOpen(); };
   applyPack(true);
   bindPack();
 }
@@ -2103,7 +2121,7 @@ function applyPack(snap){
 function bindPack(){
   const p = $('#pack'), zone = $('#tearzone');
   let mode=null, sx=0, sy=0, sry=0, w=1;
-  let lastTick = 0;
+  let lastTick = 0, tearBuzzPending = false;
   p.addEventListener('pointerdown',e=>{
     unlockAudio();
     if(pk.state!=='pack') return;
@@ -2122,11 +2140,12 @@ function bindPack(){
       const tp = $('#tearprog'); tp.style.transition='none'; tp.style.opacity='1'; tp.style.width=(prog*100)+'%';
       if(dx<0){ tp.style.left='auto'; tp.style.right='0'; tp.style.transform='scaleX(-1)'; } else { tp.style.left='0'; tp.style.right='auto'; tp.style.transform='none'; }
       const step = Math.floor(prog*8); if(step>lastTick){ lastTick=step; buzz('tick'); }
-      if(prog>0.62){ mode=null; pk.dragging=false; tearOpen(); }
+      if(prog>0.45){ mode=null; pk.dragging=false; tearBuzzPending=true; tearOpen(); }
     }
   });
   const end = ()=>{
     pk.dragging = false;
+    if(tearBuzzPending){ tearBuzzPending=false; buzz('tear'); }   // iPhone only buzzes inside the tap itself
     if(mode==='spin'){ pk.ry = Math.round(pk.ry/180)*180; pk.rx=0; applyPack(true); }
     if(mode==='tear'){ const tp=$('#tearprog'); if(tp){ tp.style.transition='width .3s'; tp.style.width='0'; } }
     mode=null;
@@ -2146,7 +2165,7 @@ async function tearOpen(){
   const tp=$('#tearprog'); if(tp){ tp.style.opacity='1'; tp.style.transition='width .18s'; tp.style.left='0'; tp.style.right='auto'; tp.style.transform='none'; tp.style.width='100%'; }
   await sleep(160);
   p.classList.add('opening');
-  sfx('tear'); buzz('tear');
+  sfx('tear');
   $('#stageFoot').innerHTML = `<div class="hint">Shuffling…</div>`;
   await Promise.all([sleep(650), pk.loading]);
   if(pk.state!=='opening') return;
@@ -2162,29 +2181,47 @@ async function tearOpen(){
   pk.state='reveal';
 }
 
-function renderStack(){
+const stackTr = k => k ? `translateY(${k*7}px) rotate(${(k%2?1:-1)*k*1.6}deg) scale(${1-k*0.025})` : 'none';
+function cardEl(c, i){
+  const d = document.createElement('div');
+  d.className = 'pc '+c.rar; d.dataset.i = i;
+  d.innerHTML = c.img ? `<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" draggable="false">` : `<div style="padding:20px">${h(c.name)}</div>`;
+  return d;
+}
+function renderStack(fresh=true){
   const st = $('#stack'); if(!st) return;
   const cards = pk.cards, n = cards.length;
-  const show = cards.slice(pk.idx, pk.idx+3);
-  st.innerHTML = show.map((c,k)=>{
-    const hit = isHit(c);
-    const tr = k ? `translateY(${k*7}px) rotate(${(k%2?1:-1)*k*1.6}deg) scale(${1-k*0.025})` : 'none';
-    return `<div class="pc ${k===0?'is-top':''} ${hit&&k===0?'glow':''} ${c.rar}" style="z-index:${10-k};transform:${tr}" ${k===0?'id="topcard"':''}>${c.img?`<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" draggable="false">`:`<div style="padding:20px">${h(c.name)}</div>`}${hit&&k===0?'<div class="foil"></div>':''}</div>`;
-  }).reverse().join('');
+  if(fresh) st.innerHTML = '';
+  [...st.children].forEach(el=>{ if(+el.dataset.i < pk.idx && !el.classList.contains('fly')) el.remove(); });
+  for(let i=pk.idx; i<Math.min(n, pk.idx+3); i++){
+    if(st.querySelector(`[data-i="${i}"]`)) continue;
+    const el = cardEl(cards[i], i);
+    if(!fresh){ el.style.transform = stackTr(3); el.style.opacity = '0'; }
+    st.prepend(el);
+  }
+  void st.offsetWidth;   // let new back cards start from their resting spot
+  [...st.children].filter(el=>!el.classList.contains('fly')).forEach(el=>{
+    const k = +el.dataset.i - pk.idx, c = cards[+el.dataset.i], top = k===0, hit = isHit(c);
+    el.style.zIndex = 10-k; el.style.transform = stackTr(k); el.style.opacity = '';
+    el.classList.toggle('is-top', top); el.classList.toggle('glow', top && hit);
+    el.id = top ? 'topcard' : '';
+    if(top && hit && !el.querySelector('.foil')) el.insertAdjacentHTML('beforeend','<div class="foil"></div>');
+  });
   const c = cards[pk.idx];
   $('#stageFoot').innerHTML = `<div class="cardinfo"><span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><b>${h(c.name)}</b><span class="counter">${h(c.set)}${c.usd!=null?' · '+money(c.usd):''}</span></div>
     <div class="dots">${cards.map((_,i)=>`<i class="${i<=pk.idx?'on':''}"></i>`).join('')}</div>
     ${c.rar==='special'?'<div class="hint" style="color:#BFEAFF">✦ Special slot</div>':''}`;
   bindCard();
-  if((c.usd||0) > HIT_PRICE){ setTimeout(()=>{ sfx('hit'); buzz('hit'); }, pk.idx===0 ? 700 : 60); }
+  if(HIT_SOUND && (c.usd||0) > HIT_PRICE) setTimeout(()=>sfx('hit'), pk.idx===0 ? 700 : 60);
 }
 function bindCard(){
-  const el = $('#topcard'); if(!el) return;
+  const el = $('#topcard'); if(!el || el.dataset.bound) return;
+  el.dataset.bound = '1';
   let sx=0, sy=0, t0=0, dragging=false;
-  el.addEventListener('pointerdown',e=>{ unlockAudio(); el.dataset.drag='1'; dragging=true; sx=e.clientX; sy=e.clientY; t0=Date.now(); el.setPointerCapture(e.pointerId); el.classList.remove('fly'); });
+  el.addEventListener('pointerdown',e=>{ if(!el.classList.contains('is-top')) return; unlockAudio(); el.dataset.drag='1'; dragging=true; sx=e.clientX; sy=e.clientY; t0=Date.now(); el.setPointerCapture(e.pointerId); el.classList.remove('fly'); el.style.transition='none'; });
   el.addEventListener('pointermove',e=>{ if(!dragging) return; const dx=e.clientX-sx, dy=e.clientY-sy; el.style.transform=`translate(${dx}px,${dy}px) rotate(${dx*0.06}deg)`; });
   const end = e=>{
-    if(!dragging) return; dragging=false; delete el.dataset.drag;
+    if(!dragging) return; dragging=false; delete el.dataset.drag; el.style.transition='';
     const dx=e.clientX-sx, dy=e.clientY-sy, dt=Date.now()-t0;
     if(Math.abs(dx)<6 && Math.abs(dy)<6) return flyOff(-1, 0);
     if(Math.abs(dx)>90 || (dt<260 && Math.abs(dx)>30)) return flyOff(Math.sign(dx), dy);
@@ -2196,10 +2233,14 @@ let flying=false;
 function flyOff(dir, dy){
   const el = $('#topcard'); if(!el || flying) return;
   flying = true;
-  swipeSfx(0.7); buzz('swipe');
-  el.classList.add('fly');
+  swipeSfx(0.7);
+  const next = pk.cards[pk.idx+1];
+  buzz(next && (next.usd||0) > HIT_PRICE ? 'hit' : 'swipe');   // buzz now, while it still counts as the tap
+  el.classList.add('fly'); el.id = ''; el.classList.remove('is-top');
   el.style.transform = `translate(${dir*120}vw,${(dy||0)-60}px) rotate(${dir*28}deg)`; el.style.opacity='0';
-  setTimeout(()=>{ flying=false; pk.idx++; if(pk.idx>=pk.cards.length) showSummary(); else renderStack(); }, 300);
+  pk.idx++;
+  if(pk.idx>=pk.cards.length){ setTimeout(()=>{ flying=false; showSummary(); }, 300); }
+  else { renderStack(false); flying=false; setTimeout(()=>el.remove(), 460); }
 }
 document.addEventListener('keydown',e=>{
   if($('#stage').hidden){
@@ -2283,12 +2324,27 @@ async function exportPackImage(){
   try{
     cv.toBlob(b=>{
       if(!b){ toast('Couldn’t create the image'); return; }
-      const url=URL.createObjectURL(b), a=document.createElement('a'); a.href=url; a.download=`ripjr-pack-${pk.no}.png`; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),4000); toast('Saved ripjr-pack-'+pk.no+'.png');
+      const name = `ripjr-pack-${pk.no}.png`, file = new File([b], name, {type:'image/png'}), url = URL.createObjectURL(b);
+      const canShare = navigator.canShare && navigator.canShare({files:[file]}) && matchMedia('(pointer: coarse)').matches;
+      if(canShare){
+        // phones: show the image with a Save button (the share sheet's "Save Image" puts it in Photos)
+        $('#saveImg').src = url; savePending = {file, url, name};
+        $('#saveDlg').showModal();
+      } else {
+        const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),4000); toast('Saved '+name);
+      }
     }, 'image/png');
   }catch(e){ toast('The card images blocked the export in this browser. Try Chrome or Safari.'); }
   btn.disabled=false; btn.textContent='Export image';
 }
+let savePending = null;
+$('#saveShare').addEventListener('click', async ()=>{
+  if(!savePending) return;
+  try{ await navigator.share({files:[savePending.file]}); }catch(e){ if(e.name!=='AbortError') toast('Couldn’t open the share sheet. Press and hold the image to save it.'); }
+});
+$('#saveDl').addEventListener('click', ()=>{ if(!savePending) return; const a=document.createElement('a'); a.href=savePending.url; a.download=savePending.name; document.body.appendChild(a); a.click(); a.remove(); });
+$('#saveDlg').addEventListener('close', ()=>{ if(savePending){ setTimeout(()=>URL.revokeObjectURL(savePending.url), 1000); savePending=null; } });
 $('#packBtn').addEventListener('click', openStage);
 $('#wPack').addEventListener('click', ()=>{ hideWelcome(); openStage(); });
 
