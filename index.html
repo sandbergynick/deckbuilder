@@ -475,6 +475,20 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .cmdimg img{display:block;width:100%;border-radius:4.75%/3.5%;box-shadow:var(--shadow-lift)}
 .cmdfab{display:none}
 @media (min-width: 961px){ .cmd-pill{display:none} }
+.lhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.lhead h2{font:600 clamp(1.5rem,3vw,2rem)/1.15 var(--f-body);letter-spacing:-.02em}
+.lhead p{margin:4px 0 0;font-size:.9rem}
+.dl{columns:250px;column-gap:36px}
+.dlg{break-inside:avoid;margin-bottom:22px}
+.dlg h4{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:6px}
+.dlr{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:4px 0;font-size:.93rem}
+.dlr .q{color:var(--muted);font-size:.85rem}
+.dln{border:0;background:none;padding:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:var(--ink)}
+.dln:hover{color:var(--accent)}
+.dln.off{color:var(--bad)}
+.dlc{display:flex;gap:2px;font-size:.85em}
+.hovercard{position:fixed;left:0;top:0;z-index:60;width:250px;pointer-events:none;will-change:transform}
+.hovercard img{display:block;width:100%;border-radius:4.75%/3.5%;box-shadow:0 18px 50px rgba(0,0,0,.35)}
 @media (max-width: 960px){
   .cmdcard{position:static}
   .cmdfab:not([hidden]){display:block;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;width:62px;padding:0;border:0;background:none;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:zoom-in}
@@ -552,7 +566,8 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
     <button class="mark" id="homeBtn" type="button" aria-label="Ripjr Deck Genie home"><svg width="20" height="20"><use href="#i-gem"/></svg><span>Ripjr <span class="mark-sub">Deck Genie</span></span></button>
     <div class="seg" role="tablist" aria-label="Views">
       <button role="tab" id="tab-discover" data-view="discover" aria-selected="true">Discover</button>
-      <button role="tab" id="tab-similar" data-view="similar" aria-selected="false">Similar</button>
+      <button role="tab" id="tab-similar" data-view="similar" aria-selected="false">Thesaurus</button>
+      <button role="tab" id="tab-list" data-view="list" aria-selected="false">Decklist</button>
       <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
     </div>
     <span class="nav-count num" id="navCount"></span><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button>
@@ -583,7 +598,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 
   <section class="view" id="view-similar" hidden>
     <div class="hero">
-      <h2>Find similar cards</h2>
+      <h2>Search up any card and find similar ones.</h2>
       <form class="spot ac" id="simForm" role="search" autocomplete="off">
         <svg width="20" height="20"><use href="#i-search"/></svg>
         <input id="simQ" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="simList" aria-label="Card to compare" placeholder="Card name">
@@ -603,7 +618,15 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
       </div>
     </div>
   </section>
+  <section class="view" id="view-list" hidden>
+    <div class="lhead">
+      <div><h2>Decklist</h2><p class="muted num" id="lSum"></p></div>
+      <div class="dacts2"><button class="pill ghost small" type="button" id="lCopy">Copy list</button><button class="pill ghost small" type="button" id="lCsv">Export CSV</button></div>
+    </div>
+    <div class="dl" id="dlBody"></div>
+  </section>
 </main>
+<div class="hovercard" id="hoverCard" hidden><img alt=""></div>
 
 <aside id="deck" aria-label="Your deck">
   <div class="panel">
@@ -1427,7 +1450,42 @@ function renderDeck(){
     return `<div class="group"><h4>${g}s · ${list.reduce((s,c)=>s+c.qty,0)}</h4>${list.map(c=>{ cache.set(c.id,c); const off=!inIdentity(c);
       return `<div class="line"><span class="q">${c.qty}</span><button class="nm ${off?'off':''}" data-open="${c.id}" title="${off?'Outside your commander’s colors':h(c.name)}">${h(c.name)}</button><span class="mv">${isLand(c)?'':c.mv}</span><button class="rm" data-rm="${h(c.name)}" aria-label="Remove ${h(c.name)}">×</button></div>`; }).join('')}</div>`;
   }).join('') : `<div class="empty" style="padding:16px 8px"><span>No cards yet.</span></div>`;
+  renderDecklist(groups, order, total, usd);
 }
+function renderDecklist(groups, order, total, usd){
+  const cmd = state.deck.commander;
+  $('#lSum').textContent = `${total} of 100 cards${usd ? ' · about $'+Math.round(usd).toLocaleString() : ''}`;
+  const row = c => `<div class="dlr"><span class="q num">${c.qty||1}</span><button type="button" class="dln ${inIdentity(c)?'':'off'}" data-open="${c.id}" data-hover="${c.id}">${h(c.name)}</button><span class="dlc">${c.mana?syms(c.mana.split(' // ')[0]):''}</span></div>`;
+  const blocks = [];
+  if(cmd) blocks.push(`<div class="dlg"><h4>Commander</h4>${row(cmd)}</div>`);
+  order.forEach(g=>{
+    const list = groups[g];
+    blocks.push(`<div class="dlg"><h4>${g}s <span class="num">${list.reduce((n,c)=>n+c.qty,0)}</span></h4>${list.map(row).join('')}</div>`);
+  });
+  $('#dlBody').innerHTML = blocks.length ? blocks.join('') : `<div class="empty"><span>No cards yet.</span></div>`;
+}
+// hover preview on the decklist (mouse and trackpad only; phones tap to open the card)
+(function(){
+  const hc = $('#hoverCard'), img = hc.querySelector('img'), fine = matchMedia('(hover: hover) and (pointer: fine)');
+  const place = e => {
+    const w = 250, hgt = w*680/488, pad = 18;
+    let x = e.clientX + pad, y = e.clientY - hgt/2;
+    if(x + w > innerWidth - 8) x = e.clientX - w - pad;
+    y = Math.max(8, Math.min(innerHeight - hgt - 8, y));
+    hc.style.transform = `translate(${x}px,${y}px)`;
+  };
+  $('#dlBody').addEventListener('mouseover', e=>{
+    if(!fine.matches) return;
+    const b = e.target.closest('[data-hover]'); if(!b) return;
+    const c = cache.get(b.dataset.hover); if(!c || !c.img) return;
+    img.src = c.img; img.alt = c.name; hc.hidden = false; place(e);
+  });
+  $('#dlBody').addEventListener('mousemove', e=>{ if(!hc.hidden) place(e); });
+  $('#dlBody').addEventListener('mouseout', e=>{ if(e.target.closest('[data-hover]') && !e.relatedTarget?.closest?.('[data-hover]')) hc.hidden = true; });
+  $('#dlBody').addEventListener('click', ()=>{ hc.hidden = true; });
+})();
+$('#lCopy').addEventListener('click', ()=>$('#copyBtn').click());
+$('#lCsv').addEventListener('click', exportDeckCSV);
 $('#list').addEventListener('click',e=>{ const r=e.target.closest('[data-rm]'); if(r) removeCard(r.dataset.rm); });
 $('#dhead').addEventListener('click',e=>{ if(e.target.closest('[data-cmd]')) openCmd(); });
 $('#exClear').addEventListener('click',()=>showWelcome());
@@ -1819,6 +1877,7 @@ function setView(v){
   document.querySelectorAll('.seg button').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
   $('#view-discover').hidden = v!=='discover';
   $('#view-similar').hidden = v!=='similar';
+  $('#view-list').hidden = v!=='list';
   if(v==='similar' && !sim.card) setTimeout(()=>$('#simQ').focus(),50);
   window.scrollTo({top:0});
 }
