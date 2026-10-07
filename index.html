@@ -1258,7 +1258,7 @@ function buildQuery(st){
     const ws = freeWords(st.free).map(w=>w.replace(/[^a-z0-9'-]/g,'')).filter(Boolean);
     if(ws.length) parts.push('(('+ws.join(' ')+') or '+ws.map(w=>'ft:'+w+' or t:'+w+' or o:'+w).join(' or ')+')');
   }
-  return parts.join(' ');
+  return simplifyQuery(parts.join(' '));
 }
 
 /* ======================= Card helpers ======================= */
@@ -1312,7 +1312,33 @@ async function sf(pathOrUrl, opts={}){
   }
   return j;
 }
-const searchCards = (q, order='edhrec', unique='cards') => sf('/cards/search?order='+order+'&unique='+unique+'&q='+encodeURIComponent(q));
+// Scryfall allows at most 5 levels of nested parentheses. Combining several themes, roles and tags
+// can go deeper, so every query is re-written with only the brackets it actually needs.
+function simplifyQuery(q){
+  try{
+    const toks = q.match(/-\(|\(|\)|-?[^\s()"]*"[^"]*"[^\s()]*|[^\s()]+/g) || [];
+    let i = 0;
+    const peek = () => toks[i];
+    function parseOr(){ const items=[parseAnd()]; while(peek() && peek().toLowerCase()==='or'){ i++; items.push(parseAnd()); } return items.length===1 ? items[0] : {t:'or', c:items}; }
+    function parseAnd(){ const items=[]; while(peek() && peek()!==')' && peek().toLowerCase()!=='or') items.push(parseUnit()); if(!items.length) throw 0; return items.length===1 ? items[0] : {t:'and', c:items}; }
+    function parseUnit(){
+      const tk = toks[i++];
+      if(tk==='(' || tk==='-('){ const n = parseOr(); if(toks[i++]!==')') throw 0; return tk==='-(' ? {t:'not', c:[n]} : n; }
+      if(tk===')') throw 0;
+      return {t:'term', v:tk};
+    }
+    const tree = parseOr(); if(i!==toks.length) throw 0;
+    const flat = n => n.t==='and'||n.t==='or' ? n.c.flatMap(ch => ch.t===n.t ? flat(ch) : [ch]) : null;
+    function ser(n, parent){
+      if(n.t==='term') return n.v;
+      if(n.t==='not') return '-(' + ser(n.c[0], 'top') + ')';
+      const kids = flat(n), s = kids.map(k => ser(k, n.t)).join(n.t==='or' ? ' or ' : ' ');
+      return (parent==='top' || kids.length===1) ? s : '(' + s + ')';
+    }
+    return ser(tree, 'top');
+  }catch(e){ return q; }
+}
+const searchCards = (q, order='edhrec', unique='cards') => sf('/cards/search?order='+order+'&unique='+unique+'&q='+encodeURIComponent(simplifyQuery(q)));
 
 
 /* ======================= State ======================= */
