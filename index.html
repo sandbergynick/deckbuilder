@@ -1939,8 +1939,7 @@ async function rollPack(era){
 
 
 /* ---------- feel: sound, haptics, tilt ---------- */
-// Drop your clips in a folder named "sfx" next to index.html. Missing files are simply silent.
-// Each name is tried as .mp3, then .m4a, then .wav.
+// Sound clips live next to index.html (or in an "sfx" folder). Missing files are simply silent.
 const SFX_NAMES = ['tear','hit','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7'];
 const SFX_EXT = ['mp3','m4a','wav'];
 const HIT_PRICE = 5;   // reveal sound + buzz for any card worth more than this (USD)
@@ -1951,8 +1950,10 @@ function unlockAudio(){
   if(feel.ctx.state==='suspended') feel.ctx.resume();
   if(!feel.loading){
     feel.loading = true;
-    const load = (k,i=0) => { if(i>=SFX_EXT.length) return;
-      fetch('sfx/'+k+'.'+SFX_EXT[i]).then(r=>r.ok?r.arrayBuffer():Promise.reject())
+    // looks next to index.html first, then in an "sfx" folder; .mp3, then .m4a, then .wav
+    const paths = k => ['', 'sfx/'].flatMap(dir=>SFX_EXT.map(ext=>dir+k+'.'+ext));
+    const load = (k,i=0) => { const list = paths(k); if(i>=list.length) return;
+      fetch(list[i]).then(r=>r.ok?r.arrayBuffer():Promise.reject())
         .then(b=>new Promise((res,rej)=>feel.ctx.decodeAudioData(b,res,rej))).then(d=>{ feel.buf[k]=d; })
         .catch(()=>load(k,i+1)); };
     SFX_NAMES.forEach(k=>load(k));
