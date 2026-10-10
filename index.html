@@ -2719,9 +2719,9 @@ async function rollPack(era, tok={}){
 /* ---------- feel: sound, haptics, tilt ---------- */
 // Sound clips live next to index.html (or in an "sfx" folder). Missing files are simply silent.
 const SFX_NAMES = ['tear','hit','hit2','hit3','swipe1','swipe2','swipe3','swipe4','swipe5','swipe6','swipe7',
-  'delight','hover','select','deselect','add','remove','menuselect','menudeselect'];
+  'delight','hover','select','deselect','add','remove','menuselect'];
 // volume per sound (0 = silent, 1 = full). Anything not listed plays at 0.9
-const SFX_VOLUME = {menuselect:0.6, menudeselect:0.6, hit:0.55, hit2:0.65, hit3:0.75, delight:0.8, hover:0.3, select:0.6, deselect:0.5, add:0.7, remove:0.6};
+const SFX_VOLUME = {menuselect:0.6, hit:0.55, hit2:0.65, hit3:0.75, delight:0.8, hover:0.3, select:0.6, deselect:0.5, add:0.7, remove:0.6};
 const MUSIC_VOLUME = 0.35;   // background music level
 const MUSIC_DEFAULT = true;  // false = music starts off until someone turns it on
 const SFX_EXT = ['mp3','m4a','wav'];
@@ -2789,28 +2789,29 @@ document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopMusi
 // first tap or key anywhere wakes the audio
 ['pointerdown','keydown'].forEach(t=>document.addEventListener(t, unlockAudio, {capture:true, passive:true}));
 initAudio();
-// menu sounds: menuselect for tabs, era picks, Open/Flip and menus; menudeselect for X buttons and backing out
+// menu sounds: menuselect for tabs, era picks, Open/Flip and menus; deselect for X buttons and backing out
 // (runs before the buttons' own handlers, so it sees the state before the click)
 document.addEventListener('click', e=>{
   const t = e.target, on = sel => t.closest(sel);
   // menu ⋯ buttons: opening = select, closing = deselect
   const mb = on('#navMenuBtn,#stageMenuBtn');
-  if(mb){ sfx($(mb.id==='navMenuBtn'?'#navMenu':'#stageMenu').hidden ? 'menuselect' : 'menudeselect'); return; }
+  if(mb){ sfx($(mb.id==='navMenuBtn'?'#navMenu':'#stageMenu').hidden ? 'menuselect' : 'deselect'); return; }
   if(on('.navmenu button')){ sfx('menuselect'); return; }
-  if(document.querySelector('.navmenu:not([hidden])') && !on('#navSound,#soundBtn,#tiltBtn,.musicbtn')){ sfx('menudeselect'); return; }   // tapped outside an open menu
+  // tapping outside an open menu just closes it, silently (whatever you tapped still makes its own sound)
   const tab = on('[role="tab"], #eraSeg [data-era]');
   if(tab){ if(tab.getAttribute('aria-selected')!=='true' && !(tab.dataset.era && pk.state==='opening')) sfx('menuselect'); return; }
   if(on('#openBtn,#flipBtn,[data-help],#wContinue,#againPack,#lDraw:not(:disabled)')){ sfx('menuselect'); return; }
   // backing out: any X (not the card popup, which has its own sound), pill ×, closing the pack screen, tapping a dialog's backdrop
   if(on('#dClose')) return;
-  if(on('[data-close], #stageClose, [data-tok], .sheet-h .close') && !on('.iconbtn')){ sfx('menudeselect'); return; }
-  if(t.tagName==='DIALOG' && t.id!=='cardDlg'){ sfx('menudeselect'); return; }
+  if(on('[data-tok]')){ sfx('remove'); return; }   // removing a filter pill
+  if(on('[data-close], #stageClose, .sheet-h .close') && !on('.iconbtn')){ sfx('deselect'); return; }
+  if(t.tagName==='DIALOG' && t.id!=='cardDlg'){ sfx('deselect'); return; }
 }, true);
 document.addEventListener('keydown', e=>{
   if(e.key!=='Escape') return;
   const d = document.querySelector('dialog[open]');
-  if(d){ if(d.id!=='cardDlg') sfx('menudeselect'); }
-  else if(!$('#stage').hidden) sfx('menudeselect');
+  if(d){ if(d.id!=='cardDlg') sfx('deselect'); }
+  else if(!$('#stage').hidden) sfx('deselect');
 }, true);
 // Swipe: random pick from whichever swipe clips loaded, never the same one twice in a row
 let lastSwipe = null;
