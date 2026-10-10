@@ -17,29 +17,31 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://sandbergynick.github.io/deckbuilder/preview.png">
-<meta name="theme-color" content="#EEE1CB">
+<meta name="theme-color" content="#2A211B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Karla:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: Spotlight-style search over a card grid, deck as a glass side panel; gold filigree and a night sky are the only fantasy notes. */
 /* Sahara Sand: warm sand ground, linen surfaces, saffron accent, indigo second accent, date-wood deck panel */
 :root{
-  --bg:#EEE1CB; --glow:transparent; --star:transparent;
-  --surface:#F7EEDF; --surface-2:#EADBC1; --glass:rgba(238,225,203,.86); --glass-line:rgba(43,29,20,.08);
-  --ink:#2B1D14; --muted:#6E5B4B; --faint:#A8927C; --line:rgba(43,29,20,.12);
-  --accent:#C9761A; --accent-ink:#FFFFFF; --accent-soft:rgba(201,118,26,.16);
-  --gold:#2E3B8C; --gold-soft:rgba(46,59,140,.10);
-  --good:#3E7B4F; --warn:#B8741A; --bad:#B4533F;
-  --wood:#2B1D14; --wood-2:#3B2A1E; --linen:#F7EEDF;
-  --shadow:0 1px 2px rgba(60,40,20,.05),0 10px 28px rgba(60,40,20,.08);
-  --shadow-lift:0 2px 6px rgba(60,40,20,.10),0 18px 40px rgba(60,40,20,.16);
-  --scrim:rgba(43,29,20,.38);
+  /* Dusk Dunes: dark warm sand, coin-yellow buttons, genie-blue accents */
+  --bg:#2A211B; --glow:rgba(78,155,255,.07); --star:transparent;
+  --surface:#372B23; --surface-2:#46372C; --field:#211A15; --glass:rgba(42,33,27,.88); --glass-line:rgba(255,236,210,.08);
+  --ink:#F5E8D3; --muted:#C2AD94; --faint:#8C7863; --line:rgba(255,236,210,.12);
+  --accent:#F4BF3A; --accent-ink:#2A1C0E; --accent-deep:#B9861A; --accent-soft:rgba(244,191,58,.16);
+  --gold:#5AA2FF; --gold-soft:rgba(90,162,255,.14);   /* "gold" is the second accent: the genie's blue */
+  --blue-deep:#1F54C4;
+  --good:#6BC47D; --warn:#F4BF3A; --bad:#EF6A5B;
+  --wood:#1C1612; --wood-2:#2A211B; --linen:#F5E8D3;
+  --shadow:0 1px 2px rgba(0,0,0,.25),0 10px 28px rgba(0,0,0,.28);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.3),0 18px 40px rgba(0,0,0,.4);
+  --scrim:rgba(12,8,6,.6);
   --pip-w:#F3EBC4; --pip-u:#3D7BD6; --pip-b:#4C4452; --pip-r:#D9502F; --pip-g:#2F8A55; --pip-c:#B4B8BC;
   --f-display:"El Messiri", Georgia, serif;
-  --f-body:Karla, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-body:Nunito, "Segoe UI", system-ui, -apple-system, sans-serif;
   --f-mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  color-scheme:light;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -85,7 +87,7 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
 .seg{display:inline-flex;background:transparent;border-radius:12px;padding:2px;gap:4px;margin-inline:auto}
 .seg button{border:0;background:transparent;padding:6px 16px;border-radius:8px;font-weight:500;font-size:.9rem;color:var(--ink)}
 .seg button{border-radius:10px!important}
-.seg button[aria-selected="true"]{background:var(--wood);color:var(--linen);font-weight:600}
+.seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-weight:800;box-shadow:0 3px 0 var(--accent-deep)}
 .seg .deck-seg{display:none}
 .nav-count{font-size:.85rem;color:var(--muted)}
 
@@ -103,7 +105,7 @@ main{min-width:0}
 .cmd-pill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .cmd-pill .chev{color:var(--muted)}
 .hero h2{font:600 clamp(1.7rem,3.4vw,2.4rem)/1.12 var(--f-body);letter-spacing:-.022em}
-.spot{width:min(720px,100%);display:flex;align-items:center;gap:10px;background:#FFFFFF;border:1px solid transparent;border-radius:999px;padding:8px 8px 8px 16px;box-shadow:var(--shadow)}
+.spot{width:min(720px,100%);display:flex;align-items:center;gap:10px;background:var(--field);border:1px solid transparent;border-radius:999px;padding:8px 8px 8px 16px;box-shadow:var(--shadow)}
 .spot:focus-within{box-shadow:var(--shadow),0 0 0 4px var(--accent-soft);border-color:var(--accent)}
 .spot svg{color:var(--muted);flex:none}
 .spot input:focus-visible{outline:none;box-shadow:none}
@@ -634,6 +636,31 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
   .spot .pill{padding:9px 14px}
 }
 @media (prefers-reduced-motion: reduce){*,*::before{transition:none!important;animation:none!important}}
+
+/* ---- Nintendo feel: chunky pressable buttons, rounder shapes, genie-blue highlights ---- */
+body{font-weight:500}
+.spot{box-shadow:0 0 0 2px var(--line),0 4px 0 rgba(0,0,0,.22)}
+.spot:focus-within{box-shadow:0 0 0 2px var(--gold),0 4px 0 rgba(0,0,0,.22)}
+.spot input{color:var(--ink)} .spot input::placeholder{color:var(--muted)}
+.pill{font-weight:800;box-shadow:0 3px 0 var(--accent-deep);transition:transform .08s,box-shadow .08s}
+.pill:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--accent-deep)}
+.pill.ghost{box-shadow:0 3px 0 rgba(0,0,0,.28)}
+.pill.ghost:active:not(:disabled){box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.chip{font-weight:700;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.chip[aria-pressed="true"]{background:var(--gold);color:#0E1A33;box-shadow:0 2px 0 var(--blue-deep)}
+.plus{box-shadow:0 3px 0 var(--accent-deep),0 6px 14px rgba(0,0,0,.35);font-weight:800}
+.plus.in{background:var(--gold);color:#0E1A33;box-shadow:0 3px 0 var(--blue-deep),0 6px 14px rgba(0,0,0,.35)}
+.seg button{font-weight:700}
+.helpbtn{box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.panel,aside .panel{border-radius:28px}
+.bubble{border-radius:32px}
+.wm-g{color:var(--gold)}
+.linkbtn{color:var(--gold)}
+:focus-visible{outline-color:var(--gold)}
+.input{color:var(--ink)}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
+.dhead .pill,#dAdd[style*="surface-2"]{box-shadow:0 3px 0 rgba(0,0,0,.3)}
+#dLink{color:var(--gold)}
 </style>
 </head>
 <body>
