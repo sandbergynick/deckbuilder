@@ -1346,7 +1346,16 @@ const CONCEPTS = {
     tags:[], extra:'frame:1993 or frame:1997'},
   bling:{label:'Modern bling', aesthetic:true, words:['bling','blinged','borderless','full art','fullart','showcase','extended art','alt art','alternate art','pimp','pimped','flashy','fancy','premium'],
     read:'borderless, full-art, showcase and extended-art printings',
-    tags:[], extra:'border:borderless or is:full or frame:showcase or frame:extendedart'}
+    tags:[], extra:'border:borderless or is:full or frame:showcase or frame:extendedart'},
+  masterpiece:{label:'Masterpieces', aesthetic:true, words:['masterpiece','masterpieces','masterpiece series','masterpiece cards'],
+    read:'Masterpiece Series printings: Kaladesh Inventions, Amonkhet Invocations, Zendikar Expeditions and the rest',
+    tags:[], extra:'st:masterpiece'},
+  inventions:{label:'Kaladesh Inventions', aesthetic:true, words:['kaladesh inventions','inventions','invention'],
+    read:'the Masterpiece printings from Kaladesh', tags:[], extra:'e:mps'},
+  invocations:{label:'Amonkhet Invocations', aesthetic:true, words:['amonkhet invocations','invocations','invocation'],
+    read:'the Masterpiece printings from Amonkhet', tags:[], extra:'e:mp2'},
+  expeditions:{label:'Zendikar Expeditions', aesthetic:true, words:['zendikar expeditions','expeditions'],
+    read:'the Masterpiece lands from Zendikar', tags:[], extra:'(e:exp or e:zne)'}
 };
 const STOP = new Set('a an the deck decks that which works work working like about with and or of to for in on my me i want wanna build building make makes making something some theme themed based around kind type style cards card lots tons really very more is are be it its who where when how what play plays playing uses use using feel feels vibe vibes full all any every this these those just kinda sort get gets thing things way would could should can will do does into out from by as at than then them they you your our we us one two'.split(' '));
 const freeWords = s => (s.toLowerCase().match(/[a-z0-9'&-]+/g)||[]).filter(w=>w.length>=3 && !STOP.has(w)).slice(0,6);
