@@ -221,6 +221,13 @@ aside .panel .cmdcard{border-radius:26px 26px 0 0}
 .line .rm:hover{color:var(--bad);background:var(--surface-2)}
 .line .lact{display:flex;gap:2px}
 .line .inc:hover{color:var(--good)}
+.pw{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.pw b{font:700 1.5rem/1 var(--f-display)}
+.pw span{color:var(--muted);font-size:.9rem}
+.pwrows{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:.86rem}
+.pwrows div{display:flex;justify-content:space-between;gap:8px}
+.pwrows .num{color:var(--muted)} .pwrows .hot{color:var(--accent);font-weight:700}
+.pwnote{margin:8px 0 0;font-size:.74rem;color:var(--faint);line-height:1.4}
 .basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .bstep{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;align-items:center;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px 4px 3px 8px;font-size:.78rem}
 .bstep i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
@@ -250,6 +257,11 @@ dialog[open]{animation:pop .28s cubic-bezier(.2,.9,.25,1.1)}
 .kv{display:flex;gap:18px;flex-wrap:wrap;font-size:.88rem;color:var(--muted)}
 .kv b{display:block;color:var(--ink);font-size:1rem;font-variant-numeric:tabular-nums}
 .whylist{display:grid;gap:6px;font-size:.88rem}
+.prints{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin}
+.prints button{flex:none;width:84px;border:0;padding:0;background:none;color:var(--muted);font-size:.7rem;display:grid;gap:4px;justify-items:center}
+#cardDlg .prints img{width:84px;max-height:none;aspect-ratio:488/680;border-radius:5px;object-fit:cover;box-shadow:var(--shadow)}
+.prints button[aria-pressed="true"] img{outline:3px solid var(--gold);outline-offset:1px}
+.prints .status{flex:none;font-size:.85rem;color:var(--muted)}
 .whylist div{display:flex;gap:8px;align-items:baseline}
 .whylist svg{flex:none;color:var(--gold)}
 .dacts2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -779,6 +791,7 @@ body{font-weight:500}
       </div>
       <div><div class="sec-t"><span>Mana curve</span></div><div class="curve" id="curve"></div></div>
       <div><div class="sec-t"><span>Essentials</span></div><div class="ess" id="ess"></div></div>
+      <div><div class="sec-t"><span>Power level</span></div><div id="power"></div></div>
       <div><div class="sec-t"><span>Basic lands</span></div><div class="basics" id="basics"></div></div>
       <div class="dacts">
         <button class="linkbtn" id="importBtn">Import list</button>
@@ -846,6 +859,8 @@ body{font-weight:500}
     <ul class="htips">
       <li><b>"budget"</b> or <b>"under $5"</b> caps the price.</li>
       <li><b>"cheap"</b> keeps the mana cost low.</li>
+      <li><b>"mono black"</b>, <b>"grixis"</b> or <b>"blue and red"</b> sets your colors.</li>
+      <li><b>"islands"</b> (or any basic land type) finds those lands and cards that care about them.</li>
       <li>Put words in <b>"quotes"</b> to find that exact card text, like <b>"whenever you attack"</b>.</li>
       <li>Type a card's name to find that card.</li>
     </ul>
@@ -875,7 +890,8 @@ body{font-weight:500}
     <div class="oracle" id="dText"></div>
     <div class="kv" id="dKv"></div>
     <div class="whylist" id="dWhy"></div>
-    <div class="dacts2"><button class="pill" id="dAdd">Add to deck</button><button class="pill ghost" id="dSimilar">Find similar</button><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a></div>
+    <div class="dacts2"><button class="pill" id="dAdd">Add to deck</button><button class="pill ghost" id="dSimilar">Find similar</button><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a><button class="linkbtn" type="button" id="dPrintsBtn">Other art</button></div>
+    <div class="prints" id="dPrints" hidden></div>
   </div>
 </div></dialog>
 
@@ -1287,9 +1303,9 @@ const CONCEPTS = {
     read:'equipment, attaching gear and craft',
     q:'(t:equipment or o:"equipped creature" or kw:craft or o:"attach target equipment")',
     re:/equipment|equipped creature|\bcraft|attach target equipment/},
-  sexy:{label:'Sexy', aesthetic:true, words:['sexy','spicy','thirst','thirsty','thirst trap','waifu','waifus','husbando','seductive','seduction','alluring','sultry','steamy','fan service','fanservice','risque','risqué','va va voom','bombshell'],
+  sexy:{label:'Sexy', aesthetic:true, words:['sexy','spicy','thirst','thirsty','thirst trap','waifu','waifus','husbando','seductive','seduction','alluring','sultry','steamy','fan service','fanservice','risque','risqué','va va voom','bombshell','bikini','bikinis','swimsuit','swimsuits'],
     read:'art showing cleavage, midriffs, bare legs and revealing outfits',
-    tags:['cleavage','midriff','thighs','bare-legs','bare-shoulders','navel','revealing-clothing','lingerie','seductive','bikini'], extra:'',
+    tags:['cleavage','midriff','thighs','bare-legs','bare-shoulders','navel','revealing-clothing','lingerie','seductive','bikini','swimsuit'], extra:'',
     exclude:['child','children','kid','teenager','youth','young','baby']},
   /* ---- Aesthetics: matched on the illustration or frame, not the rules text ---- */
   darkacademia:{label:'Dark academia', aesthetic:true, words:['dark academia','academia','scholarly','old library','candlelit','tweed','ivy league','gothic library'],
@@ -1360,11 +1376,46 @@ function stemHas(stems, phrase){
   outer: for(let i=0;i+p.length<=stems.length;i++){ for(let k=0;k<p.length;k++) if(stems[i+k]!==p[k]) continue outer; return true; }
   return false;
 }
+// Magic's names for color combinations
+const COLOR_NAMES = {
+  'mono white':'w','mono blue':'u','mono black':'b','mono red':'r','mono green':'g','colorless':'c',
+  azorius:'wu',dimir:'ub',rakdos:'br',gruul:'rg',selesnya:'gw',orzhov:'wb',izzet:'ur',golgari:'bg',boros:'rw',simic:'gu',
+  bant:'gwu',esper:'wub',grixis:'ubr',jund:'brg',naya:'rgw',abzan:'wbg',jeskai:'urw',sultai:'bgu',mardu:'rwb',temur:'gur',
+  'glint eye':'ubrg','non white':'ubrg','dune brood':'wbrg','non blue':'wbrg','ink treader':'wurg','non black':'wurg',
+  'witch maw':'wubg','non red':'wubg','yore tiller':'wubr','non green':'wubr',
+  'five color':'wubrg','5 color':'wubrg','wubrg':'wubrg'
+};
+const COLOR_LETTER = {white:'w',blue:'u',black:'b',red:'r',green:'g'};
+const COLOR_LABEL = s => ({w:'Mono-white',u:'Mono-blue',b:'Mono-black',r:'Mono-red',g:'Mono-green',c:'Colorless'})[s] ||
+  cap(Object.keys(COLOR_NAMES).find(k=>sortWUBRG(COLOR_NAMES[k])===s && !k.includes(' ') && k.length>4) || '') || s.toUpperCase();
+const sortWUBRG = s => [...new Set(s)].sort((a,b)=>'wubrgc'.indexOf(a)-'wubrgc'.indexOf(b)).join('');
+const LAND_TYPES = ['plains','island','swamp','mountain','forest'];
+function parseColorsAndLands(text){
+  let t = text, colors = '', landType = '';
+  // longest names first ("glint eye" before "glint"); "mono-black", "mono black" and "monoblack" all count
+  for(const k of Object.keys(COLOR_NAMES).sort((a,b)=>b.length-a.length)){
+    const re = new RegExp('(^|[^a-z])'+k.replace(/ /g,'[ \\-/]?')+'([^a-z]|$)');
+    if(re.test(t)){ colors = COLOR_NAMES[k]; t = t.replace(re,' '); break; }
+  }
+  if(!colors){
+    // "mono-black", "black and red", "blue/red", "red green deck"
+    const mono = t.match(/\bmono[ -]?(white|blue|black|red|green)\b/);
+    const pair = t.match(/\b(white|blue|black|red|green)(?: and | ?[&/-] ?| )(white|blue|black|red|green)(?:(?: and | ?[&/-] ?| |, )(white|blue|black|red|green))?\b/);
+    if(mono){ colors = COLOR_LETTER[mono[1]]; t = t.replace(mono[0],' '); }
+    else if(pair){ colors = sortWUBRG(pair.slice(1).filter(Boolean).map(x=>COLOR_LETTER[x]).join('')); t = t.replace(pair[0],' '); }
+  }
+  // basic land types, in Magic's sense ("islands" = cards that care about Islands), unless part of a phrase like "enchanted forest"
+  const lm = t.match(/\b(plains|islands?|swamps?|mountains?|forests?)\b/);
+  if(lm && !/enchanted forests?|forest spirits?|misty mountains?/.test(t)){ landType = lm[1].replace(/s$/,'').replace(/^plain$/,'plains'); t = t.replace(new RegExp('\\b'+lm[1]+'\\b','g'),' '); }
+  return {colors: colors ? (colors==='c' ? 'c' : sortWUBRG(colors)) : '', landType, rest:t};
+}
 function parseDescription(raw){
-  const text = ' '+raw.toLowerCase().replace(/[“”"]/g,'"')+' ';
+  const cl = parseColorsAndLands(' '+raw.toLowerCase().replace(/[“”"]/g,'"')+' ');
+  const text = ' '+cl.rest+' ';
   const unquoted = text.replace(/"[^"]*"/g,' ');
   const stems = toks(unquoted).map(stem);
-  const out = {themes:[], funcs:[], tribe:null, concepts:[], type:null, mv:null, price:null, phrase:null, notes:[]};
+  const out = {themes:[], funcs:[], tribe:null, concepts:[], type:null, mv:null, price:null, phrase:null, notes:[], colors:cl.colors, landType:cl.landType};
+  if(cl.colors==='wubrg') out.themes.push('domain');
   // quoted phrase → exact text
   const quoted = raw.match(/"([^"]{3,})"/);
   if(quoted) out.phrase = quoted[1];
@@ -1409,7 +1460,10 @@ function buildQuery(st){
     const ci = st.commander.ci.length ? st.commander.ci.join('').toLowerCase() : 'c';
     parts.push('id<='+ci);
     parts.push('-!"'+st.commander.name.replace(/"/g,'')+'"');
+  } else if(st.colors){
+    parts.push((st.exactColors ? 'id=' : 'id<=')+st.colors);   // picking a commander: exactly those colors
   }
+  if(st.landType){ const lt = st.landType; parts.push('(t:'+lt+' or o:'+lt+')'); }
   if(st.type) parts.push('t:'+st.type);
   if(st.mv!=null && st.mv!=='') parts.push('mv<='+st.mv);
   if(st.price) parts.push('usd<='+st.price);
@@ -1441,7 +1495,7 @@ function cardLite(c){
     uri:c.scryfall_uri, rank:c.edhrec_rank||null,
     mana:c.mana_cost || f.map(x=>x.mana_cost).filter(Boolean).join(' // '),
     flavor:c.flavor_text || f.map(x=>x.flavor_text||'').join(' '),
-    setCode:(c.set||'').toUpperCase(), cn:c.collector_number||''
+    setCode:(c.set||'').toUpperCase(), cn:c.collector_number||'', gc:!!c.game_changer
   };
 }
 const front = c => c.type.split(' // ')[0];
@@ -1571,7 +1625,7 @@ function readyOtags(keys = Object.keys(FUNCS)){
   })()));
 }
 const uniqFor = st => (st.concepts||[]).some(isAes) ? 'art' : 'cards';
-const blankIntent = () => ({themes:[], funcs:[], tribe:null, concepts:[], type:'', mv:'', price:'', phrase:'', free:''});
+const blankIntent = () => ({themes:[], funcs:[], tribe:null, concepts:[], type:'', mv:'', price:'', phrase:'', free:'', colors:'', landType:''});
 const state = {
   view:'discover',
   intent:blankIntent(),
@@ -1654,9 +1708,41 @@ function scoreCard(c, ctx){
     if(fn.includes(r)){ s+=3; why.push({k:'', s:FUNCS[r].label, long:'It’s '+FUNCS[r].label.toLowerCase()+', which you asked for'}); }
     else if(ctx.gaps && ctx.gaps.includes(r)){ s+=2; why.push({k:'g', s:'Adds '+FUNCS[r].label.toLowerCase(), long:'Your deck is short on '+FUNCS[r].label.toLowerCase()}); }
   }
+  const cr = ctx.cmd;
+  if(cr){
+    const short = cr.name.split(',')[0];
+    for(const k of cr.themes) if(!th.includes(k) && THEMES[k].re.test(t)){ s+=2.5; why.push({k:'t', s:'Fits '+short, long:'Works with '+cr.name+'’s '+THEMES[k].label.toLowerCase()}); break; }
+    if(cr.tribe && cr.tribe!==ctx.tribe && (c.type.toLowerCase().includes(cr.tribe) || t.includes(cr.tribe))){ s+=3; why.push({k:'t', s:plural(cr.tribe), long:cr.name+' cares about '+plural(cr.tribe).toLowerCase()}); }
+  }
+  if(ctx.landType && (c.type.toLowerCase().includes(ctx.landType) || t.includes(ctx.landType))){ s+=3; why.push({k:'t', s:ctx.landType==='plains'?'Plains':cap(ctx.landType)+'s', long:'Is or cares about '+(ctx.landType==='plains'?'Plains':cap(ctx.landType)+'s')}); }
   for(const k of (ctx.deckThemes||[])) if(!th.includes(k) && THEMES[k].re.test(t)){ s+=1.5; why.push({k:'', s:'Fits your deck', long:'Supports the '+THEMES[k].label.toLowerCase()+' cards already in your deck'}); }
   if(c.rank){ s += Math.max(0, 4.5-Math.log10(c.rank)); if(c.rank<=1500) why.push({k:'', s:'Popular', long:'Ranked #'+c.rank.toLocaleString()+' on EDHREC'}); }
   return {score:s, why};
+}
+// Read the commander: themes, creature type and triggers from its own rules text
+const TRIG_THEME = {dies:'aristocrats', sac:'aristocrats', cast:'spells', gain:'lifegain', landfall:'landfall', etb:'blink', attacks:'combat'};
+let cmdReadCache = {name:null, v:null};
+function readCommander(c){
+  if(!c) return null;
+  if(cmdReadCache.name===c.name) return cmdReadCache.v;
+  const kws = (c.kw||[]).map(k=>k.toLowerCase());
+  // drop keyword-only lines ("Flying, vigilance") and reminder text
+  const lines = (c.oracle||'').toLowerCase().split('\n').map(l=>l.replace(/\([^)]*\)/g,'').trim())
+    .filter(l=>l && !l.split(/,\s*/).every(w=>kws.includes(w.trim())));
+  const text = lines.join('\n');
+  const themes = new Set(Object.keys(THEMES).filter(k=>THEMES[k].re.test(text)));   // its rules text, not its card type
+  themes.delete('legends'); if(/legendary|historic/.test(text)) themes.add('legends');
+  const f = features(c); f.trig.forEach(k=>{ if(TRIG_THEME[k]) themes.add(TRIG_THEME[k]); });
+  let tribe = null;
+  // a creature type it rewards ("other Vampires"), not one it merely makes as a token
+  for(const w of text.replace(/create[^.]*?tokens?/g,' ').match(/[a-z]+/g)||[]){
+    const base = IRREG[w] || (TRIBES.includes(w)?w:null) || (w.endsWith('s') && TRIBES.includes(w.slice(0,-1)) ? w.slice(0,-1) : null);
+    if(base && TRIBES.includes(base)){ tribe = base; break; }
+  }
+  // its own creature type counts when its text rewards that type ("other Vampires") — covered above; otherwise ignore
+  const v = {name:c.name, themes:[...themes].slice(0,4), tribe};
+  cmdReadCache = {name:c.name, v};
+  return v;
 }
 function deckAnalysis(){
   const counts = {land:0}; Object.keys(FUNCS).forEach(k=>counts[k]=0);
@@ -1679,8 +1765,8 @@ function deckAnalysis(){
 
 /* ======================= Discover: search bar → intent ======================= */
 function intentFrom(p, raw){
-  const recognized = p.themes.length || p.funcs.length || p.tribe || p.concepts.length || p.type || p.mv || p.price || p.phrase;
-  return Object.assign(blankIntent(), {themes:p.themes, funcs:p.funcs, tribe:p.tribe, concepts:p.concepts, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||'', free: recognized ? '' : raw.trim()});
+  const recognized = p.themes.length || p.funcs.length || p.tribe || p.concepts.length || p.type || p.mv || p.price || p.phrase || p.colors || p.landType;
+  return Object.assign(blankIntent(), {themes:p.themes, funcs:p.funcs, tribe:p.tribe, concepts:p.concepts, type:p.type||'', mv:p.mv?String(p.mv):'', price:p.price?String(p.price):'', phrase:p.phrase||'', colors:p.colors||'', landType:p.landType||'', free: recognized ? '' : raw.trim()});
 }
 function applyDescription(raw){
   const p = parseDescription(raw);
@@ -1698,6 +1784,8 @@ function intentTokens(){
   const i = state.intent, t = [];
   if(i.free) t.push({cls:'', label:'“'+i.free+'”', rm:()=>i.free=''});
   (i.concepts||[]).forEach(k=>t.push({cls:'concept', label:CONCEPTS[k].label, rm:()=>i.concepts=i.concepts.filter(x=>x!==k)}));
+  if(i.colors) t.push({cls:'theme', label:COLOR_LABEL(i.colors), rm:()=>i.colors=''});
+  if(i.landType) t.push({cls:'theme', label:i.landType==='plains'?'Plains':cap(i.landType)+'s', rm:()=>i.landType=''});
   if(i.tribe) t.push({cls:'theme', label:plural(i.tribe), rm:()=>i.tribe=null});
   i.themes.forEach(k=>t.push({cls:'theme', label:THEMES[k].label, rm:()=>i.themes=i.themes.filter(x=>x!==k)}));
   i.funcs.forEach(k=>t.push({cls:'role', label:FUNCS[k].label, rm:()=>i.funcs=i.funcs.filter(x=>x!==k)}));
@@ -1720,6 +1808,11 @@ function genieText(i){
   const parts = (i.concepts||[]).map(k=>`<b>${h(CONCEPTS[k].label)}</b> as ${h(CONCEPTS[k].read)}`);
   if(parts.length) return 'Reading '+parts.join('; ')+'.';
   if(i.free) return `Searching names, types, rules and flavor text for <b>“${h(i.free)}”</b>.`;
+  const cr = readCommander(state.deck.commander);
+  if(cr && (cr.themes.length || cr.tribe)){
+    const bits = [...(cr.tribe?[plural(cr.tribe).toLowerCase()]:[]), ...cr.themes.map(k=>THEMES[k].label.toLowerCase())];
+    return `Reading <b>${h(cr.name)}</b>: ${h(bits.join(', '))}.`;
+  }
   return '';
 }
 function renderGenie(){
@@ -1771,6 +1864,10 @@ const inDeck = c => state.deck.cards.some(x=>x.name===c.name) || (state.deck.com
 let seqS = 0;
 async function runSearch(append=false){
   const st = Object.assign({commander:state.deck.commander}, state.intent);
+  const cr = readCommander(state.deck.commander);
+  // nothing asked for yet: search for cards that fit the commander
+  const idle = !intentTokens().length;
+  if(idle && cr && (cr.themes.length || cr.tribe)){ st.themes = cr.themes; st.tribe = cr.tribe; }
   const prep = async()=>{ if((st.funcs||[]).length) await readyOtags(st.funcs); if((st.concepts||[]).some(isAes)) await readyConcepts(st.concepts); return buildQuery(st); };
   let q = await prep();
   $('#query').innerHTML = `${h(q)} &nbsp;<a href="https://scryfall.com/search?order=edhrec&q=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open on Scryfall ↗</a>`;
@@ -1782,12 +1879,12 @@ async function runSearch(append=false){
     const j = append && state.next ? await sf(state.next) : await tagSafe(async()=>{ q = await prep(); return searchCards(q, 'edhrec', uniqFor(st)); });
     if(seq!==seqS) return;
     const an = deckAnalysis();
-    const ctx = {themes:st.themes, funcs:st.funcs, tribe:st.tribe, concepts:st.concepts, free:st.free, gaps:an.gaps, deckThemes:an.deckThemes};
+    const ctx = {themes:idle?[]:st.themes, funcs:st.funcs, tribe:idle?null:st.tribe, concepts:st.concepts, free:st.free, gaps:an.gaps, deckThemes:an.deckThemes, cmd:cr, landType:st.landType};
     const fresh = (j.data||[]).map(cardLite).map(c=>Object.assign(c, scoreCard(c,ctx)));
     state.results = (append ? state.results.concat(fresh) : fresh).sort((a,b)=>b.score-a.score);
     state.next = j.has_more ? j.next_page : null;
     const total = j.total_cards||state.results.length;
-    $('#rTitle').textContent = state.intent.free ? 'Cards about “'+state.intent.free+'”' : (state.intent.concepts||[]).length ? 'Cards for a '+state.intent.concepts.map(k=>CONCEPTS[k].label.toLowerCase()).join(' + ')+' deck' : intentTokens().length ? 'Best matches' : 'Commander staples in your colors';
+    $('#rTitle').textContent = state.intent.free ? 'Cards about “'+state.intent.free+'”' : (state.intent.concepts||[]).length ? 'Cards for a '+state.intent.concepts.map(k=>CONCEPTS[k].label.toLowerCase()).join(' + ')+' deck' : intentTokens().length ? 'Best matches' : cr && (cr.themes.length || cr.tribe) ? 'Cards for '+state.deck.commander.name.split(',')[0] : 'Commander staples in your colors';
     $('#status').textContent = state.results.length ? `${total.toLocaleString()} cards` : '';
     renderResults();
   }catch(err){
@@ -1898,6 +1995,7 @@ function renderDeck(){
   }).join('') : `<div class="empty" style="padding:16px 8px"><span>No cards yet.</span></div>`;
   renderDecklist(groups, order, total, usd);
   renderBasics();
+  renderPower();
 }
 function renderDecklist(groups, order, total, usd){
   const cmd = state.deck.commander;
@@ -1962,6 +2060,44 @@ $('#list').addEventListener('click',e=>{
 // basic lands: as many as you like of each, Wastes included
 const BASIC_LANDS = [['Plains','#F4EBC6'],['Island','#7FB2DE'],['Swamp','#5E5560'],['Mountain','#DE7F5F'],['Forest','#6FAE79'],['Wastes','#C9C2B6']];
 const basicCards = {};
+// Game Changers come from Scryfall (is:gamechanger), cached for a week so the list stays current
+const GC = {names:null, loading:false};
+(()=>{ try{ const j = JSON.parse(localStorage.getItem('ripjr.gc')||'null'); if(j && Date.now()-j.t < 7*864e5) GC.names = new Set(j.names); }catch(e){} })();
+function loadGC(){
+  if(GC.names || GC.loading) return; GC.loading = true;
+  searchCards('is:gamechanger','name','cards').then(j=>{
+    GC.names = new Set((j.data||[]).map(c=>c.name));
+    try{ localStorage.setItem('ripjr.gc', JSON.stringify({t:Date.now(), names:[...GC.names]})); }catch(e){}
+    renderPower();
+  }).catch(()=>{}).finally(()=>{ GC.loading = false; });
+}
+const isGC = c => c.gc || (GC.names && GC.names.has(c.name));
+const ot = c => (c.oracle||'').toLowerCase();
+const POWER_CHECKS = {
+  extra: c => /extra turn/.test(ot(c)),
+  mld: c => /destroy all (nonbasic )?lands|destroy all permanents|each player sacrifices (all|half|a land|lands)|sacrifices? all lands|lands (don't|do not) untap|destroy each land|return all lands|exile all lands|nonbasic lands are mountains/.test(ot(c)),
+  tutor: c => /search your library for (a|an|up to (one|two|three)) (card|instant|sorcery|creature|artifact|enchantment|planeswalker)/.test(ot(c)) && !/basic land/.test(ot(c)),
+};
+function powerLevel(){
+  const d = state.deck, all = d.cards.concat(d.commander?[d.commander]:[]);
+  const pick = f => all.filter(f);
+  const gc = pick(isGC), extra = pick(POWER_CHECKS.extra), mld = pick(POWER_CHECKS.mld), tutor = pick(POWER_CHECKS.tutor);
+  let b, name;
+  if(gc.length >= 4 || mld.length) { b = '4'; name = 'Optimized'; }
+  else if(gc.length || extra.length || tutor.length >= 4) { b = '3'; name = 'Upgraded'; }
+  else { b = '2'; name = 'Core'; }
+  return {b, name, gc, extra, mld, tutor};
+}
+function renderPower(){
+  loadGC();
+  const el = $('#power'); if(!el) return;
+  if(!state.deck.cards.length && !state.deck.commander){ el.innerHTML = '<p class="pwnote" style="margin:0">Add cards to see an estimate.</p>'; return; }
+  const p = powerLevel();
+  const row = (label, list, hot) => `<div title="${h(list.map(c=>c.name).join(', '))}"><span>${label}</span><span class="num ${hot?'hot':''}">${list.length}</span></div>`;
+  el.innerHTML = `<div class="pw"><b>Bracket ${p.b}</b><span>${p.name}</span></div>
+    <div class="pwrows">${row('Game Changers'+(GC.names?'':' …'), p.gc, p.gc.length>3)}${row('Extra turns', p.extra, p.extra.length>0)}${row('Mass land denial', p.mld, p.mld.length>0)}${row('Tutors', p.tutor, p.tutor.length>=4)}</div>
+    <p class="pwnote">An estimate from Game Changers, extra turns, land denial and tutors. Two-card combos aren’t checked.</p>`;
+}
 function renderBasics(){
   const qty = n => (state.deck.cards.find(c=>c.name===n)||{}).qty || 0;
   $('#basics').innerHTML = BASIC_LANDS.map(([n,col])=>`<div class="bstep"><i style="background:${col}"></i><span class="bn">${n}</span><button type="button" data-bminus="${n}" aria-label="Remove a ${n}" ${qty(n)?'':'disabled'}>−</button><b>${qty(n)}</b><button type="button" data-bplus="${n}" aria-label="Add a ${n}">+</button></div>`).join('');
@@ -2017,12 +2153,13 @@ function startNew(intent, label){
   deckChanged(); hideWelcome(); setView('discover');
   const i = state.intent;
   openCmd({label, prep:()=>readyConcepts(i.concepts), unique:(i.concepts||[]).some(isAes)?'art':'cards',
-    q:()=>buildQuery({commander:null, themes:i.themes, concepts:i.concepts, funcs:i.funcs, tribe:i.tribe, free:i.free})});
+    q:()=>buildQuery({commander:null, themes:i.themes, concepts:i.concepts, funcs:i.funcs, tribe:i.tribe, free:i.free, colors:i.colors, exactColors:true, landType:i.landType})});
 }
 function startFromText(v){
   const p = parseDescription(v);
   const intent = intentFrom(p, v);
-  const label = p.concepts.length ? p.concepts.map(k=>CONCEPTS[k].label.toLowerCase()).join(' + ')+' decks' : intent.free ? '“'+intent.free+'”' : 'your deck idea';
+  const bits = [...(p.tribe?[plural(p.tribe).toLowerCase()]:[]), ...p.concepts.map(k=>CONCEPTS[k].label.toLowerCase()), ...p.themes.map(k=>THEMES[k].label.toLowerCase()), ...(p.landType?[p.landType==='plains'?'plains':p.landType+'s']:[])];
+  const label = (p.colors ? COLOR_LABEL(p.colors)+(bits.length?' ':'') : '') + bits.join(' + ') + (p.colors||bits.length ? ' decks' : '') || (intent.free ? '“'+intent.free+'”' : 'your deck idea');
   startNew(intent, label);
 }
 $('#wTypes')?.addEventListener('click',e=>{
@@ -2122,8 +2259,32 @@ function openCard(c){
   $('#dAdd').disabled = !!isCmd;
   $('#dAdd').style.background = inn ? 'var(--surface-2)' : ''; $('#dAdd').style.color = inn ? 'var(--bad)' : '';
   $('#dLink').href=c.uri||'#';
+  $('#dPrints').hidden = true; $('#dPrints').innerHTML = '';
   $('#cardDlg').showModal();
 }
+// other printings: one search when you ask for it; picking one changes the art everywhere that card shows
+let printsFor = null;
+$('#dPrintsBtn').addEventListener('click', async ()=>{
+  const c = dlgCard; if(!c) return;
+  const box = $('#dPrints');
+  if(!box.hidden && printsFor===c.name){ box.hidden = true; return; }
+  box.hidden = false; printsFor = c.name; box.innerHTML = '<span class="status">Finding printings…</span>';
+  try{
+    const j = await searchCards('!"'+c.name.replace(/"/g,'')+'" game:paper', 'released', 'prints');
+    if(printsFor!==c.name) return;
+    const list = (j.data||[]).map(cardLite).filter(x=>x.img);
+    box.innerHTML = list.length > 1 ? list.map((x,n)=>`<button type="button" data-print="${n}" aria-pressed="${x.img===c.img}" title="${h(x.setCode+' #'+x.cn)}"><img src="${h(x.img)}" alt="" loading="lazy">${h(x.setCode)}</button>`).join('') : '<span class="status">Only one printing.</span>';
+    box.onclick = e=>{
+      const b = e.target.closest('[data-print]'); if(!b) return;
+      const x = list[+b.dataset.print], art = {img:x.img, back:x.back, art:x.art, usd:x.usd, setCode:x.setCode, cn:x.cn, uri:x.uri};
+      const targets = [c, state.deck.commander, ...state.deck.cards].filter(t=>t && t.name===c.name);
+      targets.forEach(t=>Object.assign(t, art));
+      $('#dImg').src = x.img; $('#dLink').href = x.uri || '#';
+      box.querySelectorAll('[data-print]').forEach(o=>o.setAttribute('aria-pressed', String(o===b)));
+      sfx('menuselect'); deckChanged(); if(state.results.some(r=>r.name===c.name)){ state.results.filter(r=>r.name===c.name).forEach(r=>Object.assign(r,art)); renderResults(); }
+    };
+  }catch(err){ if(printsFor===c.name) box.innerHTML = `<span class="status">${h(err.message)}</span>`; }
+});
 $('#dFlip').addEventListener('click',()=>{ dlgBack=!dlgBack; $('#dImg').src = dlgBack?dlgCard.back:dlgCard.img; });
 $('#dClose').addEventListener('click',()=>$('#cardDlg').close());
 $('#cardDlg').addEventListener('close',()=>{ if(!dlgActed) sfx('deselect'); });
@@ -2182,17 +2343,18 @@ async function runDraft(){
   if(!state.deck.commander){ $('#draftDlg').close(); openCmd(); toast('Pick a commander first'); return; }
   await readyConcepts(state.intent.concepts); await readyOtags(['ramp','draw','removal','wipe']);
   const seq = ++seqD, cmd = state.deck.commander, an = deckAnalysis(), i = state.intent;
-  const themes = Array.from(new Set((i.themes||[]).concat(an.deckThemes)));
-  const concepts = i.concepts||[], tribe = i.tribe || an.tribe, free = i.free;
+  const cr = readCommander(cmd);
+  const themes = Array.from(new Set((i.themes||[]).concat(cr?cr.themes:[], an.deckThemes))).slice(0,5);
+  const concepts = i.concepts||[], tribe = i.tribe || (cr&&cr.tribe) || an.tribe, free = i.free;
   const idea = [...concepts.map(k=>CONCEPTS[k].label), ...(tribe?[plural(tribe)]:[]), ...themes.map(k=>THEMES[k].label), ...(free?['“'+free+'”']:[])];
   $('#draftBody').innerHTML = `<div class="status">${idea.length?h(idea.join(', ')):'Popular in your colors'}</div>` + '<div class="drows">'+Array(6).fill('<div class="drow"><span></span><div class="thumb skel"></div><div class="skel" style="height:14px;border-radius:6px;aspect-ratio:auto"></div></div>').join('')+'</div>';
   $('#draftActs').hidden = true;
-  const ctx = {themes, concepts, tribe, free, gaps:an.gaps};
+  const ctx = {themes, concepts, tribe, free, gaps:an.gaps, cmd:cr};
   const taken = new Set(state.deck.cards.map(c=>c.name).concat(cmd.name));
   const pick = (cards, n) => cards.map(cardLite).filter(c=>!taken.has(c.name)).map(c=>Object.assign(c,scoreCard(c,ctx))).sort((a,b)=>b.score-a.score).slice(0,n).map(c=>{ taken.add(c.name); return c; });
   const groups = [];
   try{
-    const core = await tagSafe(async()=>{ await readyConcepts(concepts); await readyOtags(['ramp','draw','removal','wipe']); return searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price}), 'edhrec', concepts.some(isAes)?'art':'cards'); });
+    const core = await tagSafe(async()=>{ await readyConcepts(concepts); await readyOtags(['ramp','draw','removal','wipe']); return searchCards(buildQuery({commander:cmd, themes, concepts, tribe, free, price:i.price, landType:i.landType}), 'edhrec', concepts.some(isAes)?'art':'cards'); });
     if(seq!==seqD) return;
     groups.push({title: idea.length ? 'On your idea' : 'Popular in your colors', key:'core', items: pick(core.data||[], 18)});
     for(const [k,n] of Object.entries(DRAFT_NEEDS)){
@@ -3047,45 +3209,15 @@ $('#packBtn').addEventListener('click', ()=>{ sfx('delight'); openStage(); });
 $('#wPack').addEventListener('click', ()=>{ sfx('delight'); hideWelcome(); openStage(); });
 
 /* ======================= Boot ======================= */
-const EXAMPLE = `Commander
-1 Edgar Markov
-
-Deck
-1 Sol Ring
-1 Arcane Signet
-1 Talisman of Indulgence
-1 Swords to Plowshares
-1 Bloodline Keeper
-1 Captivating Vampire
-1 Cordial Vampire
-1 Blood Artist
-1 Vampire Nocturnus
-1 Sorin, Lord of Innistrad
-1 Command Tower
-1 Nomad Outpost
-6 Swamp
-4 Plains
-3 Mountain`;
+// starts empty; a deck you were building is restored (old example decks from earlier versions are dropped)
 async function boot(){
   const saved = load();
   if(saved){ state.tipsHidden = !!saved.tipsHidden; }
-  renderDeck(); renderCmdPill(); renderIntent();
-  if(saved && saved.deck) { state.deck = saved.deck; state.example = !!saved.example; }
+  if(saved && saved.deck && !saved.example && (saved.deck.commander || saved.deck.cards.length)) state.deck = saved.deck;
+  else state.deck = {commander:null, cards:[]};
+  state.example = false;
   showWelcome();
-  if(saved && (saved.deck.commander || saved.deck.cards.length)){
-    state.deck = saved.deck; state.example = !!saved.example;
-    if(state.example) applyDescription('vampires that drain opponents and make tokens');
-    deckChanged();
-  } else {
-    $('#status').textContent = 'Loading an example deck…';
-    try{
-      const r = await fetchList(EXAMPLE);
-      if(state.startedNew) return; // they already started their own deck from the welcome screen
-      state.deck = {commander:r.cmd, cards:r.cards};
-      state.example = true; applyDescription('vampires that drain opponents and make tokens'); deckChanged(); renderWelcome();
-    }
-    catch(e){ $('#status').className='status err'; $('#status').textContent=e.message; return; }
-  }
+  deckChanged();
   runSearch();
 }
 boot();
