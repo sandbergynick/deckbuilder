@@ -595,7 +595,7 @@ textarea.input{font:.85rem/1.5 var(--f-mono);resize:vertical}
 .navmenu.dark button:hover,.navmenu.dark button:active{background:rgba(255,255,255,.08)}
 
 .pack{--t:min(18px,4.4vw);--hz:calc(var(--t) / 2);--tilt:10deg;--c0:#8D552F;--cm:#9A5E34;--c2:#965A31;--c3:#9F6237;--c4:#87502C;--cd:#8A532E}
-#stage[data-era="modern"] .pack{--c0:#272B4E;--cm:#2B3055;--c2:#292E52;--c3:#2D3257;--c4:#25294A;--cd:#262A4C}
+#stage[data-era="new"] .pack{--c0:#272B4E;--cm:#2B3055;--c2:#292E52;--c3:#2D3257;--c4:#25294A;--cd:#262A4C}
 #stage[data-era="all"] .pack{--c0:#583571;--cm:#603A7B;--c2:#5D3778;--c3:#643D7F;--c4:#54326C;--cd:#56346E}
 .packart{background-image:var(--packart)}
 .puff{position:absolute;inset:10.5% 0;pointer-events:none;background:radial-gradient(120% 70% at 50% 48%,transparent 55%,rgba(0,0,0,.10) 100%),linear-gradient(90deg,rgba(0,0,0,.10),transparent 9%,transparent 91%,rgba(0,0,0,.12))}
@@ -868,7 +868,7 @@ body{font-weight:500}
       <div class="seg" role="radiogroup" aria-label="Card pool" id="eraSeg">
         <button type="button" data-era="all" aria-selected="true">Any</button>
         <button type="button" data-era="old" aria-selected="false">Old school</button>
-        <button type="button" data-era="modern" aria-selected="false">Modern</button>
+        <button type="button" data-era="new" aria-selected="false" id="eraNew">Newest</button>
       </div>
       <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close iconbtn" id="stageMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button><button class="close" id="stageClose" aria-label="Close packs">×</button>
       <div class="navmenu dark" id="stageMenu" hidden role="menu">
@@ -2733,12 +2733,10 @@ async function randomFromSearch(q, n, {order='artist', unique='cards'} = {}){
   }
   return out;
 }
-// old school packs: the special slot is a dual land or a piece of the Power 9, old printings only
-const DUALS = ['Tundra','Underground Sea','Badlands','Taiga','Savannah','Scrubland','Volcanic Island','Bayou','Plateau','Tropical Island'];
-const POWER9 = ['Black Lotus','Ancestral Recall','Time Walk','Timetwister','Mox Pearl','Mox Sapphire','Mox Jet','Mox Ruby','Mox Emerald'];
+// old school packs: the special slot is a HarperPrism book promo or an Arena League 1996 land
 const OLD_SPECIALS = [
-  {label:'Dual land', q:'('+DUALS.map(n=>'!"'+n+'"').join(' or ')+') date<2003-10-02 game:paper -is:oversized'},
-  {label:'Power 9', q:'('+POWER9.map(n=>'!"'+n+'"').join(' or ')+') date<2003-10-02 game:paper -is:oversized'}
+  {label:'HarperPrism promo', q:'e:phpr'},
+  {label:'Arena League 1996', q:'e:parl'}
 ];
 const SPECIALS = [
   {label:'Secret Lair', q:'e:sld game:paper'},
@@ -2750,39 +2748,60 @@ const pk = {era:'all', state:'idle', cards:null, loading:null, err:null, idx:0, 
 const packCount = () => { try{ return +localStorage.getItem('ripjr.packs')||0; }catch(e){ return 0; } };
 function bumpCount(){ const n = packCount()+1; try{ localStorage.setItem('ripjr.packs', n); }catch(e){} return n; }
 
+// ---- pack pools ----
+// "Newest": set this by hand when a new set comes out (Scryfall set code + display name)
+const NEWEST_SET = 'trk', NEWEST_NAME = 'Star Trek';
+// "Old school": Alpha, Beta, Unlimited, Arabian Nights, Antiquities, The Dark, Legends
+const OLD_SETS = ['lea','leb','2ed','arn','atq','drk','leg'];
+const OLD_ABU = ['lea','leb','2ed'];
+const setQ = codes => '('+codes.map(c=>'e:'+c).join(' or ')+')';
 async function rollPack(era, tok={}){
   const chk = v => { if(tok.dead) throw new Error('cancelled'); return v; };
-  const old = era==='old', E = old ? ' date<2003-10-02' : era==='modern' ? ' date>=2003-10-02' : ''; // Mirrodin (2003-10-02) splits old school from modern
+  const old = era==='old', nu = era==='new';
+  // card pool for this era
+  const P = old ? ' game:paper '+setQ(OLD_SETS) : nu ? ' game:paper e:'+NEWEST_SET : ' is:booster game:paper';
   const mythic = !old && Math.random() < 1/8;
-  const base = ' is:booster game:paper';
   const tag = (raw, rar, extra={}) => Object.assign(cardLite(raw), {rar, set: raw.set_name||''}, extra);
+  // small pools (a set still being previewed) may repeat cards rather than come up short
+  const fill = (list, n) => { const out = list.slice(0,n); while(out.length < n && list.length) out.push(list[Math.floor(Math.random()*list.length)]); return out; };
   const out = [];
   // 9 commons, 3 uncommons
-  const commons = chk(await randomFromSearch('r:common -t:basic'+base+E, 9));
-  const uncommons = chk(await randomFromSearch('r:uncommon'+base+E, 3));
-  if(commons.length < 9 || uncommons.length < 3) throw new Error('Scryfall didn’t hand back enough cards. Try opening again.');
+  const commons = fill(chk(await randomFromSearch('r:common -t:basic'+P, 9)), 9);
+  const uncommons = fill(chk(await randomFromSearch('r:uncommon'+P, 3)), 3);
+  if(commons.length < 9 || uncommons.length < 3) throw new Error(nu ? NEWEST_NAME+' doesn’t have enough cards on Scryfall yet. Try another pack type.' : 'Scryfall didn’t hand back enough cards. Try opening again.');
   commons.forEach(c=>out.push(tag(c,'common')));
   uncommons.forEach(c=>out.push(tag(c,'uncommon')));
   // rare or mythic
-  let rare = (await randomFromSearch((mythic?'r:mythic':'r:rare')+base+E, 1))[0] || (await randomFromSearch('r:rare'+base, 1))[0];
+  let rare = (await randomFromSearch((mythic?'r:mythic':'r:rare')+P, 1))[0] || (await randomFromSearch('r:rare'+P, 1))[0] || (await randomFromSearch('r>=rare'+P, 1))[0];
   if(!rare) throw new Error('Scryfall didn’t hand back a rare. Try opening again.');
   out.push(tag(rare, rare.rarity==='mythic' ? 'mythic' : 'rare'));
-  // basic land: a random printing of a random basic
+  // basic land: a random printing of a random basic (old school: Alpha/Beta/Unlimited; newest: that set if it has them)
   chk();
   const B = BASICS[Math.floor(Math.random()*BASICS.length)];
-  let land = (await randomFromSearch('!"'+B+'" game:paper -st:memorabilia -is:oversized'+E, 1, {order:'released', unique:'prints'}))[0];
+  const landQ = '!"'+B+'" game:paper -st:memorabilia -is:oversized';
+  let land = (await randomFromSearch(landQ + (old ? ' '+setQ(OLD_ABU) : nu ? ' e:'+NEWEST_SET : ''), 1, {order:'released', unique:'prints'}))[0];
+  if(!land && nu) land = (await randomFromSearch(landQ+' is:booster', 1, {order:'released', unique:'prints'}))[0];
   if(!land) land = await sf('/cards/random?q='+encodeURIComponent('t:basic game:paper'));
   chk(); out.push(tag(land,'basic'));
-  // token, or about 1 pack in 4, something special
+  // last slot: about 1 pack in 4 something special; otherwise a token (old school has none, so an extra common)
   let last = null;
   if(Math.random() < SPECIAL_ODDS){
     const pool = old ? OLD_SPECIALS : SPECIALS, sp = pool[Math.floor(Math.random()*pool.length)];
     try{ const raw = await sf('/cards/random?q='+encodeURIComponent(sp.q)); if(raw && raw.id) last = tag(raw,'special',{special:sp.label}); }catch(e){ if(e.message===RATE_MSG) throw e; }
   }
+  if(!last && old){
+    const extra = (await randomFromSearch('r:common -t:basic'+P, 12)).find(c=>!out.some(o=>o.id===c.id));
+    if(extra) last = tag(extra,'common');
+  }
   if(!last){
-    for(const q of old ? ['t:token is:old'] : ['t:token include:extras game:paper','t:token']){
+    const tq = nu ? ['t:token include:extras (e:t'+NEWEST_SET+' or e:'+NEWEST_SET+')'] : ['t:token include:extras game:paper','t:token'];
+    for(const q of tq){
       try{ const raw = await sf('/cards/random?q='+encodeURIComponent(q)); if(raw && raw.id){ last = tag(raw,'token'); break; } }catch(e){ if(e.message===RATE_MSG) throw e; }
     }
+  }
+  if(!last && nu){   // no tokens for the newest set yet: give the special slot instead
+    const sp = SPECIALS[Math.floor(Math.random()*SPECIALS.length)];
+    try{ const raw = await sf('/cards/random?q='+encodeURIComponent(sp.q)); if(raw && raw.id) last = tag(raw,'special',{special:sp.label}); }catch(e){ if(e.message===RATE_MSG) throw e; }
   }
   if(!last) throw new Error('Scryfall didn’t hand back a token. Try opening again.');
   out.push(last);
@@ -2976,6 +2995,7 @@ $('#tiltBtn').innerHTML = ICON_TILT;
 $('#tiltBtn').addEventListener('click', toggleTilt);
 
 function openStage(){
+  $('#eraNew').title = 'Cards from '+NEWEST_NAME;
   $('#stage').hidden = false; document.documentElement.style.overflow='hidden';
   unlockAudio(); setSound(feel.on);
   $('#tiltBtn').hidden = !(('DeviceOrientationEvent' in window) && matchMedia('(pointer: coarse)').matches);
@@ -3009,8 +3029,8 @@ function newPack(keepNumber, swap){
 const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="sheen"></div>`;
 const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="sheen"></div>
   <div class="backcopy"><span class="side">ripjrs delight</span><div class="label"><div class="bar"></div></div></div>`;
-// pack colors: old school keeps the original; modern and any recolor its brown (same hue shift as the band colors)
-const ART_TINT = {modern:[165,.75,.55], all:[195,.8,.8]};
+// pack colors: old school keeps the original; newest and any recolor its brown (same hue shift as the band colors)
+const ART_TINT = {new:[165,.75,.55], all:[195,.8,.8]};
 const artCache = {old: PACK_ART};
 (()=>{ const im = new Image(); im.onload = ()=>{ try{
   for(const [k,[hue,sm,vm]] of Object.entries(ART_TINT)){
@@ -3240,7 +3260,7 @@ async function exportPackImage(){
   x.fillText('ripjr.com deckgenie', pad, 64); if('letterSpacing' in x) x.letterSpacing='0px';
   x.fillStyle='#ECEBE8'; x.font='700 56px "El Messiri", Georgia, serif'; x.fillText(`Pack #${pk.no}`, pad, 126);
   x.fillStyle='rgba(242,238,228,.65)'; x.font=`400 22px ${sans}`;
-  x.fillText(`${new Date().toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})} · ${pk.era==='old'?'Old school':pk.era==='modern'?'Modern':'Any era'}`, pad, 156);
+  x.fillText(`${new Date().toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})} · ${pk.era==='old'?'Old school':pk.era==='new'?NEWEST_NAME:'Any era'}`, pad, 156);
   const {total,best} = packStats();
   x.textAlign='right'; x.fillStyle='rgba(242,238,228,.65)'; x.font=`400 20px ${sans}`; x.fillText('PACK VALUE', W-pad, 90);
   x.fillStyle='#ECEBE8'; x.font=`700 46px ${sans}`; x.fillText(money(total), W-pad, 138); x.textAlign='left';
