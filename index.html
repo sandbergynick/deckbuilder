@@ -20,6 +20,7 @@
 <meta name="theme-color" content="#2A211B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.js" onload="window.sbInit && sbInit()"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: Spotlight-style search over a card grid, deck as a glass side panel; gold filigree and a night sky are the only fantasy notes. */
@@ -265,6 +266,45 @@ dialog[open]{animation:pop .28s cubic-bezier(.2,.9,.25,1.1)}
 .whylist div{display:flex;gap:8px;align-items:baseline}
 .whylist svg{flex:none;color:var(--gold)}
 .dacts2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* accounts */
+.acctbtn{border:0;border-radius:999px;background:var(--surface-2);color:var(--ink);font:700 .85rem/1 var(--f-body);padding:8px 14px;box-shadow:0 2px 0 rgba(0,0,0,.25);display:inline-flex;align-items:center;gap:8px}
+.acctbtn img{width:26px;height:26px;border-radius:50%;margin:-4px -8px -4px -6px;object-fit:cover}
+.acctbtn.in{padding:4px 12px 4px 4px}
+.acctbtn.in img{margin:0}
+#acctMenu{right:0}
+.navmenu .who{padding:10px 12px 8px;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:4px}
+.navmenu .who b{display:block;color:var(--ink);font-size:.95rem}
+.acctitems:empty{display:none}
+#navMenu .acctitems{border-top:1px solid var(--line);margin-top:4px;padding-top:4px;display:grid}
+#acctMenu .acctitems{display:grid}
+.dname-in{font:inherit;color:inherit;background:transparent;border:0;border-bottom:2px dashed transparent;padding:0;width:min(100%,16ch);outline:none}
+.dname-in:hover{border-bottom-color:var(--line)} .dname-in:focus{border-bottom-color:var(--gold)}
+.dname-in::placeholder{color:var(--ink);opacity:1}
+.favbtn{font-size:1.05rem}
+.favbtn[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft)}
+/* binder */
+.bseg{display:inline-flex;gap:4px;background:var(--surface-2);border-radius:12px;padding:3px}
+.bseg button{border:0;background:transparent;color:var(--ink);font-weight:700;padding:6px 14px;border-radius:9px}
+.bseg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 2px 0 var(--accent-deep)}
+#bSort{width:auto;padding:8px 10px;font-size:.88rem}
+.bstats{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.bstats div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px;min-width:120px}
+.bstats b{display:block;font:700 1.3rem/1.1 var(--f-display)}
+.bstats span{font-size:.8rem;color:var(--muted)}
+.top.cnt{left:auto;right:8px;color:var(--ink)}
+.art.g-silver{box-shadow:0 0 0 2px #C3C8CF,var(--shadow)}
+.art.g-gold{box-shadow:0 0 0 2px #D4A23A,0 0 16px rgba(212,162,58,.35)}
+.art.g-rainbow{box-shadow:0 0 0 2px #fff,0 0 10px #FF6B9A,0 0 18px #6BD3FF}
+#decksBody{display:grid;gap:8px}
+.deckrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;background:var(--surface-2);border-radius:14px;padding:10px 12px}
+.deckrow.cur{outline:2px solid var(--gold)}
+.deckrow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deckrow span{font-size:.8rem;color:var(--muted)}
+.privtext{font-size:.92rem;line-height:1.5;color:var(--ink)} .privtext p{margin:0 0 10px}
+#decksDlg,#privDlg{width:min(560px,calc(100vw - 32px))}
+.binder-seg{display:inline-block}
+@media (max-width:960px){ .binder-seg{display:none!important} }
+@media (max-width:600px){ #acctBtn{display:none!important} #decksDlg,#privDlg{width:100%} }
 #drawDlg{width:min(1000px,calc(100vw - 32px))}
 .hand{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
 .hand button{border:0;padding:0;background:none;border-radius:4.75%/3.5%;overflow:hidden;aspect-ratio:488/680;box-shadow:var(--shadow);animation:dealIn .38s cubic-bezier(.2,.8,.2,1) both}
@@ -713,15 +753,18 @@ body{font-weight:500}
       <button role="tab" id="tab-discover" data-view="discover" aria-selected="true">Discover</button>
       <button role="tab" id="tab-similar" data-view="similar" aria-selected="false">Thesaurus</button>
       <button role="tab" id="tab-list" data-view="list" aria-selected="false">Decklist</button>
+      <button role="tab" class="binder-seg" id="tab-binder" data-view="binder" aria-selected="false">Binder</button>
       <button role="tab" class="deck-seg" id="tab-deck" data-view="deck" aria-selected="false">Deck <span id="tabCount" class="num"></span></button>
     </div>
-    <span class="nav-count num" id="navCount"></span><button class="helpbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="helpbtn" id="navSound" type="button" aria-label="Sound and haptics"></button><button class="helpbtn" type="button" data-help title="How the genie works" aria-label="How the genie works">?</button><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button><button class="helpbtn" id="navMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+    <span class="nav-count num" id="navCount"></span><button class="helpbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="helpbtn" id="navSound" type="button" aria-label="Sound and haptics"></button><button class="helpbtn" type="button" data-help title="How the genie works" aria-label="How the genie works">?</button><button class="packbtn" id="packBtn" type="button" title="Experjence Delight" aria-label="Experjence Delight"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5l1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1 1 1 1-1V20.5l-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1-1 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="12" cy="12" rx="4" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button><button class="pill ghost small" id="newDeckBtn" type="button">New deck</button><button class="acctbtn" id="acctBtn" type="button" aria-label="Account" aria-haspopup="true" aria-expanded="false">Sign in</button><button class="helpbtn" id="navMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
     <div class="navmenu" id="navMenu" hidden role="menu">
       <button type="button" role="menuitem" data-m="music" hidden>Music<span></span></button>
       <button type="button" role="menuitem" data-m="sound">Sound &amp; haptics<span></span></button>
       <button type="button" role="menuitem" data-help>How the genie works</button>
       <button type="button" role="menuitem" data-m="new">New deck</button>
+      <div class="acctitems"></div>
     </div>
+    <div class="navmenu" id="acctMenu" hidden role="menu"><div class="acctitems"></div></div>
   </div>
 </header>
 
@@ -769,9 +812,21 @@ body{font-weight:500}
       </div>
     </div>
   </section>
+  <section class="view" id="view-binder" hidden>
+    <div class="lhead">
+      <div><h2>Binder</h2><p class="muted num" id="bSum"></p></div>
+      <div class="dacts2">
+        <div class="bseg" id="bTabs"><button type="button" data-b="pulls" aria-selected="true">Pulled</button><button type="button" data-b="favs" aria-selected="false">Favorites</button></div>
+        <select id="bSort" class="input bsort" aria-label="Sort"><option value="value">Most valuable</option><option value="new">Newest</option><option value="name">Name</option><option value="count">Most copies</option></select>
+      </div>
+    </div>
+    <div class="bstats" id="bStats"></div>
+    <div class="grid" id="bGrid"></div>
+    <p class="pwnote" id="bNote"></p>
+  </section>
   <section class="view" id="view-list" hidden>
     <div class="lhead">
-      <div><h2>Decklist</h2><p class="muted num" id="lSum"></p></div>
+      <div><h2><input id="deckName" class="dname-in" type="text" placeholder="Untitled deck" aria-label="Deck name" maxlength="60" autocomplete="off"></h2><p class="muted num" id="lSum"></p></div>
       <div class="dacts2"><button class="pill small" type="button" id="lDraw" disabled>Draw 7</button><button class="pill ghost small" type="button" id="lCopy">Copy list</button><button class="pill ghost small" type="button" id="lCsv">Export CSV</button></div>
     </div>
     <div class="dl" id="dlBody"></div>
@@ -884,7 +939,7 @@ body{font-weight:500}
 <dialog id="cardDlg" aria-label="Card details"><div class="detail">
   <div style="display:grid;gap:10px;justify-items:center"><img id="dImg" alt=""><button class="pill ghost small" id="dFlip" hidden>Flip card</button></div>
   <div class="info">
-    <div class="sheet-h" style="align-items:start"><h3 id="dName"></h3><button class="close" id="dClose" aria-label="Close">×</button></div>
+    <div class="sheet-h" style="align-items:start"><h3 id="dName"></h3><span style="display:flex;gap:6px"><button class="close favbtn" id="dFav" type="button" aria-pressed="false" aria-label="Favorite" title="Favorite">☆</button><button class="close" id="dClose" aria-label="Close">×</button></span></div>
     <div id="dCost"></div>
     <div class="typel" id="dType"></div>
     <div class="oracle" id="dText"></div>
@@ -928,6 +983,23 @@ body{font-weight:500}
   <p class="muted" style="margin:0">This removes every card and your commander.</p>
   <div class="dacts2" style="justify-content:flex-end"><button class="pill ghost" value="no">Keep it</button><button class="pill" value="yes" style="background:var(--bad);color:#fff">Clear deck</button></div>
 </form></dialog>
+
+<dialog id="decksDlg" aria-label="My decks"><div class="sheet">
+  <div class="sheet-h"><h3>My decks</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <div id="decksBody"></div>
+  <div class="dacts2" style="justify-content:flex-end"><button class="pill" type="button" id="decksNew">New deck</button></div>
+</div></dialog>
+
+<dialog id="privDlg" aria-label="Privacy and account"><div class="sheet">
+  <div class="sheet-h"><h3>Privacy &amp; your account</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <div class="privtext">
+    <p>Signing in is optional. Everything works without an account.</p>
+    <p>If you sign in with Discord, deckgenie keeps your Discord username, avatar and email (from Discord), plus the things you save here: your decks, favorite cards, binder and pack history. It’s stored with Supabase and used only to run your account. Nothing is sold or shared, and there are no ads or trackers.</p>
+    <p>Card data and images come from Scryfall.</p>
+    <p id="privDelWrap" hidden>Deleting your account permanently removes your login and everything saved to it.</p>
+  </div>
+  <div class="dacts2" style="justify-content:flex-end"><button class="pill ghost" type="button" id="privDelete" hidden style="color:var(--bad)">Delete my account</button></div>
+</div></dialog>
 
 <dialog id="drawDlg" aria-label="Opening hand"><div class="sheet">
   <div class="sheet-h"><h3>Opening hand</h3><button class="close" data-close aria-label="Close">×</button></div>
@@ -1643,7 +1715,7 @@ const state = {
   example:false, predictDirty:true, tipsHidden:false,
 };
 const KEY = 'deckwright.v1';
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({deck:state.deck, example:state.example, tipsHidden:state.tipsHidden})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({deck:state.deck, deckId:state.deckId||null, deckOwner:state.deckOwner||null, example:state.example, tipsHidden:state.tipsHidden})); }catch(e){} if(window.queueDeckPush) queueDeckPush(); }
 function load(){ try{ const j = JSON.parse(localStorage.getItem(KEY)||'null'); if(j && j.deck) return j; }catch(e){} return null; }
 
 /* ======================= Helpers ======================= */
@@ -1672,7 +1744,7 @@ function genieRemark(){
   setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(), 320); }, 2400);
 }
 // phone menus (⋯): one in the top bar, one on the pack screen
-const MENUS = [['#navMenuBtn','#navMenu'],['#stageMenuBtn','#stageMenu']];
+const MENUS = [['#navMenuBtn','#navMenu'],['#stageMenuBtn','#stageMenu'],['#acctBtn','#acctMenu']];
 function syncMenus(){
   const onoff = v => v ? 'On' : 'Off';
   document.querySelectorAll('.navmenu').forEach(m=>{
@@ -1695,6 +1767,7 @@ document.addEventListener('click', e=>{
   if(k==='sound') (inStage ? $('#soundBtn') : $('#navSound')).click();
   if(k==='tilt') $('#tiltBtn').click();
   if(k==='new') $('#newDeckBtn').click();
+  if(k && ACCT_ACTIONS[k]) ACCT_ACTIONS[k]();
   if(k==='music' || k==='sound' || k==='tilt'){ setTimeout(syncMenus, 50); setTimeout(syncMenus, 700); return; }   // keep the menu open for toggles
   closeMenus();
 });
@@ -2008,6 +2081,7 @@ function renderDeck(){
 }
 function renderDecklist(groups, order, total, usd){
   const cmd = state.deck.commander;
+  const dn = $('#deckName'); if(dn && document.activeElement!==dn) dn.value = state.deck.name || '';  dn && (dn.placeholder = cmd ? cmd.name.split(',')[0] : 'Untitled deck');
   const lib = state.deck.cards.reduce((n,c)=>n+c.qty,0);
   $('#lDraw').disabled = lib < 7; $('#lDraw').title = lib < 7 ? 'Add at least 7 cards (not counting your commander) to draw a hand' : 'Shuffle and draw an opening hand';
   $('#lSum').textContent = `${total} of 100 cards${usd ? ' · about $'+Math.round(usd).toLocaleString() : ''}`;
@@ -2157,7 +2231,7 @@ function showWelcome(){ renderWelcome(); $('#welcome').hidden=false; $('#welcome
 function hideWelcome(){ $('#welcome').hidden=true; window.scrollTo({top:0}); }
 function startNew(intent, label){
   state.startedNew = true;
-  state.deck = {commander:null, cards:[]}; state.example=false; state.draft=null;
+  state.deck = {commander:null, cards:[]}; state.deckId=null; state.example=false; state.draft=null;
   state.intent = Object.assign(blankIntent(), intent);
   deckChanged(); hideWelcome(); setView('discover');
   const i = state.intent;
@@ -2191,7 +2265,7 @@ $('#wSpot').addEventListener('submit',e=>{
 });
 $('#wContinue').addEventListener('click',()=>{
   state.startedNew = true;
-  if(state.example){ state.deck = {commander:null, cards:[]}; state.example = false; state.intent = blankIntent(); deckChanged(); }
+  if(state.example){ state.deck = {commander:null, cards:[]}; state.deckId=null; state.example = false; state.intent = blankIntent(); deckChanged(); }
   hideWelcome(); setView('discover');
   if(!state.deck.commander) openCmd();
 });
@@ -2253,7 +2327,7 @@ $('#cmdGrid').addEventListener('click',e=>{
 /* ======================= Card detail ======================= */
 let dlgCard=null, dlgBack=false, dlgActed=false;
 function openCard(c){
-  if(!c) return; dlgCard=c; dlgBack=false; dlgActed=false; sfx('select');
+  if(!c) return; dlgCard=c; dlgBack=false; dlgActed=false; sfx('select'); setFavUI(c);
   $('#dImg').src=c.img; $('#dImg').alt=c.name; $('#dFlip').hidden=!c.back;
   $('#dName').textContent=c.name;
   $('#dCost').innerHTML = c.mana ? syms(c.mana) : '';
@@ -2557,8 +2631,10 @@ $('#dSimilar').addEventListener('click',()=>{ dlgActed=true; const c=dlgCard; $(
 function setView(v){
   if(v==='deck' && matchMedia('(min-width: 961px)').matches) v='discover';
   state.view=v; $('#app').dataset.view=v;
-  document.querySelectorAll('.seg button').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
+  document.querySelectorAll('.nav .seg button').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
   $('#view-discover').hidden = v!=='discover';
+  $('#view-binder').hidden = v!=='binder';
+  if(v==='binder') renderBinder();
   $('#view-similar').hidden = v!=='similar';
   $('#view-list').hidden = v!=='list';
   if(v==='similar' && !sim.card) setTimeout(()=>$('#simQ').focus(),50);
@@ -3044,6 +3120,7 @@ async function tearOpen(){
   pk.idx=0; renderStack();
   setTimeout(()=>{ const sc=$('#scene'); if(sc) sc.remove(); }, 900);
   pk.state='reveal';
+  binderAdd(pk.cards, pk.era);
   // start rolling the next pack now so "Another pack" is instant
   const nTok = {}, nextP = rollPack(pk.era, nTok); nextP.catch(()=>{}); pk.prefetch = {era: pk.era, p: nextP, tok: nTok};
 }
@@ -3131,13 +3208,14 @@ function showSummary(){
   const {total,best} = packStats();
   $('#stageMid').innerHTML = `<div class="summary"><h2>Your pulls</h2>
     <div style="color:rgba(242,238,228,.7);font-size:.92rem;text-align:center">Worth about <b style="color:#ECEBE8">${money(total)}</b>${best?` · Best pull: <b style="color:#fff">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
-    <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Another pack</button><button class="pill ghost" type="button" id="leavePack">Done</button></div>
+    <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Another pack</button><button class="pill ghost" type="button" id="binderPack">Binder</button><button class="pill ghost" type="button" id="leavePack">Done</button></div>
     <div class="sumgrid">${pk.cards.map((c,i)=>{ cache.set(c.id,c); const g = glowOf(c);
       return `<button class="sumcard ${g?'glow-'+g:''} ${c.rar}" type="button" data-open="${c.id}" style="animation-delay:${i*35}ms">${c.img?`<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" loading="lazy">`:'<span class="ph"></span>'}<span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><span>${h(c.name)}</span><small>${money(c.usd)}</small></button>`; }).join('')}</div></div>`;
   $('#stageFoot').innerHTML = '';
   $('#stageFoot').classList.add('static');
   $('#exportPack').onclick = exportPackImage;
   $('#againPack').onclick = ()=>newPack();
+  $('#binderPack').onclick = ()=>{ closeStage(); setView('binder'); };
   $('#leavePack').onclick = closeStage;
 }
 $('#dSimilar').addEventListener('click',()=>{ if(!$('#stage').hidden) closeStage(); });
@@ -3218,12 +3296,250 @@ $('#saveDlg').addEventListener('close', ()=>{ if(savePending){ setTimeout(()=>UR
 $('#packBtn').addEventListener('click', ()=>{ sfx('delight'); openStage(); });
 $('#wPack').addEventListener('click', ()=>{ sfx('delight'); hideWelcome(); openStage(); });
 
+
+/* ======================= Accounts (Supabase + Discord) ======================= */
+// The publishable key is meant to be public; each player's data is protected by the database's row rules.
+const SB_URL = 'https://icapzxlawhmopqelkeft.supabase.co';
+const SB_KEY = 'sb_publishable_jqY4GbGYhqUh_N4tsos3Dg_R4WazLzl';
+const acct = {sb:null, user:null, binder:new Map(), favs:new Map(), packs:0, loaded:false};
+const LS_BINDER = 'ripjr.binder', LS_FAVS = 'ripjr.favs';
+const lsGet = (k, d) => { try{ return JSON.parse(localStorage.getItem(k)||'null') || d; }catch(e){ return d; } };
+const lsSet = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+const keepCard = c => { const {score, why, match, flavor, qty, ...rest} = c; return rest; };
+const userName = u => u ? (u.user_metadata?.full_name || u.user_metadata?.custom_claims?.global_name || u.user_metadata?.name || u.user_metadata?.user_name || (u.email||'').split('@')[0] || 'Player') : '';
+
+function sbInit(){
+  if(acct.sb || !window.supabase || !window.supabase.createClient) return;
+  acct.sb = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
+  acct.sb.auth.onAuthStateChange((ev, session)=>{
+    const u = session ? session.user : null, was = acct.user && acct.user.id;
+    acct.user = u; renderAccount();
+    if(u && u.id !== was) setTimeout(()=>onSignedIn(ev), 0);
+    if(!u && was) onSignedOut();
+  });
+}
+if(window.supabase) sbInit();
+
+async function signIn(){
+  if(!acct.sb){ toast('Accounts aren’t available right now. Try again in a moment.'); return; }
+  const { error } = await acct.sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo: location.origin + location.pathname}});
+  if(error) toast(error.message);
+}
+async function signOut(){ if(acct.sb) await acct.sb.auth.signOut(); }
+function onSignedOut(){
+  acct.binder = new Map(); acct.favs = new Map(); acct.packs = 0; acct.loaded = false;
+  state.deckId = null; state.deckOwner = null; save();
+  toast('Signed out'); renderAccount(); if(state.view==='binder') renderBinder();
+}
+async function onSignedIn(ev){
+  const sb = acct.sb, uid = acct.user.id;
+  try{
+    // 1. move anything saved in this browser into the account
+    const lb = lsGet(LS_BINDER, null);
+    if(lb && (Object.keys(lb.items||{}).length || (lb.packs||[]).length)){
+      const items = Object.entries(lb.items||{}).map(([id,x])=>({card_id:id, card:x.card, count:x.count, first_at:x.first}));
+      for(let i=0;i<items.length;i+=200){ const { error } = await sb.rpc('add_to_binder', {items: items.slice(i,i+200)}); if(error) throw error; }
+      const packs = (lb.packs||[]).map(p=>({era:p.era, value:p.value, cards:p.cards, opened_at:p.at}));
+      if(packs.length){ const { error } = await sb.from('packs').insert(packs); if(error) throw error; }
+      localStorage.removeItem(LS_BINDER);
+    }
+    const lf = lsGet(LS_FAVS, null);
+    if(lf && Object.keys(lf).length){
+      const { error } = await sb.from('favorites').upsert(Object.entries(lf).map(([n,c])=>({card_name:n, card:c})), {onConflict:'user_id,card_name'});
+      if(error) throw error; localStorage.removeItem(LS_FAVS);
+    }
+    // 2. load the account's binder, favorites and pack count
+    await loadAccountData();
+    // 3. decks: keep building the one on screen (saved to the account), or open their latest
+    const hasLocal = state.deck.commander || state.deck.cards.length;
+    if(state.deckId && state.deckOwner === uid){ /* already linked to this account */ }
+    else if(hasLocal){ state.deckId = null; state.deckOwner = uid; await pushDeck(); }
+    else {
+      const { data } = await sb.from('decks').select('id').order('updated_at', {ascending:false}).limit(1);
+      if(data && data[0]) await openDeck(data[0].id, true);
+    }
+    if(ev==='SIGNED_IN') toast('Signed in as '+userName(acct.user));
+  }catch(err){ toast('Couldn’t sync your account: '+(err.message||err)); }
+  renderAccount(); renderBinder(); if(dlgCard) setFavUI(dlgCard);
+}
+async function loadAccountData(){
+  const sb = acct.sb, binder = new Map();
+  for(let from=0; ; from+=1000){
+    const { data, error } = await sb.from('binder').select('card_id,card,count,first_at,last_at').range(from, from+999);
+    if(error) throw error;
+    (data||[]).forEach(r=>binder.set(r.card_id, {card:r.card, count:r.count, first:r.first_at, last:r.last_at}));
+    if(!data || data.length < 1000) break;
+  }
+  const f = await sb.from('favorites').select('card_name,card');
+  if(f.error) throw f.error;
+  const pc = await sb.from('packs').select('id', {count:'exact', head:true});
+  acct.binder = binder; acct.favs = new Map((f.data||[]).map(r=>[r.card_name, r.card])); acct.packs = pc.count||0; acct.loaded = true;
+}
+
+// account menu (desktop button) + the same items inside the phone ⋯ menu
+const ACCT_ACTIONS = {
+  signin: signIn, signout: signOut,
+  binder: ()=>{ binderTab='pulls'; setView('binder'); },
+  favs: ()=>{ binderTab='favs'; setView('binder'); },
+  decks: openDecks,
+  privacy: ()=>{ const on = !!acct.user; $('#privDelete').hidden = !on; $('#privDelWrap').hidden = !on; $('#privDlg').showModal(); },
+};
+function renderAccount(){
+  const u = acct.user, b = $('#acctBtn');
+  if(u){
+    const av = u.user_metadata?.avatar_url;
+    b.classList.add('in'); b.innerHTML = (av?`<img src="${h(av)}" alt="">`:'')+h(userName(u));
+  } else { b.classList.remove('in'); b.textContent = 'Sign in'; }
+  const items = u
+    ? `<div class="who">Signed in as<b>${h(userName(u))}</b></div><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="favs">Favorites</button><button type="button" role="menuitem" data-m="decks">My decks</button><button type="button" role="menuitem" data-m="privacy">Privacy &amp; account</button><button type="button" role="menuitem" data-m="signout">Sign out</button>`
+    : `<button type="button" role="menuitem" data-m="signin">Sign in with Discord</button><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="decks">My decks</button><button type="button" role="menuitem" data-m="privacy">Privacy</button>`;
+  document.querySelectorAll('.acctitems').forEach(x=>x.innerHTML = items);
+}
+$('#privDelete').addEventListener('click', async ()=>{
+  if(!acct.user || !confirm('Delete your account and everything saved to it? This can’t be undone.')) return;
+  const { error } = await acct.sb.rpc('delete_my_account');
+  if(error){ toast(error.message); return; }
+  $('#privDlg').close(); await acct.sb.auth.signOut(); toast('Your account was deleted');
+});
+
+/* ---------- decks ---------- */
+let pushT = null, pushing = null;
+function queueDeckPush(){ if(!acct.user) return; clearTimeout(pushT); pushT = setTimeout(pushDeck, 1500); }
+async function pushDeck(){
+  if(!acct.user || !acct.sb) return;
+  const d = state.deck, empty = !d.commander && !d.cards.length;
+  if(empty && !state.deckId) return;
+  if(pushing) await pushing;   // one save at a time, so a new deck isn't created twice
+  const row = {name: (d.name||'').trim() || (d.commander ? d.commander.name : ''), data: {commander:d.commander, cards:d.cards}, updated_at: new Date().toISOString()};
+  pushing = (async()=>{
+    if(state.deckId){ await acct.sb.from('decks').update(row).eq('id', state.deckId); }
+    else {
+      const { data, error } = await acct.sb.from('decks').insert(row).select('id').single();
+      if(!error && data){ state.deckId = data.id; state.deckOwner = acct.user.id; try{ localStorage.setItem(KEY, JSON.stringify(Object.assign(lsGet(KEY,{}), {deckId:state.deckId, deckOwner:state.deckOwner}))); }catch(e){} }
+    }
+  })();
+  try{ await pushing; } finally { pushing = null; }
+}
+async function openDeck(id, quiet){
+  const { data, error } = await acct.sb.from('decks').select('id,name,data').eq('id', id).single();
+  if(error){ toast(error.message); return; }
+  clearTimeout(pushT);
+  state.deck = {name:data.name||'', commander:(data.data||{}).commander||null, cards:(data.data||{}).cards||[]};
+  state.deckId = data.id; state.deckOwner = acct.user.id; state.example = false; state.draft = null;
+  deckChanged(); if(!quiet) toast('Opened '+(data.name||'your deck'));
+  if(!$('#welcome').hidden) hideWelcome();
+}
+async function openDecks(){
+  const body = $('#decksBody');
+  $('#decksDlg').showModal();
+  if(!acct.user){
+    body.innerHTML = `<p class="muted" style="margin:0">Sign in to keep as many decks as you like. Right now your deck is saved in this browser only.</p><div><button class="pill" type="button" data-m="signin" id="decksSignIn">Sign in with Discord</button></div>`;
+    $('#decksSignIn').onclick = signIn; $('#decksNew').hidden = true; return;
+  }
+  $('#decksNew').hidden = false;
+  body.innerHTML = '<p class="muted" style="margin:0">Loading…</p>';
+  await pushDeck();
+  const { data, error } = await acct.sb.from('decks').select('id,name,data,updated_at').order('updated_at', {ascending:false});
+  if(error){ body.innerHTML = `<p class="status err">${h(error.message)}</p>`; return; }
+  body.innerHTML = (data||[]).length ? data.map(d=>{
+    const n = (d.data?.cards||[]).reduce((a,c)=>a+(c.qty||1),0) + (d.data?.commander?1:0);
+    return `<div class="deckrow ${d.id===state.deckId?'cur':''}"><div><b>${h(d.name || 'Untitled deck')}</b><span>${n} cards · ${new Date(d.updated_at).toLocaleDateString()}</span></div>
+      ${d.id===state.deckId?'<span>Open now</span>':`<button class="pill ghost small" type="button" data-open-deck="${d.id}">Open</button>`}
+      <button class="close" type="button" data-del-deck="${d.id}" aria-label="Delete ${h(d.name||'deck')}" title="Delete">×</button></div>`;
+  }).join('') : '<p class="muted" style="margin:0">No saved decks yet.</p>';
+}
+$('#decksBody').addEventListener('click', async e=>{
+  const o = e.target.closest('[data-open-deck]'); if(o){ $('#decksDlg').close(); await openDeck(o.dataset.openDeck); return; }
+  const d = e.target.closest('[data-del-deck]'); if(!d) return;
+  if(!confirm('Delete this deck? This can’t be undone.')) return;
+  const { error } = await acct.sb.from('decks').delete().eq('id', d.dataset.delDeck);
+  if(error){ toast(error.message); return; }
+  if(d.dataset.delDeck === state.deckId){ state.deckId = null; save(); }
+  sfx('remove'); openDecks();
+});
+$('#decksNew').addEventListener('click', ()=>{ $('#decksDlg').close(); showWelcome(); });
+$('#deckName').addEventListener('input', e=>{ state.deck.name = e.target.value; save(); });
+
+/* ---------- favorites ---------- */
+const favStore = () => acct.user ? acct.favs : new Map(Object.entries(lsGet(LS_FAVS, {})));
+const isFav = c => favStore().has(c.name);
+function setFavUI(c){ const b = $('#dFav'); if(!b || !c) return; const on = isFav(c); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '★' : '☆'; b.title = on ? 'Remove from favorites' : 'Add to favorites'; }
+$('#dFav').addEventListener('click', async ()=>{
+  const c = dlgCard; if(!c) return;
+  const on = !isFav(c), card = keepCard(c);
+  if(acct.user){
+    if(on) acct.favs.set(c.name, card); else acct.favs.delete(c.name);
+    const r = on ? await acct.sb.from('favorites').upsert({card_name:c.name, card}, {onConflict:'user_id,card_name'}) : await acct.sb.from('favorites').delete().eq('card_name', c.name);
+    if(r.error) toast(r.error.message);
+  } else {
+    const lf = lsGet(LS_FAVS, {}); if(on) lf[c.name] = card; else delete lf[c.name]; lsSet(LS_FAVS, lf);
+  }
+  sfx(on ? 'add' : 'remove'); setFavUI(c); toast(on ? 'Added to favorites' : 'Removed from favorites');
+  if(state.view==='binder') renderBinder();
+});
+
+/* ---------- binder ---------- */
+function binderAdd(cards, era){
+  if(!cards || !cards.length) return;
+  const now = new Date().toISOString(), agg = {};
+  cards.forEach(c=>{ if(!c.id) return; (agg[c.id] ||= {card:keepCard(c), count:0}).count++; });
+  const value = +cards.reduce((n,c)=>n+(c.usd||0),0).toFixed(2);
+  const log = {era, value, at:now, cards:cards.map(c=>({id:c.id, name:c.name, rar:c.rar, usd:c.usd}))};
+  if(acct.user){
+    Object.entries(agg).forEach(([id,x])=>{ const ex = acct.binder.get(id); acct.binder.set(id, {card:x.card, count:(ex?ex.count:0)+x.count, first:ex?ex.first:now, last:now}); });
+    acct.packs++;
+    acct.sb.rpc('add_to_binder', {items:Object.entries(agg).map(([id,x])=>({card_id:id, card:x.card, count:x.count}))}).then(r=>{ if(r.error) console.warn(r.error); });
+    acct.sb.from('packs').insert({era:log.era, value:log.value, cards:log.cards}).then(r=>{ if(r.error) console.warn(r.error); });
+  } else {
+    const lb = lsGet(LS_BINDER, {items:{}, packs:[], total:0});
+    Object.entries(agg).forEach(([id,x])=>{ const ex = lb.items[id]; lb.items[id] = {card:x.card, count:(ex?ex.count:0)+x.count, first:ex?ex.first:now, last:now}; });
+    lb.packs.push(log); if(lb.packs.length > 300) lb.packs = lb.packs.slice(-300);
+    lb.total = (lb.total||0) + 1;
+    lsSet(LS_BINDER, lb);
+  }
+}
+function binderData(){
+  if(acct.user) return {items:[...acct.binder.entries()].map(([id,x])=>Object.assign({id}, x)), packs:acct.packs};
+  const lb = lsGet(LS_BINDER, {items:{}, packs:[], total:0});
+  return {items:Object.entries(lb.items).map(([id,x])=>Object.assign({id}, x)), packs:lb.total || lb.packs.length};
+}
+let binderTab = 'pulls';
+$('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; renderBinder(); });
+$('#bSort').addEventListener('change', renderBinder);
+function renderBinder(){
+  if($('#view-binder').hidden) return;
+  document.querySelectorAll('#bTabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.b===binderTab)));
+  const sort = $('#bSort').value;
+  $('#bSort').querySelector('[value="count"]').hidden = binderTab!=='pulls';
+  let list;
+  if(binderTab==='favs'){
+    list = [...favStore().values()].map(c=>({id:c.id, card:c, count:1, last:''}));
+    $('#bSum').textContent = list.length ? `${list.length} favorite${list.length===1?'':'s'}` : '';
+    $('#bStats').innerHTML = '';
+  } else {
+    const d = binderData(); list = d.items;
+    const cards = list.reduce((n,x)=>n+x.count,0), value = list.reduce((n,x)=>n+(x.card.usd||0)*x.count,0);
+    const best = list.reduce((b,x)=>!b || (x.card.usd||0) > (b.card.usd||0) ? x : b, null);
+    $('#bSum').textContent = cards ? `${cards.toLocaleString()} cards from ${d.packs.toLocaleString()} pack${d.packs===1?'':'s'}` : '';
+    $('#bStats').innerHTML = cards ? `<div><b>${d.packs.toLocaleString()}</b><span>packs opened</span></div><div><b>${list.length.toLocaleString()}</b><span>different cards</span></div><div><b>$${Math.round(value).toLocaleString()}</b><span>total value</span></div>${best&&best.card.usd?`<div><b>${money(best.card.usd)}</b><span>best pull: ${h(best.card.name)}</span></div>`:''}` : '';
+  }
+  const by = {value:(a,b)=>(b.card.usd||0)-(a.card.usd||0), new:(a,b)=>String(b.last).localeCompare(String(a.last)), name:(a,b)=>a.card.name.localeCompare(b.card.name), count:(a,b)=>b.count-a.count||(b.card.usd||0)-(a.card.usd||0)};
+  list.sort(by[sort] || by.value);
+  const shown = list.slice(0, 600);
+  $('#bGrid').innerHTML = shown.length ? shown.map(x=>{
+    const c = x.card; cache.set(c.id, c); const g = binderTab==='pulls' ? glowOf(c) : '';
+    return `<div class="card"><div class="artwrap"><button class="art ${g?'g-'+g:''}" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>${x.count>1?`<span class="top cnt">×${x.count}</span>`:''}</div><div class="cname">${h(c.name)}</div><div class="csub num">${h(c.setCode||c.set||'')}${c.usd!=null?' · '+money(c.usd):''}</div></div>`;
+  }).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">${binderTab==='favs'?'No favorites yet':'Your binder is empty'}</b><span>${binderTab==='favs'?'Tap the ☆ on any card to save it here.':'Every card you open with Experjence Delight lands here.'}</span></div>`;
+  $('#bNote').textContent = (list.length > shown.length ? `Showing the first ${shown.length} of ${list.length}. ` : '') + (acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep it in your account.' : ''));
+}
+renderAccount();
+
 /* ======================= Boot ======================= */
 // starts empty; a deck you were building is restored (old example decks from earlier versions are dropped)
 async function boot(){
   const saved = load();
   if(saved){ state.tipsHidden = !!saved.tipsHidden; }
-  if(saved && saved.deck && !saved.example && (saved.deck.commander || saved.deck.cards.length)) state.deck = saved.deck;
+  if(saved && saved.deck && !saved.example && (saved.deck.commander || saved.deck.cards.length)){ state.deck = saved.deck; state.deckId = saved.deckId||null; state.deckOwner = saved.deckOwner||null; }
   else state.deck = {commander:null, cards:[]};
   state.example = false;
   showWelcome();
