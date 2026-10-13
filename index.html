@@ -2042,7 +2042,8 @@ async function renderCasualSide(){
 }
 
 /* ======================= Ranked (runs in this browser for now) ======================= */
-const RANKED_PACKS_PER_DAY = 25;   // ranked packs per player per day (Casual is unlimited)
+const RANKED_PACKS_PER_DAY = Infinity;   // ranked packs per player per day; set a number (like 25) to bring the daily cap back
+const leftText = () => RANKED_PACKS_PER_DAY===Infinity ? '' : `${rankedLeft()} ranked packs left today`;
 const DUEL_WINS = 4;               // best of 7
 const GENIE_RATING = 1200, ELO_K = 24, START_RATING = 1200;
 const GUESS_SECONDS = 20, GUESS_WINDOW = 25;   // skill score = average of the last 25 rounds
@@ -2068,7 +2069,7 @@ function renderRanked(){
   $('#rkSeason').textContent = NEWEST_NAME.toUpperCase()+' SEASON';
   $('#rkEraNew').textContent = NEWEST_NAME;
   const left = rankedLeft();
-  $('#rkLeft').textContent = `${left} / ${RANKED_PACKS_PER_DAY} ranked packs left today`;
+  $('#rkLeft').textContent = RANKED_PACKS_PER_DAY===Infinity ? '' : `${left} / ${RANKED_PACKS_PER_DAY} ranked packs left today`;
   document.querySelectorAll('#rkEra [data-rera]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.rera===rk.era)));
   $('#rkDuelR').textContent = Math.round(rk.duel.rating).toLocaleString();
   $('#rkDuelWL').textContent = rk.duel.w+rk.duel.l ? `${rk.duel.w} won · ${rk.duel.l} lost` : 'Rating starts at '+START_RATING.toLocaleString();
@@ -2108,7 +2109,7 @@ function startGame(mode, opts={}){
 function nextRankedPack(){
   if(!game) return;
   game.locked = false; clearInterval(game.timer);
-  $('#rkRight').textContent = `${rankedLeft()} ranked packs left today`;
+  $('#rkRight').textContent = leftText();
   if(!rankedLeft()){
     renderPanel();
     foot(`<div class="hint">That’s all ${RANKED_PACKS_PER_DAY} ranked packs for today. Casual is unlimited.</div><div class="stage-acts"><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
@@ -2129,7 +2130,7 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 function rankedOpened(cards, swiped){
   if(!game || game.over) return;
   useRankedPack(); game.n++;
-  $('#rkRight').textContent = `${rankedLeft()} ranked packs left today`;
+  $('#rkRight').textContent = leftText();
   const v = packValue(cards);
   if(game.mode==='guess') return guessStart(cards, v);
   showReveal(cards, {label:'Your pack', value:v, sound:!swiped});
