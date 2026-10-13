@@ -287,6 +287,9 @@ dialog[open]{animation:pop .28s cubic-bezier(.2,.9,.25,1.1)}
 .bseg button{border:0;background:transparent;color:var(--ink);font-weight:700;padding:6px 14px;border-radius:9px}
 .bseg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 2px 0 var(--accent-deep)}
 #bSort{width:auto;padding:8px 10px;font-size:.88rem}
+.bpager{display:flex;align-items:center;justify-content:center;gap:14px;margin:22px 0 6px}
+.bpager span{color:var(--muted);font-size:.9rem}
+.bpager button:disabled{opacity:.4;cursor:default}
 .bstats{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
 .bstats div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px;min-width:120px}
 .bstats b{display:block;font:700 1.3rem/1.1 var(--f-display)}
@@ -822,6 +825,7 @@ body{font-weight:500}
     </div>
     <div class="bstats" id="bStats"></div>
     <div class="grid" id="bGrid"></div>
+    <div class="bpager" id="bPager" hidden><button class="pill ghost small" type="button" data-bp="-1">‹ Previous</button><span class="num" id="bPage"></span><button class="pill ghost small" type="button" data-bp="1">Next ›</button></div>
     <p class="pwnote" id="bNote"></p>
   </section>
   <section class="view" id="view-list" hidden>
@@ -3523,9 +3527,11 @@ function binderData(){
   const lb = lsGet(LS_BINDER, {items:{}, packs:[], total:0});
   return {items:Object.entries(lb.items).map(([id,x])=>Object.assign({id}, x)), packs:lb.total || lb.packs.length};
 }
-let binderTab = 'pulls';
-$('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; renderBinder(); });
-$('#bSort').addEventListener('change', renderBinder);
+let binderTab = 'pulls', binderPage = 0;
+const BINDER_PAGE = 50;   // cards per page
+$('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; binderPage = 0; renderBinder(); });
+$('#bSort').addEventListener('change', ()=>{ binderPage = 0; renderBinder(); });
+$('#bPager').addEventListener('click', e=>{ const b = e.target.closest('[data-bp]'); if(!b || b.disabled) return; binderPage += +b.dataset.bp; renderBinder(); $('#view-binder').scrollIntoView({block:'start'}); window.scrollTo({top:0}); });
 function renderBinder(){
   if($('#view-binder').hidden) return;
   document.querySelectorAll('#bTabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.b===binderTab)));
@@ -3545,12 +3551,17 @@ function renderBinder(){
   }
   const by = {value:(a,b)=>(b.card.usd||0)-(a.card.usd||0), new:(a,b)=>String(b.last).localeCompare(String(a.last)), name:(a,b)=>a.card.name.localeCompare(b.card.name), count:(a,b)=>b.count-a.count||(b.card.usd||0)-(a.card.usd||0)};
   list.sort(by[sort] || by.value);
-  const shown = list.slice(0, 600);
+  const pages = Math.max(1, Math.ceil(list.length / BINDER_PAGE));
+  binderPage = Math.min(Math.max(0, binderPage), pages-1);
+  const shown = list.slice(binderPage*BINDER_PAGE, (binderPage+1)*BINDER_PAGE);
+  $('#bPager').hidden = pages < 2;
+  $('#bPage').textContent = `Page ${binderPage+1} of ${pages}`;
+  $('#bPager [data-bp="-1"]').disabled = binderPage===0; $('#bPager [data-bp="1"]').disabled = binderPage>=pages-1;
   $('#bGrid').innerHTML = shown.length ? shown.map(x=>{
     const c = x.card; cache.set(c.id, c); const g = binderTab==='pulls' ? glowOf(c) : '';
     return `<div class="card"><div class="artwrap"><button class="art ${g?'g-'+g:''}" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>${x.count>1?`<span class="top cnt">×${x.count}</span>`:''}</div><div class="cname">${h(c.name)}</div><div class="csub num">${h(c.setCode||c.set||'')}${c.usd!=null?' · '+money(c.usd):''}</div></div>`;
   }).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">${binderTab==='favs'?'No favorites yet':'Your binder is empty'}</b><span>${binderTab==='favs'?'Tap the ☆ on any card to save it here.':'Every card you open with Experjence Delight lands here.'}</span></div>`;
-  $('#bNote').textContent = (list.length > shown.length ? `Showing the first ${shown.length} of ${list.length}. ` : '') + (acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep it in your account.' : ''));
+  $('#bNote').textContent = acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep it in your account.' : '');
 }
 renderAccount();
 
