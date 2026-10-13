@@ -541,7 +541,7 @@ a.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;tex
 .stage .pill.gold{background:var(--accent);color:var(--accent-ink);box-shadow:0 3px 0 var(--accent-deep)}
 
 /* casual */
-.casual{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.casual{display:grid;grid-template-columns:minmax(0,1fr);max-width:960px;margin:0 auto;width:100%}
 .cas-main{display:grid;gap:16px;min-width:0}
 .cas-hi{display:flex;align-items:center;gap:18px}
 .cas-hi img{width:74px;height:auto;flex:none;filter:drop-shadow(0 10px 14px rgba(0,0,0,.3));animation:genieFloat 5s ease-in-out infinite;pointer-events:none}
@@ -766,13 +766,7 @@ a.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;tex
   <div class="stage-foot" id="stageFoot"></div>
 </section>
         </div>
-        <div class="statrow" id="todayStats"></div>
       </div>
-      <aside class="side" aria-label="Today">
-        <div class="box"><div class="box-h"><h2>Your best pulls today</h2><button class="linkbtn" type="button" data-view="boards">All records ›</button></div><div class="rows" id="casBest"></div></div>
-        <button class="playcard" type="button" data-view="ranked"><span class="eyebrow2">RANKED</span><b>Value Duel · Guess the Value · Bank or Bust</b><span>Every pack judged on dollar value.</span><i>Play ranked</i></button>
-        <div class="box"><div class="box-h"><h2>Your latest pulls</h2><button class="linkbtn" type="button" data-view="binder">Open binder ›</button></div><div class="thumbs" id="casLatest"></div></div>
-      </aside>
     </div>
   </section>
 
@@ -883,23 +877,38 @@ const pips = ci => '<span class="pips">'+(ci.length?ci:['C']).map(c=>`<i class="
 const money = n => n==null ? '—' : '$'+n.toFixed(2);
 const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
 const gem = (w=12) => `<svg width="${w}" height="${w}" aria-hidden="true"><use href="#i-gem"/></svg>`;
-// the genie sometimes reacts to a big pull (never the same line twice in a row, not too often)
+// the genie talks: a one-liner every time you open a pack, and sometimes a reaction to a big pull
+// (never the same line twice in a row). On desktop it's the speech bubble over the pack; on phones a bubble under the logo.
+const GENIE_OPEN = ['Ooh, this one feels lucky.', 'Rip it like you mean it.', 'I can smell a mythic in there.', 'No peeking. Okay, peek.',
+  'Fortune favors the bold.', 'This could be the one.', 'Careful, it’s still warm.', 'Make a wish.', 'I’ve got a good feeling about this.',
+  'Let’s see what the lamp gives.', 'Fifteen cards. Endless possibilities.', 'Don’t blink.', 'One more. Always one more.',
+  'Shuffle up and pray.', 'The cards are whispering…', 'Big things come in small packs.'];
 const GENIE_LINES = ['Ooh. I like that one.', 'Wonderful pull.', 'Now that’s a hit.', 'Lucky you.'];
-const GENIE_CHANCE = 0.6, GENIE_COOLDOWN = 9000;
-let genieLast = '', genieAt = 0;
-function genieRemark(){
-  const g = $('#homeBtn'); if(!g || !g.offsetParent || document.querySelector('dialog[open]')) return;
-  const now = Date.now(); if(now - genieAt < GENIE_COOLDOWN || Math.random() > GENIE_CHANCE) return;
-  genieAt = now;
-  const pool = GENIE_LINES.filter(l=>l!==genieLast); genieLast = pool[Math.floor(Math.random()*pool.length)];
+const GENIE_CHANCE = 0.6, GENIE_COOLDOWN = 9000, GENIE_HELLO = 'Feeling lucky? Rip a pack.';
+const genieLast = {}; let genieAt = 0;
+function genieSays(pool, key){
+  if(document.querySelector('dialog[open]')) return;
+  const left = pool.filter(l=>l!==genieLast[key]), line = genieLast[key] = left[Math.floor(Math.random()*left.length)];
+  const hi = document.querySelector('.cas-hi');
+  if(hi && hi.offsetParent){
+    const bub = hi.querySelector('.bubble'); bub.querySelector('h1').textContent = line;
+    bub.style.animation = 'none'; void bub.offsetWidth; bub.style.animation = '';
+    return;
+  }
+  const g = $('#homeBtn'); if(!g || !g.offsetParent) return;
   document.querySelectorAll('.nsay').forEach(x=>x.remove());
   const r = g.querySelector('img').getBoundingClientRect(), b = document.createElement('div');
-  b.className = 'nsay'; b.setAttribute('role','status'); b.textContent = genieLast;
+  b.className = 'nsay'; b.setAttribute('role','status'); b.textContent = line;
   b.style.left = Math.round(r.left + r.width/2 - 22) + 'px'; b.style.top = Math.round(r.bottom + 10) + 'px';
   document.body.appendChild(b);
   g.classList.remove('bob'); void g.offsetWidth; g.classList.add('bob');
   setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(), 320); }, 2400);
 }
+function genieRemark(){   // big pulls: not every time
+  const now = Date.now(); if(now - genieAt < GENIE_COOLDOWN || Math.random() > GENIE_CHANCE) return;
+  genieAt = now; genieSays(GENIE_LINES, 'hit');
+}
+function genieHello(){ const h1 = document.querySelector('.cas-hi h1'); if(h1) h1.textContent = GENIE_HELLO; }
 // menus (⋯): one in the top bar (phones), one on the pack screen, plus the account menu
 const MENUS = [['#navMenuBtn','#navMenu'],['#stageMenuBtn','#stageMenu'],['#acctBtn','#acctMenu']];
 function syncMenus(){
@@ -1378,7 +1387,7 @@ $('#eraSeg').addEventListener('click',e=>{
 function newPack(keepNumber, swap){
   pk.tiltBase = null;
   $('#stageFoot').classList.remove('static');
-  if(pk.mode==='casual'){ if(!keepNumber) pk.no = bumpCount(); $('#packNo').textContent = '#'+pk.no; }
+  if(pk.mode==='casual'){ if(!keepNumber) pk.no = bumpCount(); $('#packNo').textContent = '#'+pk.no; genieHello(); }
   pk.cards=null; pk.err=null; pk.idx=0; pk.ry=0; pk.rx=0; pk.state='pack';
   const era = pk.era;
   const pre = pk.prefetch && pk.prefetch.era===era ? pk.prefetch.p : null; pk.prefetchTok = pk.prefetch && pk.prefetch.tok; if(!pre && pk.prefetch) pk.prefetch.tok.dead = true; pk.prefetch = null;
@@ -1490,6 +1499,7 @@ async function tearOpen(){
   await sleep(160);
   p.classList.add('opening');
   sfx('tear');
+  if(pk.mode==='casual') genieSays(GENIE_OPEN, 'open');
   $('#stageFoot').innerHTML = `<div class="hint">Shuffling…</div>`;
   await Promise.all([sleep(650), pk.loading]);
   if(pk.state!=='opening') return;
@@ -1950,6 +1960,7 @@ function enterCasual(fromElsewhere){
 }
 let casSeq = 0;
 async function renderCasualSide(){
+  if(!$('#todayStats')) return;   // Casual is just the pack for now
   const seq = ++casSeq;
   let d;
   try{ d = await packLog(sinceFor('day')); }catch(e){ d = {packs:[], count:0, latest:null}; }
