@@ -763,6 +763,25 @@ html.fit .app{align-items:stretch}
   .rc small{font-size:.78rem}
 }
 
+/* ranked mode art: drop mode-spread.jpg, mode-guess.jpg and mode-bust.jpg next to index.html (16:9 looks best); a drawing shows until then */
+.mode{grid-template-rows:auto auto auto 1fr auto}
+.mode-art{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:radial-gradient(120% 120% at 30% 20%,#46372C,#211A15);margin:-4px -4px 4px}
+.mode-art svg{position:absolute;inset:0;width:100%;height:100%;padding:8% 18%}
+.mode-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.backbtn{display:inline-flex;align-items:center;gap:6px}
+/* phones: ranked matches go full screen */
+@media (max-width: 600px){
+  html.play .nav,html.play .tabbar,html.play .fanfoot{display:none!important}
+  html.play body{height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:none;padding-bottom:0;display:flex;flex-direction:column}
+  html.play .app{flex:1;min-height:0;width:100%;padding:0;display:flex;flex-direction:column;align-items:stretch}
+  html.play #view-ranked,html.play #rkPlay,html.play .rk-play{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch}
+  html.play .rk-bar{flex:none;margin:0;padding:calc(8px + env(safe-area-inset-top,0px)) 0 8px;gap:10px}
+  html.play .backbtn{background:var(--surface-2);color:var(--ink);border-radius:999px;padding:8px 14px 8px 11px;font-size:.92rem;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+  html.play #rankedHost{flex:1;min-height:0}
+  html.play #rankedHost .stage{height:100%;min-height:0}
+  html.play #rkPanel{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -834,11 +853,11 @@ html.fit .app{align-items:stretch}
         </div>
       </div>
       <div class="modes">
-        <div class="mode"><h2>Money Spread <span id="rkDuelR"></span></h2><p>Best of 7. The higher pack value takes the round.</p><p class="sub num" id="rkDuelWL"></p>
+        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><rect x="30" y="12" width="34" height="48" rx="4" transform="rotate(-10 47 36)" fill="#5AA2FF" opacity=".55"/><rect x="56" y="14" width="34" height="48" rx="4" transform="rotate(10 73 38)" fill="#F4BF3A"/><text x="73" y="45" text-anchor="middle" font-size="22" font-weight="800" fill="#2A1C0E" transform="rotate(10 73 38)">$</text></svg><img src="mode-spread.jpg" alt="Money Spread" onerror="this.remove()"></div><h2>Money Spread <span id="rkDuelR"></span></h2><p>Best of 7. The higher pack value takes the round.</p><p class="sub num" id="rkDuelWL"></p>
           <div class="acts"><button class="pill" type="button" data-start="duel">Duel the Genie</button><button class="pill ghost small" type="button" disabled>Find a match<span class="soon">SOON</span></button><button class="pill ghost small" type="button" data-challenge="duel">Challenge a friend</button></div></div>
-        <div class="mode"><h2>Guess the Value <span id="rkGuessS"></span></h2><p>Prices hidden. You get 20 seconds to guess what the pack is worth.</p><p class="sub" id="rkGuessN"></p>
+        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="26" fill="none" stroke="#46372C" stroke-width="7"/><path d="M60 14a26 26 0 0 1 24 36" fill="none" stroke="#5AA2FF" stroke-width="7" stroke-linecap="round"/><text x="60" y="49" text-anchor="middle" font-size="26" font-weight="800" fill="#F4BF3A">?</text></svg><img src="mode-guess.jpg" alt="Guess the Value" onerror="this.remove()"></div><h2>Guess the Value <span id="rkGuessS"></span></h2><p>Prices hidden. You get 20 seconds to guess what the pack is worth.</p><p class="sub" id="rkGuessN"></p>
           <div class="acts"><button class="pill" type="button" data-start="guess">Play</button><button class="pill ghost small" type="button" data-challenge="guess">Challenge a friend</button></div></div>
-        <div class="mode"><h2>Bank or Bust <span id="rkBustB"></span></h2><p>Rip packs to stack value. Bank before a pack comes in under the line.</p><p class="sub" id="rkBustL"></p>
+        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><rect x="22" y="44" width="14" height="22" rx="2" fill="#5AA2FF"/><rect x="42" y="30" width="14" height="36" rx="2" fill="#5AA2FF"/><rect x="62" y="20" width="14" height="46" rx="2" fill="#F4BF3A"/><rect x="82" y="58" width="14" height="8" rx="2" fill="#EF6A5B"/><path d="M14 52h92" stroke="#EF6A5B" stroke-width="2.5" stroke-dasharray="5 4"/></svg><img src="mode-bust.jpg" alt="Bank or Bust" onerror="this.remove()"></div><h2>Bank or Bust <span id="rkBustB"></span></h2><p>Rip packs to stack value. Bank before a pack comes in under the line.</p><p class="sub" id="rkBustL"></p>
           <div class="acts"><button class="pill" type="button" data-start="bust">Start a run</button><button class="pill ghost small" type="button" data-challenge="bust">Challenge a friend</button></div></div>
       </div>
       <div class="box" id="rkChBox" hidden><div class="box-h"><h2>Challenges</h2></div><div class="mlist" id="rkCh"></div></div>
@@ -846,7 +865,7 @@ html.fit .app{align-items:stretch}
       <p class="pwnote">Ranked runs in this browser for now. Challenge links are saved to your account. Online matchmaking and global leaderboards are coming next.</p>
     </div>
     <div id="rkPlay" hidden>
-      <div class="rk-bar"><button class="backbtn" type="button" data-back>‹ Ranked</button><span class="rk-title" id="rkTitle"></span><span class="muted num" id="rkRight"></span></div>
+      <div class="rk-bar"><button class="backbtn" type="button" data-back aria-label="Back to Ranked">‹ Back</button><span class="rk-title" id="rkTitle"></span><span class="muted num" id="rkRight"></span></div>
       <div class="rk-play"><div id="rankedHost"></div><aside class="side" id="rkPanel"></aside></div>
     </div>
   </section>
@@ -1934,7 +1953,7 @@ function setView(v){
   const prev = ui.view;
   if(prev==='ranked' && v!=='ranked' && game && !leaveGame()) return;
   ui.view = v; $('#app').dataset.view = v;
-  document.documentElement.classList.toggle('fit', v==='casual');   // Casual fits the screen exactly, no page scroll
+  document.documentElement.classList.toggle('fit', v==='casual'); setPlay(v==='ranked' && !!game);   // Casual fits the screen exactly, no page scroll
   if(v==='casual') requestAnimationFrame(()=>window.scrollTo(0,0));
   document.querySelectorAll('.seg [data-view], .tabbar [data-view]').forEach(t=>t.setAttribute('aria-selected', String(t.dataset.view===v)));
   VIEWS.forEach(k=>$('#view-'+k).hidden = k!==v);
@@ -2063,7 +2082,10 @@ const packValue = cards => +cards.reduce((n,c)=>n+(c.usd||0),0).toFixed(2);
 const MODE_NAME = {duel:'Money Spread', guess:'Guess the Value', bust:'Bank or Bust'};
 let game = null;
 
+// phones: a ranked match fills the whole screen (no top bar or tab bar), with Back in the top left
+const setPlay = on => document.documentElement.classList.toggle('play', !!on);
 function renderRanked(){
+  setPlay(!!game);
   if(game){ $('#rkHub').hidden = true; $('#rkPlay').hidden = false; return; }
   $('#rkHub').hidden = false; $('#rkPlay').hidden = true;
   $('#rkSeason').textContent = NEWEST_NAME.toUpperCase()+' SEASON';
@@ -2102,7 +2124,7 @@ function startGame(mode, opts={}){
   game = {mode, era:opts.era||rk.era, ch:opts.ch||null, n:0, round:1, rounds:[], you:0, them:0, pot:0, packs:[], over:false};
   pk.mode = 'ranked'; pk.era = game.era;
   $('#rankedHost').appendChild($('#stage'));
-  $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0});
+  $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0}); setPlay(true);
   $('#rkTitle').textContent = `${MODE_NAME[mode]}${game.ch ? ' challenge'+(game.ch.name?' vs '+game.ch.name:'') : mode==='duel'?' vs the Genie':''} · ${eraLabel(game.era)} packs`;
   nextRankedPack();
 }
@@ -2316,7 +2338,7 @@ function leaveGame(){
   if(game.genieTok) game.genieTok.dead = true;
   game = null;
   if(pk.tok) pk.tok.dead = true;
-  pk.state = 'idle'; pk.source = null; pk.swipe = false;
+  pk.state = 'idle'; pk.source = null; pk.swipe = false; setPlay(false);
   return true;
 }
 
