@@ -782,6 +782,15 @@ html.fit .app{align-items:stretch}
   html.play #rkPanel{display:none}
 }
 
+/* Quit button on the pack screen (phones, during a ranked match; desktop keeps Back above the pack) */
+.quitbtn{display:none;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font:800 .85rem/1 var(--f-body);padding:8px 12px 8px 10px;flex:none}
+/* older phones without container sizes: fixed pack size instead */
+@supports not (container-type: size){ .scene{width:min(250px,60vw)} .stack{width:min(260px,64vw);margin-left:calc(min(260px,64vw) / -2);margin-top:calc(min(260px,64vw) * 680 / 488 / -2)} .stage-mid{min-height:calc(min(260px,64vw) * 1.42 + 24px)} }
+@media (max-width: 600px){
+  html.play .rk-bar{display:none}
+  html.play .quitbtn{display:inline-flex}
+}
+
 </style>
 </head>
 <body>
@@ -821,7 +830,7 @@ html.fit .app{align-items:stretch}
         <div id="casualHost">
 <section class="stage" id="stage" aria-label="Open a booster pack">
   <div class="stage-top">
-    <div style="display:grid;gap:4px"><span class="eyebrow"><span id="stageLabel">Pack</span> <span id="packNo" class="num"></span></span></div>
+    <div style="display:flex;gap:10px;align-items:center"><button class="quitbtn" type="button" data-back aria-label="Quit to the Ranked menu">‹ Quit</button><span class="eyebrow"><span id="stageLabel">Pack</span> <span id="packNo" class="num"></span></span></div>
     <div style="display:flex;gap:10px;align-items:center;position:relative">
       <div class="seg" role="radiogroup" aria-label="Card pool" id="eraSeg">
         <button type="button" data-era="all" aria-selected="true">Any</button>
