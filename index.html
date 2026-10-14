@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ripjr.com</title>
 <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -735,8 +735,8 @@ html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 html.fit .casual{width:100%}
 html.fit .app{align-items:stretch}
 /* the pack and card stack scale to the height of the pack screen, so they always fit above Flip/Open */
-.stage{container-type:size}
-.stage-mid{--cw:max(150px,min(300px,68vw,calc((100cqh - 230px) * .717)));min-height:calc(var(--cw) * 1.42 + 24px)}
+.stage-mid{--cw:min(300px,68vw);min-height:calc(var(--cw) * 1.42 + 24px)}
+@media (min-width: 601px){ .stage{container-type:size} .stage-mid{--cw:max(150px,min(300px,68vw,calc((100cqh - 230px) * .717)))} }
 .scene{width:calc(var(--cw) * .967)}
 .stack{width:var(--cw);margin-left:calc(var(--cw) / -2);margin-top:calc(var(--cw) * 680 / 488 / -2)}
 /* challenges */
@@ -785,10 +785,23 @@ html.fit .app{align-items:stretch}
 /* Quit button on the pack screen (phones, during a ranked match; desktop keeps Back above the pack) */
 .quitbtn{display:none;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font:800 .85rem/1 var(--f-body);padding:8px 12px 8px 10px;flex:none}
 /* older phones without container sizes: fixed pack size instead */
-@supports not (container-type: size){ .scene{width:min(250px,60vw)} .stack{width:min(260px,64vw);margin-left:calc(min(260px,64vw) / -2);margin-top:calc(min(260px,64vw) * 680 / 488 / -2)} .stage-mid{min-height:calc(min(260px,64vw) * 1.42 + 24px)} }
+@supports not (container-type: size){ .stage-mid{--cw:min(300px,68vw)!important} }
 @media (max-width: 600px){
   html.play .rk-bar{display:none}
   html.play .quitbtn{display:inline-flex}
+}
+
+/* ===== phones: the pack screen is pinned to the screen the way the original pack opener was (position:fixed),
+   so Safari's own bars never cover it. Casual: between the top bar and the tab bar. Ranked match: the whole screen. ===== */
+@media (max-width: 600px){
+  html.fit body,html.play body{height:auto!important;min-height:0;display:block!important;overflow:hidden;padding-bottom:0}
+  html.fit .app,html.play .app{display:block!important;padding:0}
+  html.fit #casualHost .stage{position:fixed!important;left:0;right:0;top:var(--navH,60px);bottom:var(--tabH,72px);height:auto!important;min-height:0!important;margin:0!important;border-radius:0;z-index:5}
+  html.play #rankedHost .stage{position:fixed!important;inset:0;height:auto!important;min-height:0!important;margin:0!important;border-radius:0;z-index:40}
+}
+/* phones: shrink the pack on short screens so it never slides under Flip/Open (svh = the screen height with Safari's bars showing) */
+@media (max-width: 600px){
+  .stage-mid{--cw:min(300px,68vw);--cw:min(300px,68vw,max(150px,calc((100svh - 300px) * .62)))}
 }
 
 </style>
@@ -2595,6 +2608,10 @@ renderAccount();
 pk.era = casualEra;
 // the real visible height (between Safari's top and bottom bars), used by Casual and full-screen ranked
 function setAppH(){ const h = window.visualViewport ? window.visualViewport.height : window.innerHeight; if(h) document.documentElement.style.setProperty('--appH', Math.round(h)+'px'); }
+// phones: the pack screen sits between the top bar and the tab bar, so measure them
+function setBars(){ const n = document.querySelector('.nav'), tb = document.querySelector('.tabbar'), r = document.documentElement.style;
+  if(n && n.offsetHeight) r.setProperty('--navH', n.offsetHeight+'px'); if(tb && tb.offsetHeight) r.setProperty('--tabH', tb.offsetHeight+'px'); }
+setBars(); window.addEventListener('resize', setBars); window.addEventListener('load', setBars); if(document.fonts) document.fonts.ready.then(setBars);
 setAppH(); (window.visualViewport||window).addEventListener('resize', setAppH); window.addEventListener('orientationchange', ()=>setTimeout(setAppH, 300));
 if('scrollRestoration' in history) history.scrollRestoration = 'manual';   // don't reopen the page scrolled down
 setView('casual');
