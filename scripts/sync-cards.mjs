@@ -79,10 +79,30 @@ async function* objectsIn(stream) {
   }
 }
 
+// Finds the Default Cards file's download link. Tries the direct endpoint, then the full bulk-data list,
+// and waits and retries a few times in case Scryfall is in the middle of publishing a new file.
+async function findBulkFile() {
+  const link = m => m && (m.download_uri || m.download_url || null);
+  let last = null;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      const one = await (await fetch(SCRYFALL + '/bulk-data/default-cards', { headers: UA })).json();
+      last = one;
+      if (link(one)) return { ...one, download_uri: link(one) };
+      const all = await (await fetch(SCRYFALL + '/bulk-data', { headers: UA })).json();
+      last = all;
+      const m = (all.data || []).find(x => x.type === 'default_cards' && link(x));
+      if (m) return { ...m, download_uri: link(m) };
+    } catch (e) { last = String(e); }
+    console.log(`  no download link yet (attempt ${attempt}); waiting a bit…`);
+    await new Promise(res => setTimeout(res, 20000 * attempt));
+  }
+  throw new Error('Scryfall did not return a download link. Last reply:\n' + JSON.stringify(last, null, 2).slice(0, 3000));
+}
+
 async function main() {
   console.log('Asking Scryfall for the Default Cards file…');
-  const meta = await (await fetch(SCRYFALL + '/bulk-data/default-cards', { headers: UA })).json();
-  if (!meta.download_uri) throw new Error('Scryfall did not return a download link: ' + JSON.stringify(meta).slice(0, 200));
+  const meta = await findBulkFile();
   console.log(`Downloading ${meta.download_uri} (${Math.round((meta.size || 0) / 1e6)} MB, updated ${meta.updated_at})`);
   const res = await fetch(meta.download_uri, { headers: { 'User-Agent': UA['User-Agent'] } });
   if (!res.ok || !res.body) throw new Error('Download failed: ' + res.status);
