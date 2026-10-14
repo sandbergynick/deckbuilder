@@ -1242,7 +1242,26 @@ const NEWEST_SET = 'trk', NEWEST_NAME = 'Star Trek';
 const OLD_SETS = ['lea','leb','2ed','arn','atq','drk','leg'];
 const OLD_ABU = ['lea','leb','2ed'];
 const setQ = codes => '('+codes.map(c=>'e:'+c).join(' or ')+')';
+// Packs are rolled by Supabase when its card data is loaded (one quick call, and the browser can't pick the cards).
+// Until then, or if Supabase is unreachable, they come straight from Scryfall like before.
+let serverPacksOff = 0;
 async function rollPack(era, tok={}){
+  if(!rollPack.waited){ rollPack.waited = true; for(let i=0; !acct.sb && i<20; i++) await sleep(100); }   // first pack: give the accounts library a moment to load
+  if(acct.sb && Date.now() > serverPacksOff){
+    try{
+      const r = await acct.sb.rpc('roll_pack', {p_era: era});
+      if(r.error) throw r.error;
+      if(Array.isArray(r.data) && r.data.length >= 15){
+        if(tok.dead) throw new Error('cancelled');
+        await warmImages(r.data);
+        return r.data;
+      }
+      serverPacksOff = Date.now() + 5*60*1000;   // no card data yet: use Scryfall for a few minutes
+    }catch(e){ if(e.message==='cancelled') throw e; serverPacksOff = Date.now() + 60*1000; }
+  }
+  return rollPackScryfall(era, tok);
+}
+async function rollPackScryfall(era, tok={}){
   const chk = v => { if(tok.dead) throw new Error('cancelled'); return v; };
   const old = era==='old', nu = era==='new';
   // card pool for this era
@@ -2143,7 +2162,7 @@ function startGame(mode, opts={}){
   if(game && !game.over && !leaveGame()) return;
   game = null;
   if(!rankedLeft()){ toast('That’s all your ranked packs for today. Casual is unlimited.'); renderRanked(); return; }
-  game = {mode, era:opts.era||rk.era, ch:opts.ch||null, n:0, round:1, rounds:[], you:0, them:0, pot:0, packs:[], over:false};
+  game = {mode, era:opts.era||rk.era, ch:opts.ch||null, line:opts.line||null, n:0, round:1, rounds:[], you:0, them:0, pot:0, packs:[], over:false};
   pk.mode = 'ranked'; pk.era = game.era;
   $('#rankedHost').appendChild($('#stage'));
   $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0}); setPlay(true);
@@ -2272,6 +2291,7 @@ function duelFinish(won, forfeit){
 /* ---- Guess the Value ---- */
 function guessStart(cards, v){
   game.cards = cards; game.actual = v; game.locked = false;
+  if(game.ch) rpc('challenge_reveal', {p_id:game.ch.id, p_idx:game.n-1}).catch(()=>{});   // starts the server's 20-second clock
   showReveal(cards, {label:'What’s this pack worth?', hide:true});
   foot(`<form class="gbox" id="gForm" autocomplete="off"><div class="timer" id="gTimer"><b class="num">${GUESS_SECONDS}</b></div><label class="gin"><span>$</span><input id="gIn" type="text" inputmode="decimal" placeholder="0.00" aria-label="Your guess in dollars"></label><button class="pill gold" type="submit">Lock in</button></form><div class="hint">Up to 100 points for accuracy, plus a speed bonus. Unpriced cards count as $0.</div>`);
   if(!matchMedia('(pointer: coarse)').matches) $('#gIn').focus({preventScroll:true});
@@ -2296,7 +2316,11 @@ function lockGuess(){
   game.locked = true; clearInterval(game.timer);
   const left = Math.max(0, GUESS_SECONDS - (performance.now()-game.t0)/1000);
   const raw = ($('#gIn') ? $('#gIn').value : '').replace(/[^0-9.]/g,''), g = raw==='' ? NaN : parseFloat(raw), a = game.actual;
+  if(game.ch) return lockGuessCh(g);   // challenges: the server times and scores the guess
   const pts = isNaN(g) ? 0 : guessPoints(g, a, left);
+  guessDone(g, a, pts);
+}
+function guessDone(g, a, pts){
   rk.guess.scores.push({at:new Date().toISOString(), pts});
   game.rounds.push({g, a, pts});
   rkHistory({score:`+${pts} pts`, cls: pts>=60?'w':'', detail:`Guessed ${isNaN(g)?'nothing':money(g)} · actual ${money(a)}`});
@@ -2309,7 +2333,7 @@ function lockGuess(){
 
 /* ---- Bank or Bust ---- */
 function bustAfter(cards, v){
-  const line = BUST_LINE[game.era], n = game.packs.length + 1;
+  const line = game.line || BUST_LINE[game.era], n = game.packs.length + 1;
   if(v < line){
     const lost = game.pot;
     game.packs.push({v, bust:true}); game.pot = 0; game.over = true; game.busted = true; game.banked = 0;
@@ -2386,7 +2410,7 @@ function renderPanel(){
       <div class="box"><div class="box-h"><h2>This session</h2></div><div class="mlist">${game.rounds.length ? game.rounds.slice().reverse().map((r,i)=>`<div class="mrow"><div><b>Round ${game.rounds.length-i}</b> <span>· ${isNaN(r.g)?'no guess':money(r.g)} vs ${money(r.a)}</span></div><div class="${r.pts>=60?'w':''}">+${r.pts}</div></div>`).join('') : '<p class="empty-s">Exact guesses score 100. Being off by double scores 0. Faster guesses get up to 10 bonus points.</p>'}</div></div>`;
   }
   if(game.mode==='bust'){
-    const line = BUST_LINE[game.era], vals = game.packs.map(p=>p.v), mx = Math.max(line*3, ...vals, 1), H = 150, y = v => Math.round(Math.sqrt(v/mx)*(H-24));   // square-root scale so small packs still show
+    const line = game.line || BUST_LINE[game.era], vals = game.packs.map(p=>p.v), mx = Math.max(line*3, ...vals, 1), H = 150, y = v => Math.round(Math.sqrt(v/mx)*(H-24));   // square-root scale so small packs still show
     const bars = game.packs.map(p=>`<div><small>${money(p.v)}</small><i class="${p.bust?'bust':''}" style="height:${Math.max(4, y(p.v))}px"></i></div>`).join('') + (game.over ? '' : `<div><small>?</small><i class="next" style="height:${y(line)+10}px"></i></div>`);
     P.innerHTML = chBox + `<div class="box"><div class="box-h"><h2>On the line</h2></div><div class="big acc">${money(game.pot)}</div><p class="pwnote center">${game.packs.length} pack${game.packs.length===1?'':'s'} ripped · any pack under <b style="color:var(--bad)">${money(line)}</b> busts</p></div>
       <div class="box"><div class="bars"><span class="ln" style="bottom:${y(line)}px"></span>${bars}</div><div class="legend"><span>Pack 1</span><b>bust line ${money(line)}</b></div></div>
@@ -2450,17 +2474,30 @@ async function rpc(name, args){
 function warmImages(cards){
   return Promise.all((cards||[]).map(c=>new Promise(res=>{ if(!c.img) return res(); const im = new Image(); im.crossOrigin = 'anonymous'; const t = setTimeout(res, 7000); im.onload = im.onerror = ()=>{ clearTimeout(t); res(); }; im.src = c.img; })));
 }
-// pack number idx for this challenge: the saved one if it exists (or the other player's, for shared packs), otherwise roll and save
+// pack number idx for this challenge: Supabase rolls it (or hands back the one it already saved) before you see it.
+// In Guess the Value the prices are left off until you've locked in a guess.
 async function chPack(id, idx, era, tok){
-  let saved = await rpc('challenge_pack', {p_id:id, p_idx:idx, p_pack:null});
-  if(!saved){
-    const fresh = await rollPack(era, tok);
-    if(tok.dead) throw new Error('cancelled');
-    saved = await rpc('challenge_pack', {p_id:id, p_idx:idx, p_pack:fresh});
-  }
+  const saved = await rpc('challenge_pack', {p_id:id, p_idx:idx, p_pack:null});
+  if(!Array.isArray(saved) || !saved.length) throw new Error('Couldn’t get that pack. Try again.');
   if(tok.dead) throw new Error('cancelled');
   await warmImages(saved);
   return saved;
+}
+// Guess the Value challenge: send the guess; the server times it, scores it and returns the prices
+async function lockGuessCh(g){
+  const gm = game;
+  foot('<div class="hint">Checking your guess…</div>');
+  let r;
+  try{ r = await rpc('challenge_guess', {p_id:gm.ch.id, p_idx:gm.n-1, p_guess: isNaN(g) ? null : g}); }
+  catch(e){
+    if(game!==gm) return;
+    foot(`<div class="hint" style="color:#FF9A85">${h(e.message)}</div><div class="stage-acts"><button class="pill" type="button" id="rvRetry">Try again</button></div>`);
+    $('#rvRetry').onclick = ()=>lockGuessCh(g); return;
+  }
+  if(game!==gm) return;
+  gm.cards = r.cards; gm.cards.forEach(c=>cache.set(c.id, c));
+  guessDone(g, +r.actual, r.pts|0);
+  if(r.late) toast('Time ran out before your guess landed, so it scored 0.');
 }
 function chResult(g){
   if(g.mode==='duel'){ const packs = g.rounds.map(r=>r.you); return {packs, best:g.rounds.map(r=>r.best), total:+packs.reduce((a,b)=>a+b,0).toFixed(2)}; }
@@ -2535,7 +2572,7 @@ async function openChallenge(id){
 function playChallenge(c){
   $('#chDlg').open && $('#chDlg').close();
   setView('ranked');
-  startGame(c.mode, {era:c.era, ch:{id:c.id, side:c.side, name:theirName(c)}});
+  startGame(c.mode, {era:c.era, line:c.bust_line ? +c.bust_line : null, ch:{id:c.id, side:c.side, name:theirName(c)}});
 }
 async function createChallenge(mode){
   if(!meUser()){
@@ -2545,7 +2582,8 @@ async function createChallenge(mode){
   if(!rankedLeft()){ toast('That’s all your ranked packs for today. Casual is unlimited.'); return; }
   try{
     const id = await rpc('challenge_create', {p_mode:mode, p_era:rk.era, p_name:userName(meUser()), p_avatar:meAvatar()});
-    startGame(mode, {era:rk.era, ch:{id, side:'creator', name:''}});
+    let line = null; try{ const v = await rpc('challenge_peek', {p_id:id}); line = v && v.bust_line ? +v.bust_line : null; }catch(e){}
+    startGame(mode, {era:rk.era, line, ch:{id, side:'creator', name:''}});
   }catch(e){ toast(e.message); }
 }
 async function chFinish(){
@@ -2602,6 +2640,11 @@ document.addEventListener('click', e=>{
   const r = e.target.closest('[data-ch]'); if(r){ openChallenge(r.dataset.ch); return; }
   const b = e.target.closest('[data-challenge]'); if(b && !b.disabled) createChallenge(b.dataset.challenge);
 });
+
+// bust lines worked out from real prices by the daily card sync (falls back to the defaults in BUST_LINE)
+sbReady().then(ok=>{ if(!ok) return; rpc('get_pack_settings', {}).then(st=>{
+  if(st && st.cards_loaded && st.bust_line){ for(const k of ['all','new','old']) if(+st.bust_line[k] > 0) BUST_LINE[k] = +st.bust_line[k]; if(ui.view==='ranked' && !game) renderRanked(); }
+}).catch(()=>{}); });
 
 /* ======================= Boot ======================= */
 renderAccount();
