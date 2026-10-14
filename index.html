@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ripjr.com</title>
 <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -711,7 +711,7 @@ a.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;tex
 /* Casual fits the screen exactly: no page scroll (the pack screen scrolls inside itself if it ever has to) */
 /* only the body is locked (locking <html> too lets phones keep a stale scroll offset that pushes the top bar off screen) */
 html.fit{overscroll-behavior:none}
-html.fit body{height:100vh;height:100dvh;min-height:0;overflow:hidden;overscroll-behavior:none;display:flex;flex-direction:column}
+html.fit body{height:100vh;height:100dvh;height:var(--appH,100dvh);min-height:0;overflow:hidden;overscroll-behavior:none;display:flex;flex-direction:column}
 html.fit .nav{flex:none;position:relative}
 html.fit .app{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;padding-block:16px 6px}
 html.fit #view-casual,html.fit .casual,html.fit .cas-main{flex:1;min-height:0;display:flex;flex-direction:column}
@@ -772,7 +772,7 @@ html.fit .app{align-items:stretch}
 /* phones: ranked matches go full screen */
 @media (max-width: 600px){
   html.play .nav,html.play .tabbar,html.play .fanfoot{display:none!important}
-  html.play body{height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:none;padding-bottom:0;display:flex;flex-direction:column}
+  html.play body{height:100vh;height:100dvh;height:var(--appH,100dvh);overflow:hidden;overscroll-behavior:none;padding-bottom:0;display:flex;flex-direction:column}
   html.play .app{flex:1;min-height:0;width:100%;padding:0;display:flex;flex-direction:column;align-items:stretch}
   html.play #view-ranked,html.play #rkPlay,html.play .rk-play{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch}
   html.play .rk-bar{flex:none;margin:0;padding:calc(8px + env(safe-area-inset-top,0px)) 0 8px;gap:10px}
@@ -2593,6 +2593,9 @@ document.addEventListener('click', e=>{
 /* ======================= Boot ======================= */
 renderAccount();
 pk.era = casualEra;
+// the real visible height (between Safari's top and bottom bars), used by Casual and full-screen ranked
+function setAppH(){ const h = window.visualViewport ? window.visualViewport.height : window.innerHeight; if(h) document.documentElement.style.setProperty('--appH', Math.round(h)+'px'); }
+setAppH(); (window.visualViewport||window).addEventListener('resize', setAppH); window.addEventListener('orientationchange', ()=>setTimeout(setAppH, 300));
 if('scrollRestoration' in history) history.scrollRestoration = 'manual';   // don't reopen the page scrolled down
 setView('casual');
 warmBoards();
