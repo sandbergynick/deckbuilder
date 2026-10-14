@@ -1,3 +1,6 @@
+import zlib from 'node:zlib';
+import { Readable } from 'node:stream';
+
 // ripjr.com: daily card sync (run by GitHub Actions, see .github/workflows/card-sync.yml)
 // Downloads Scryfall's "Default Cards" bulk file, keeps only what packs need, and loads it into Supabase.
 // Needs two repository secrets: SUPABASE_URL and SUPABASE_SECRET_KEY (the sb_secret_… key).
@@ -58,21 +61,36 @@ async function sb(path, body, tries = 4) {
   }
 }
 
-// Reads a huge JSON array one object at a time, so the whole file never has to sit in memory.
-async function* objectsIn(stream) {
+// The download as raw bytes, unzipped on the fly if it's a .gz file.
+async function* bytesOf(res) {
+  const it = res.body[Symbol.asyncIterator]();
+  const first = await it.next();
+  if (first.done) return;
+  async function* all() { yield first.value; for (;;) { const n = await it.next(); if (n.done) return; yield n.value; } }
+  const gz = first.value[0] === 0x1f && first.value[1] === 0x8b;
+  if (!gz) { yield* all(); return; }
+  const gun = zlib.createGunzip();
+  Readable.from(all()).on('error', e => gun.destroy(e)).pipe(gun);
+  for await (const c of gun) yield c;
+}
+
+// Reads a huge card file one card at a time, so the whole thing never has to sit in memory.
+// Works for a JSON array ([{…},{…}]) and for JSON Lines (one {…} per line).
+async function* objectsIn(byteChunks) {
   const dec = new TextDecoder();
-  let depth = 0, inStr = false, esc = false, parts = [], start = -1;
-  for await (const chunk of stream) {
+  let depth = 0, inStr = false, esc = false, parts = [], start = -1, base = -1;
+  for await (const chunk of byteChunks) {
     const s = dec.decode(chunk, { stream: true });
     if (start >= 0) start = 0;
     for (let i = 0; i < s.length; i++) {
       const ch = s[i];
       if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; continue; }
       if (ch === '"') { inStr = true; continue; }
-      if (ch === '{' || ch === '[') { if (depth === 1 && ch === '{') { start = i; parts = []; } depth++; }
+      if (base < 0 && (ch === '[' || ch === '{')) base = ch === '[' ? 1 : 0;   // array file, or one object per line
+      if (ch === '{' || ch === '[') { if (depth === base && ch === '{') { start = i; parts = []; } depth++; }
       else if (ch === '}' || ch === ']') {
         depth--;
-        if (depth === 1 && ch === '}' && start >= 0) { parts.push(s.slice(start, i + 1)); yield JSON.parse(parts.join('')); start = -1; parts = []; }
+        if (depth === base && ch === '}' && start >= 0) { parts.push(s.slice(start, i + 1)); yield JSON.parse(parts.join('')); start = -1; parts = []; }
       }
     }
     if (start >= 0) parts.push(s.slice(start));
@@ -82,7 +100,8 @@ async function* objectsIn(stream) {
 // Finds the Default Cards file's download link. Tries the direct endpoint, then the full bulk-data list,
 // and waits and retries a few times in case Scryfall is in the middle of publishing a new file.
 async function findBulkFile() {
-  const link = m => m && (m.download_uri || m.download_url || null);
+  // Scryfall now publishes gzip'd JSON Lines (jsonl_download_uri); older replies had a plain JSON file (download_uri)
+  const link = m => m && (m.jsonl_download_uri || m.download_uri || m.download_url || null);
   let last = null;
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
@@ -103,13 +122,13 @@ async function findBulkFile() {
 async function main() {
   console.log('Asking Scryfall for the Default Cards file…');
   const meta = await findBulkFile();
-  console.log(`Downloading ${meta.download_uri} (${Math.round((meta.size || 0) / 1e6)} MB, updated ${meta.updated_at})`);
+  console.log(`Downloading ${meta.download_uri} (${Math.round((meta.compressed_size || meta.size || 0) / 1e6)} MB, updated ${meta.updated_at})`);
   const res = await fetch(meta.download_uri, { headers: { 'User-Agent': UA['User-Agent'] } });
   if (!res.ok || !res.body) throw new Error('Download failed: ' + res.status);
 
   let seen = 0, kept = 0, batch = [];
   const flush = async () => { if (!batch.length) return; await sb('/rest/v1/cards?on_conflict=id', batch); kept += batch.length; batch = []; };
-  for await (const c of objectsIn(res.body)) {
+  for await (const c of objectsIn(bytesOf(res))) {
     seen++;
     const row = slim(c);
     if (row) batch.push(row);
