@@ -963,6 +963,7 @@ html.fit .app{align-items:stretch}
   .flside{right:8px;top:6px}
 }
 
+
 </style>
 </head>
 <body>
@@ -1044,7 +1045,7 @@ html.fit .app{align-items:stretch}
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="26" fill="none" stroke="#46372C" stroke-width="7"/><path d="M60 14a26 26 0 0 1 24 36" fill="none" stroke="#5AA2FF" stroke-width="7" stroke-linecap="round"/><text x="60" y="49" text-anchor="middle" font-size="26" font-weight="800" fill="#F4BF3A">?</text></svg><img src="mode-guess.jpg" alt="Guess the Value" onerror="this.remove()"></div><h2>Guess the Value <span id="rkGuessS"></span></h2><p>Prices hidden. You get 20 seconds to guess what the pack is worth.</p><p class="sub" id="rkGuessN"></p>
           <div class="acts"><button class="pill" type="button" data-start="guess">Play</button><button class="pill ghost small" type="button" data-challenge="guess">Challenge a friend</button></div></div>
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><path d="M38 10h22l-3 9 4 8-5 9 4 9-4 8 4 9-3 8H38a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z" fill="#F4BF3A" transform="rotate(-9 47 40)"/><path d="M64 12h20a4 4 0 0 1 4 4v52a4 4 0 0 1-4 4H64l3-8-4-9 4-8-4-9 4-9-4-8z" fill="#F4BF3A" transform="rotate(8 74 42) translate(4 0)"/><path d="M60 19l4 8-5 9 4 9-4 8 4 9" fill="none" stroke="#2F5DB8" stroke-width="1.6" transform="rotate(-9 47 40)"/></svg><img src="mode-flip.jpg" alt="Rip &amp; Flip" onerror="this.remove()"></div><h2>Rip &amp; Flip <span id="rkFlipR"></span></h2><p>Pick one of two packs and rip its rare in half. Rip the cheaper rare to take the round. Best of 5.</p><p class="sub" id="rkFlipS"></p>
-          <div class="acts"><button class="pill" type="button" data-start="flip">Play solo</button><button class="pill ghost small" type="button" data-challenge="flip">Challenge a friend</button></div></div>
+          <div class="acts"><button class="pill" type="button" data-start="flip">Duel the Genie</button><button class="pill ghost small" type="button" data-challenge="flip">Challenge a friend</button></div></div>
       </div>
       <p class="pwnote">Solo ranked runs in this browser for now. Challenges are rolled and scored by the server. Online matchmaking and global leaderboards are coming next.</p>
       </div>
@@ -2593,7 +2594,7 @@ function renderRanked(){
   $('#rkGuessS').textContent = sk==null ? '—' : sk.toFixed(1);
   $('#rkGuessN').textContent = n >= GUESS_WINDOW ? `Skill score: average of your last ${GUESS_WINDOW} rounds` : `${GUESS_WINDOW-n} of ${GUESS_WINDOW} rounds until your skill score counts`;
   $('#rkFlipR').textContent = rk.flip.w+rk.flip.l ? `${rk.flip.w}–${rk.flip.l}` : '';
-  $('#rkFlipS').textContent = rk.flip.w+rk.flip.l ? `${rk.flip.streak>1?rk.flip.streak+' wins in a row · ':''}best streak ${rk.flip.best||0}` : 'Best of 5 against the house';
+  $('#rkFlipS').textContent = rk.flip.w+rk.flip.l ? `${rk.flip.streak>1?rk.flip.streak+' wins in a row · ':''}best streak ${rk.flip.best||0}` : 'Best of 5 against the Genie';
   if(false) $('#rkHist').innerHTML = rk.history.length ? rk.history.slice().reverse().slice(0,8).map(x=>`<div class="mrow"><div><b>${h(MODE_NAME[x.mode]||'')}</b> <span>· ${h(eraLabel(x.era))} · ${h(when(x.at))}</span></div><div class="${x.cls||''}">${h(x.score)}</div>${x.detail?`<span style="grid-column:1/-1">${h(x.detail)}</span>`:''}</div>`).join('') : '<p class="empty-s">No matches yet. Pick a mode above.</p>';
   document.querySelectorAll('[data-start],[data-challenge]').forEach(b=>b.disabled = !left);
   renderChallenges();
@@ -2626,7 +2627,7 @@ function startGame(mode, opts={}){
   $('#rankedHost').appendChild($('#stage'));
   $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0}); setPlay(true);
   if(game.ch && mode!=='flip') liveStart(game);
-  $('#rkTitle').textContent = `${MODE_NAME[mode]}${game.ch ? ' challenge'+(game.ch.name?' vs '+game.ch.name:'') : mode==='duel'?' vs the Genie':mode==='flip'?' vs the house':''} · ${eraLabel(game.era)} packs`;
+  $('#rkTitle').textContent = `${MODE_NAME[mode]}${game.ch ? ' challenge'+(game.ch.name?' vs '+game.ch.name:'') : mode==='duel'?' vs the Genie':mode==='flip'?' vs the Genie':''} · ${eraLabel(game.era)} packs`;
   nextRankedPack();
 }
 function nextRankedPack(){
@@ -3311,7 +3312,7 @@ function profileSync(){
 /* ======================= Rip & Flip ======================= */
 // Pick one of two sealed packs, rip its rare in half, then flip the other pack's rare.
 // Rip the CHEAPER rare to take the round (an exact tie goes to whoever picked). Best of 5.
-// Solo: the house gets the pack you didn't pick. Challenges: turn-based on the server (see flip.sql);
+// Vs the Genie: he gets the pack you didn't pick (and has opinions about it). Challenges: turn-based on the server (see flip.sql);
 // the picks alternate and the other pack goes to the other player.
 const FLIP_WINS = 3;
 const flipRare = cards => (cards||[]).find(c=>c.rar==='rare'||c.rar==='mythic') || (cards||[])[12] || (cards||[])[0];
@@ -3321,8 +3322,22 @@ const flipSeen = id => (lsGet(LS_FLIP_SEEN, {})[id]|0);
 function flipSetSeen(id, n){ const s = lsGet(LS_FLIP_SEEN, {}); s[id] = Math.max(s[id]|0, n); const k = Object.keys(s); if(k.length>80) delete s[k[0]]; lsSet(LS_FLIP_SEEN, s); }
 const miniPack = () => `<div class="pack mpack"><div class="face">${packFront()}</div></div>`;
 const cardBack = () => `<div class="cback"><div class="cb-oval"><span>ripjr</span></div></div>`;
-const flipThem = () => game && game.ch ? themName() : 'The house';
-const flipThemIn = () => { const t = flipThem(); return t==='Your opponent' || t==='The house' ? t.toLowerCase() : t; };   // mid-sentence
+const flipThem = () => game && game.ch ? themName() : 'The Genie';
+const flipThemIn = () => { const t = flipThem(); return t==='Your opponent' || t==='The Genie' ? t.replace(/^T|^Y/, c=>c.toLowerCase()) : t; };   // mid-sentence
+// the Genie's running commentary (only when you're dueling him)
+const FLIP_SAY = {
+  start: ['Best of five. Pick a pack, any pack.', 'Rip cheap, win big. Your pick.'],
+  pick: ['Left or right? Choose wisely.', 'Go on. I’ll take whatever you don’t.', 'Eeny, meeny…', 'That one looks expensive. Just saying.', 'Trust your gut. Mine’s never wrong.'],
+  ripBig: ['You ripped THAT? Bold.', 'Hope you weren’t attached to it.', 'Somewhere a collector just fainted.', 'That one had value. Had.'],
+  ripSmall: ['A bargain-bin rip. Clever.', 'Cheap shred. Respect.', 'Barely worth the tear.'],
+  ripMid: ['Snip snap. My turn.', 'Not bad. Watch this.', 'Hm. Let’s see mine.'],
+  genieRip: ['My turn.', 'Rrrrip!', 'Watch and learn.'],
+  win: ['Fine. Take it.', 'My rare was worth more? Ugh.', 'Beginner’s luck.', 'The lamp is not amused.'],
+  lose: ['Ha! Cheaper rip wins.', 'The lamp provides.', 'Too easy.', 'Should’ve picked the other one.'],
+  matchWin: ['Well ripped. I’ll get you next time.', 'You beat a genie. Tell no one.'],
+  matchLose: ['Back to the lamp, champ. Mine, that is.', 'Better luck next wish.'],
+};
+const flipSay = k => { if(game && !game.ch) genieSay(pick(FLIP_SAY[k])); };
 function flipStageArt(){ $('#stage').dataset.era = game.era; $('#stage').style.setProperty('--packart', `url(${packArt(game.era)})`); }
 
 function flipNext(){
@@ -3331,8 +3346,9 @@ function flipNext(){
   pk.swipe = false; pk.source = null; pk.state = 'idle';
   if(game.ch) return flipChNext();
   const mine = {}, house = {};
-  game.fr = {n:game.round, picker:'me', theirName:'The house', toks:[mine, house],
+  game.fr = {n:game.round, picker:'me', theirName:'The Genie', toks:[mine, house],
              mineP: rollPack(game.era, mine), theirP: rollPack(game.era, house, {genie:true})};
+  flipSay(game.round===1 ? 'start' : 'pick');
   game.fr.mineP.catch(()=>{}); game.fr.theirP.catch(()=>{});
   flipPickView();
 }
@@ -3349,7 +3365,7 @@ function flipPickView(){
     ${[0,1].map(i=>`<button class="flpk ${replay ? (i===mineIdx?'mine':'theirs') : ''}" type="button" data-fpick="${i}" ${replay && i!==mineIdx ? 'disabled' : ''} aria-label="${i?'Right':'Left'} pack">${miniPack()}<span>${replay ? tag(i) : (i?'Right':'Left')}</span></button>`).join('')}
   </div></div>`;
   foot(replay ? `<div class="hint">${fr.picker==='me' ? 'The other one went to '+h(flipThemIn())+'.' : 'The other one is yours.'} Rip the cheaper rare to win.</div><div class="stage-acts"><button class="pill gold" type="button" id="flGo">Open yours</button></div>`
-              : `<div class="hint">${game.ch ? 'Your pick. The other pack goes to '+h(flipThemIn())+'.' : 'The house gets the other one.'} Rip the cheaper rare to win the round.</div>`);
+              : `<div class="hint">${game.ch ? 'Your pick. The other pack goes to '+h(flipThemIn())+'.' : 'The Genie gets the other one.'} Rip the cheaper rare to win the round.</div>`);
   const go = async i => {
     if(fr.going) return; fr.going = true;
     const b = document.querySelector(`[data-fpick="${i}"]`); if(b) b.classList.add('chosen');
@@ -3397,6 +3413,7 @@ function flipRipped(){
   const fr = game && game.fr; if(!fr) return;
   const rare = flipRare(fr.mineCards), usd = flipUsd(fr.mineCards);
   setTimeout(()=>{ const el = $('#flMyP'); if(el){ el.classList.add('on'); countUp(el, usd, 650); } }, 380);
+  setTimeout(()=>flipSay(usd >= 15 ? 'ripBig' : usd < 1 ? 'ripSmall' : 'ripMid'), 900);
   foot(`<div class="hint">You ripped <b>${h(rare.name)}</b>.</div><div class="stage-acts"><button class="pill gold" type="button" id="flFlip">Flip ${h(game.ch ? themName()+'’s' : 'the house’s')}</button></div>`);
   $('#flFlip').onclick = flipTheirs;
 }
@@ -3422,6 +3439,7 @@ async function flipTheirs(){
   await sleep(900); if(game!==g) return;
   // they rip theirs too
   foot(`<div class="hint">${h(flipThem())} ${game.ch ? 'rips theirs in half…' : 'rips its rare in half…'}</div>`);
+  flipSay('genieRip');
   const theirRip = makeRipper(slot, rare); slot.firstChild.classList.add('auto');
   await sleep(250); if(game!==g) return;
   await theirRip.auto();
@@ -3441,6 +3459,7 @@ function flipVerdict(){
   const tie = my===th ? `<div class="hint">Dead even, so it goes to ${fr.picker==='me'?'you (you picked)':h(flipThemIn())+' (they picked)'}.</div>` : '';
   const line = r>0 ? pick(['You ripped the cheaper one!','Cheap rip. Round to you.','Nice. That one deserved it.']) : pick(['Ouch. You ripped the pricier one.','That one hurt. Round to '+flipThemIn()+'.','Expensive rip.']);
   if(r>0) sfx('hit'); else buzz('swipe');
+  if(g.you < FLIP_WINS && g.them < FLIP_WINS) flipSay(r>0 ? 'win' : 'lose');
   if(g.you < FLIP_WINS && g.them < FLIP_WINS){
     foot(`<div class="rres ${r>0?'win':'lose'}">${h(line)}</div><div class="hint">You ripped ${money(my)} · ${h(flipThem())} ripped ${money(th)}</div>${tie}<div class="stage-acts"><button class="pill" type="button" id="rvNext">Next round</button></div>`);
     $('#rvNext').onclick = ()=>{ g.round++; flipNext(); };
@@ -3457,7 +3476,8 @@ function flipSoloFinish(won, forfeit){
   rkHistory({score: forfeit ? 'Left' : `${won?'Won':'Lost'} ${g.you}–${g.them}`, cls: won?'w':'l', detail: `${f.w} won · ${f.l} lost`});
   if(forfeit) return;
   renderPanel(); setStageChrome(stageLabel());
-  foot(`<div class="rres ${won?'win':'lose'}">${won?'You win the match!':'The house wins the match.'}</div><div class="hint">${g.you}–${g.them} · ${f.streak>1?`${f.streak} wins in a row · `:''}record ${f.w}–${f.l}</div><div class="stage-acts"><button class="pill" type="button" data-start="flip">Rematch</button><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
+  foot(`<div class="rres ${won?'win':'lose'}">${won?'You win the match!':'The Genie wins the match.'}</div><div class="hint">${g.you}–${g.them} · ${f.streak>1?`${f.streak} wins in a row · `:''}record ${f.w}–${f.l}</div><div class="stage-acts"><button class="pill" type="button" data-start="flip">Rematch</button><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
+  flipSay(won ? 'matchWin' : 'matchLose');
   if(won) sfx('delight');
 }
 
@@ -3511,9 +3531,9 @@ async function flipChDone(){
 /* ---- side panel (desktop) ---- */
 function flipPanel(){
   const dots = Array.from({length:5}, (_,i)=>{ const r = game.rounds[i]; return `<i class="${r ? (r.r>0?'w':'l') : ''}"></i>`; }).join('');
-  const them = game.ch ? themName() : 'House';
+  const them = game.ch ? themName() : 'Genie';
   const rule = game.ch ? `<div class="box"><div class="box-h"><h2>Challenge${game.ch.name?' vs '+h(game.ch.name):''}</h2></div><p class="pwnote">Turn-based. Picks alternate, starting with whoever sent the link. The pack you don’t pick goes to them. Come back any time from the Challenges tab.</p></div>` : '';
-  return rule + `<div class="box"><div class="score"><div><b>${game.you}</b><small>You</small></div><span>–</span><div><b>${game.them}</b><small>${h(them)}</small></div></div><div class="rdots">${dots}</div><p class="pwnote center">First to ${FLIP_WINS} wins${game.ch?'':` · record ${rk.flip.w}–${rk.flip.l}`}</p></div>
+  return rule + `<div class="box"><div class="score"><div><b>${game.you}</b><small>You</small></div><span>–</span><div><b>${game.them}</b><small>${h(them)}</small></div></div><div class="rdots">${dots}</div><p class="pwnote center">First to ${FLIP_WINS} wins${game.ch?'':` · record ${rk.flip.w}–${rk.flip.l}`}</p></div>${game.ch ? '' : `<div class="box"><div class="genie-line"><img src="genie.png" alt="The Genie"><span id="rkSay">${h(game.say||'')}</span></div></div>`}
     <div class="box"><div class="box-h"><h2>Rounds</h2></div><div class="mlist">${game.rounds.length ? game.rounds.map((r,i)=>`<div class="mrow"><div><b>Round ${i+1}</b> <span>· ripped ${money(r.my)} vs ${money(r.th)}</span></div><div class="${r.r>0?'w':'l'}">${r.r>0?'Won':'Lost'}</div></div>`).join('') : '<p class="empty-s">Pick a pack, rip its rare in half. The cheaper rip takes the round.</p>'}</div></div>`;
 }
 
