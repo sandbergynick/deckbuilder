@@ -1338,16 +1338,24 @@ const setQ = codes => '('+codes.map(c=>'e:'+c).join(' or ')+')';
 // Packs are rolled by Supabase when its card data is loaded (one quick call, and the browser can't pick the cards).
 // Until then, or if Supabase is unreachable, they come straight from Scryfall like before.
 let serverPacksOff = 0;
+// Signed in, Supabase holds each pack sealed until you actually open it. Only opened packs count for the boards and
+// achievements, and refreshing the page hands back the same sealed pack instead of a new one.
+const dealtUpTo = {};   // newest sealed pack handed to this page, per pack type
 async function rollPack(era, tok={}, opts={}){
   if(!rollPack.waited){ rollPack.waited = true; for(let i=0; !acct.sb && i<20; i++) await sleep(100); }   // first pack: give the accounts library a moment to load
   if(acct.sb && Date.now() > serverPacksOff){
     try{
-      // signed-in players' packs are recorded for the boards and achievements; the Genie's aren't
-      let r = await acct.sb.rpc(opts.genie ? 'roll_pack_genie' : 'roll_pack', {p_era: era});
-      if(r.error && /slow down/i.test(r.error.message||'')){ await sleep(800); r = await acct.sb.rpc('roll_pack', {p_era: era}); }
+      let r, id = null;
+      if(opts.genie) r = await acct.sb.rpc('roll_pack_genie', {p_era: era});   // the Genie's packs never count
+      else{
+        r = await acct.sb.rpc('deal_pack', {p_era: era, p_after: dealtUpTo[era] || null});
+        if(!r.error) r = {data: r.data && r.data.cards, id: r.data && r.data.id};
+        id = r.id || null;
+      }
       if(r.error) throw r.error;
       if(Array.isArray(r.data) && r.data.length >= 15){
-        if(tok.dead) throw new Error('cancelled');
+        if(tok.dead) throw new Error('cancelled');   // (a cancelled pack stays sealed and comes back next time)
+        if(id){ dealtUpTo[era] = Math.max(dealtUpTo[era]||0, id); r.data.dealId = id; }
         await warmImages(r.data);
         return r.data;
       }
@@ -1355,6 +1363,15 @@ async function rollPack(era, tok={}, opts={}){
     }catch(e){ if(e.message==='cancelled') throw e; serverPacksOff = Date.now() + 60*1000; }
   }
   return rollPackScryfall(era, tok);
+}
+// you opened it: now it counts (Supabase also counts any older sealed packs of that type, so duds can't be skipped)
+function ripPack(cards){
+  if(!cards || !cards.dealId || cards.ripP || !acct.sb) return;
+  cards.ripP = (async()=>{ for(let i=0; i<4; i++){
+    const r = await acct.sb.rpc('rip_pack', {p_id: cards.dealId});
+    if(!r.error || !/slow down/i.test(r.error.message||'')) return;
+    await sleep(700);
+  } })().catch(()=>{});
 }
 async function rollPackScryfall(era, tok={}){
   const chk = v => { if(tok.dead) throw new Error('cancelled'); return v; };
@@ -1603,7 +1620,7 @@ $('#eraSeg').addEventListener('click',e=>{
 function newPack(keepNumber, swap){
   pk.tiltBase = null;
   $('#stageFoot').classList.remove('static');
-  if(pk.mode==='casual'){ if(!keepNumber) pk.no = bumpCount(); $('#packNo').textContent = '#'+pk.no; genieHello(); }
+  if(pk.mode==='casual'){ pk.no = packCount()+1; $('#packNo').textContent = '#'+pk.no; genieHello(); }   // counted when you open it, not when it shows up
   pk.cards=null; pk.err=null; pk.idx=0; pk.ry=0; pk.rx=0; pk.state='pack';
   const era = pk.era;
   const pre = !pk.source && pk.prefetch && pk.prefetch.era===era ? pk.prefetch.p : null; pk.prefetchTok = pk.prefetch && pk.prefetch.tok; if(!pre && pk.prefetch) pk.prefetch.tok.dead = true; pk.prefetch = null;
@@ -1723,6 +1740,7 @@ async function tearOpen(){
     $('#stageFoot').innerHTML = `<div class="hint" style="color:#FF9A85">${h(pk.err ? pk.err.message : 'Something went wrong opening that pack.')}</div><div class="stage-acts"><button class="pill" type="button" id="retryPack">Try another pack</button></div>`;
     $('#retryPack').onclick = ()=>newPack(); return;
   }
+  ripPack(pk.cards); if(pk.mode==='casual'){ pk.no = bumpCount(); const pn = $('#packNo'); if(pn) pn.textContent = '#'+pk.no; }
   if(pk.mode==='ranked' && !pk.swipe){
     // ranked: the cards deal out in a grid with their values (see rankedOpened)
     p.classList.add('dropping'); pk.state = 'ranked';
@@ -2888,6 +2906,7 @@ function liveOffer(){
 async function achCheck(cards){
   if(!acct.user || !acct.sb || !cards || !cards.length) return;
   const ref = cards[0].id + ':' + cards[cards.length-1].id;
+  if(cards.ripP) await cards.ripP;   // wait for Supabase to finish counting this pack
   try{ const list = await rpc('ach_pending', {p_ref:ref}); (list||[]).forEach(achToast); if((list||[]).length && ui.view==='boards' && lbSub==='ach') renderAchievements(); }catch(e){}
 }
 const achQueue = [];
