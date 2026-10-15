@@ -763,7 +763,7 @@ html.fit .app{align-items:stretch}
   .rc small{font-size:.78rem}
 }
 
-/* ranked mode art: drop mode-spread.jpg, mode-guess.jpg and mode-bust.jpg next to index.html (16:9 looks best); a drawing shows until then */
+/* ranked mode art: drop mode-spread.jpg, mode-guess.jpg and mode-flip.jpg next to index.html (16:9 looks best); a drawing shows until then */
 .mode{grid-template-rows:auto auto auto 1fr auto}
 .mode-art{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:radial-gradient(120% 120% at 30% 20%,#46372C,#211A15);margin:-4px -4px 4px}
 .mode-art svg{position:absolute;inset:0;width:100%;height:100%;padding:8% 18%}
@@ -864,6 +864,103 @@ html.fit .app{align-items:stretch}
 @keyframes achIn{from{opacity:0;transform:translate(-50%,-20px) scale(.85)}}
 @keyframes achOut{to{opacity:0;transform:translate(-50%,-12px)}}
 
+
+/* ---- foil: crinkle facets lit from two sides (crossfaded by spin/tilt), plus a glint that follows the light ---- */
+.crk{position:absolute;inset:0;pointer-events:none;background-size:100% 100%;mix-blend-mode:overlay}
+.crk.a{background-image:var(--crA,none);opacity:calc(.22 + var(--ry-n,0) * .7 + var(--lx,0) * .55)}
+.crk.b{background-image:var(--crB,none);opacity:calc(.22 - var(--ry-n,0) * .7 - var(--lx,0) * .55)}
+.glint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;opacity:.85;
+  background:radial-gradient(60% 34% at calc(50% + var(--lx,0) * 110% + var(--ry-n,0) * 70%) calc(34% + var(--ly,0) * 90%),rgba(255,255,255,.95),rgba(255,255,255,.25) 45%,transparent 72%)}
+.band:not(.f-bd):not(.b-bd) .crk,.band:not(.f-bd):not(.b-bd) .glint{display:none}   /* only on the big panels (cheap on phones) */
+.sheen{background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.7) 44%,rgba(255,236,250,.45) 47%,rgba(200,226,255,.5) 51%,rgba(220,255,236,.3) 54%,transparent 63%);background-size:260% 100%;background-position:calc(50% + var(--ry-n,0) * 80% + var(--lx,0) * 60%) 0}
+
+/* ---- tear along your own line ---- */
+.tearzone{top:-14%;height:66%}
+.tearsvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:4;opacity:0;transition:opacity .25s}
+.tearpv{fill:none;stroke:#FFE7A0;stroke-width:.7;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-width:3px;filter:drop-shadow(0 0 4px rgba(255,214,120,.95))}
+.tearpv.auto{stroke-dasharray:1;stroke-dashoffset:1}
+.tearline{top:12.4%;opacity:.8}
+.pack.torn .band,.pack.torn .wall,.pack.torn .fin,.pack.torn .frontui{visibility:hidden}
+.tearfx{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}
+.tf{position:absolute;inset:0;transform:translateZ(calc(var(--hz) + .5px));backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.tf > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tf-edge{fill:none;stroke:#E9E8E2;stroke-width:2.2px;vector-effect:non-scaling-stroke;stroke-linejoin:bevel}
+.tf-hi{fill:none;stroke:#fff;stroke-width:.9px;vector-effect:non-scaling-stroke}
+.tf-gap{fill:rgba(18,12,6,.58)}
+.tf-fib line{stroke:rgba(255,255,255,.85);stroke-width:.8px;vector-effect:non-scaling-stroke}
+.pack.torn .tf-top{animation:flapoff .78s cubic-bezier(.35,.05,.35,1) forwards}
+@keyframes flapoff{
+  0%{transform:translateZ(calc(var(--hz) + .5px))}
+  28%{transform:translateZ(calc(var(--hz) + 6px)) translate(calc(var(--dir) * 3%), -5%) rotate(calc(var(--dir) * -7deg)) rotateX(18deg)}
+  100%{transform:translateZ(calc(var(--hz) + 30px)) translate(calc(var(--dir) * 75%), -85%) rotate(calc(var(--dir) * 30deg)) rotateX(40deg);opacity:0}}
+.pack.dropping .tf-body{transition:transform .8s cubic-bezier(.5,0,.75,0),opacity .8s;transform:translateZ(calc(var(--hz) + .5px)) translateY(95%);opacity:0}
+
+/* ---- a card ripped in half ---- */
+.ripc{position:relative;width:100%;aspect-ratio:488/680;border-radius:4.5%/3.3%;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}
+.ripc > img{position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;object-fit:cover;box-shadow:0 14px 30px -10px rgba(0,0,0,.7);transition:opacity .1s}
+.ripc .crack{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ripc .rh{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 12px 16px rgba(0,0,0,.55));transition:transform .6s cubic-bezier(.18,1.2,.32,1)}
+.ripc .rh.l{transform-origin:20% 100%}
+.ripc .rh.r{transform-origin:80% 100%}
+.ripc.split{cursor:default}
+.ripc.split > img,.ripc.split .crack,.ripc.split .riphint{opacity:0}
+.ripc.split .rh.l{transform:translate(-4%,2%) rotate(-5deg)}
+.ripc.split .rh.r{transform:translate(4%,3.5%) rotate(4.5deg)}
+.ripc.strain{animation:strain .16s linear 2}
+@keyframes strain{25%{transform:translateX(-1.5px) rotate(-.4deg)}75%{transform:translateX(1.5px) rotate(.4deg)}}
+.ripc.pulling > img{filter:brightness(.96)}
+.riphint{position:absolute;left:50%;top:6%;transform:translateX(-50%);white-space:nowrap;font:600 .74rem/1 var(--f-body);color:#fff;background:rgba(0,0,0,.62);padding:6px 10px;border-radius:999px;pointer-events:none;animation:hintBob 1.4s ease-in-out infinite;transition:opacity .2s}
+@keyframes hintBob{50%{transform:translate(-50%,5px)}}
+
+/* ---- Rip & Flip ---- */
+.pack.mpack{width:100%;transform:none;cursor:inherit;--hz:0px;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55))}
+.pack.mpack .face{--z:7px}
+.flpick{display:grid;gap:14px;justify-items:center;width:100%}
+.flpick-h{font:700 clamp(1.1rem,2.6vw,1.45rem)/1.2 var(--f-display);color:#F3E4C4;text-align:center}
+.flpacks{display:flex;gap:clamp(18px,6vw,56px);justify-content:center;align-items:flex-end}
+.flpk{all:unset;cursor:pointer;display:grid;gap:10px;justify-items:center;width:min(32vw,170px,calc((var(--appH,100svh) - 330px) * .6));transition:transform .38s cubic-bezier(.2,.9,.3,1.2),opacity .3s,filter .3s}
+.flpk span{font:600 .8rem/1 var(--f-body);color:rgba(243,228,196,.8);letter-spacing:.04em}
+@media (hover:hover){.flpk:hover:not(:disabled){transform:translateY(-6px) rotate(-1.5deg)}}
+.flpk:focus-visible{outline:2px solid #FFE7A0;outline-offset:6px;border-radius:6px}
+.flpk.chosen{transform:translateY(-10px) scale(1.08)}
+.flpk.away{opacity:.25;transform:scale(.92);filter:grayscale(.6)}
+.flpk.theirs{opacity:.42;cursor:default;filter:grayscale(.4)}
+.flpk.mine span{color:#FFE7A0}
+.flpacks.wait .mpack{width:min(26vw,120px);opacity:.5;animation:waitBob 2.2s ease-in-out infinite}
+.flpacks.wait .mpack:last-child{animation-delay:-1.1s}
+@keyframes waitBob{50%{transform:translateY(-6px)}}
+.flside{position:absolute;right:12px;top:10px;width:min(16vw,74px);display:grid;gap:6px;justify-items:center;opacity:.9;pointer-events:none;z-index:2}
+.flside small{font:600 .66rem/1.1 var(--f-body);color:rgba(243,228,196,.75);text-align:center}
+.flboard{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(8px,2.4vw,26px);width:min(100%,560px)}
+.flslot{display:grid;gap:10px;justify-items:center;transition:opacity .4s}
+.flcard{width:min(100%,230px,calc((var(--appH,100svh) - 300px) * .717));aspect-ratio:488/680;position:relative}
+.fllab{font:600 .78rem/1.1 var(--f-body);color:rgba(243,228,196,.8);letter-spacing:.03em;text-align:center}
+.flvs{font:700 1rem/1 var(--f-display);color:rgba(243,228,196,.5)}
+.flprice{font:800 clamp(1.15rem,3.2vw,1.6rem)/1 var(--f-body);font-variant-numeric:tabular-nums;color:rgba(243,228,196,.45);padding:6px 12px;border-radius:999px;transition:background .3s,color .3s}
+.flprice.on{color:#F3E4C4}
+.flslot.win .flprice{background:rgba(70,190,120,.18);color:#7FE3A6}
+.flslot.lose .flprice{background:rgba(239,106,91,.16);color:#FF9A85}
+.flslot.lose .flcard{opacity:.78}
+.flsealed{position:absolute;inset:6% 12%}
+.flsealed.zip{animation:zip .3s ease-in forwards}
+@keyframes zip{40%{transform:translateY(-4px) rotate(-3deg)}100%{transform:translateY(10px) scale(.9);opacity:0}}
+.flflip{position:absolute;inset:0;perspective:900px}
+.flf{all:unset;position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:4.5%/3.3%;overflow:hidden;box-shadow:0 14px 30px -10px rgba(0,0,0,.7);transition:transform .6s cubic-bezier(.3,1.25,.4,1)}
+.flf.front{transform:rotateY(-180deg);cursor:pointer}
+.flf.front img{width:100%;height:100%;object-fit:cover;display:block}
+.flflip.on .flf.back{transform:rotateY(180deg)}
+.flflip.on .flf.front{transform:none}
+.cback{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 40%,#6B4524,#3A2414 70%);border:7px solid #1B140F;border-radius:inherit;display:grid;place-items:center}
+.cb-oval{width:66%;height:72%;border-radius:50%;background:radial-gradient(closest-side,#C99A3E,#8C5E1E 70%,#5A3A14);box-shadow:inset 0 0 0 3px rgba(255,230,170,.35),0 0 18px rgba(0,0,0,.5);display:grid;place-items:center}
+.cb-oval span{font:700 clamp(.8rem,2.6vw,1.2rem)/1 var(--f-display);color:#2A1A0C;letter-spacing:.08em;transform:rotate(-12deg)}
+@media (max-width:600px){
+  .flboard{gap:4px;width:calc(100% - 36px)}
+  .ripc.split .rh.l{transform:translate(-3%,2%) rotate(-4deg)}
+  .ripc.split .rh.r{transform:translate(3%,3%) rotate(3.5deg)}
+  .flcard{width:min(100%,calc((var(--appH,100svh) - var(--navH,0px) - 250px) * .717))}
+  .flside{right:8px;top:6px}
+}
+
 </style>
 </head>
 <body>
@@ -944,8 +1041,8 @@ html.fit .app{align-items:stretch}
           <div class="acts"><button class="pill" type="button" data-start="duel">Duel the Genie</button><button class="pill ghost small" type="button" disabled>Find a match<span class="soon">SOON</span></button><button class="pill ghost small" type="button" data-challenge="duel">Challenge a friend</button></div></div>
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="26" fill="none" stroke="#46372C" stroke-width="7"/><path d="M60 14a26 26 0 0 1 24 36" fill="none" stroke="#5AA2FF" stroke-width="7" stroke-linecap="round"/><text x="60" y="49" text-anchor="middle" font-size="26" font-weight="800" fill="#F4BF3A">?</text></svg><img src="mode-guess.jpg" alt="Guess the Value" onerror="this.remove()"></div><h2>Guess the Value <span id="rkGuessS"></span></h2><p>Prices hidden. You get 20 seconds to guess what the pack is worth.</p><p class="sub" id="rkGuessN"></p>
           <div class="acts"><button class="pill" type="button" data-start="guess">Play</button><button class="pill ghost small" type="button" data-challenge="guess">Challenge a friend</button></div></div>
-        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><rect x="22" y="44" width="14" height="22" rx="2" fill="#5AA2FF"/><rect x="42" y="30" width="14" height="36" rx="2" fill="#5AA2FF"/><rect x="62" y="20" width="14" height="46" rx="2" fill="#F4BF3A"/><rect x="82" y="58" width="14" height="8" rx="2" fill="#EF6A5B"/><path d="M14 52h92" stroke="#EF6A5B" stroke-width="2.5" stroke-dasharray="5 4"/></svg><img src="mode-bust.jpg" alt="Bank or Bust" onerror="this.remove()"></div><h2>Bank or Bust <span id="rkBustB"></span></h2><p>Rip packs to stack value. Bank before a pack comes in under the line.</p><p class="sub" id="rkBustL"></p>
-          <div class="acts"><button class="pill" type="button" data-start="bust">Start a run</button><button class="pill ghost small" type="button" data-challenge="bust">Challenge a friend</button></div></div>
+        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><path d="M38 10h22l-3 9 4 8-5 9 4 9-4 8 4 9-3 8H38a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z" fill="#F4BF3A" transform="rotate(-9 47 40)"/><path d="M64 12h20a4 4 0 0 1 4 4v52a4 4 0 0 1-4 4H64l3-8-4-9 4-8-4-9 4-9-4-8z" fill="#F4BF3A" transform="rotate(8 74 42) translate(4 0)"/><path d="M60 19l4 8-5 9 4 9-4 8 4 9" fill="none" stroke="#2F5DB8" stroke-width="1.6" transform="rotate(-9 47 40)"/></svg><img src="mode-flip.jpg" alt="Rip &amp; Flip" onerror="this.remove()"></div><h2>Rip &amp; Flip <span id="rkFlipR"></span></h2><p>Pick one of two packs and rip its rare in half. Rip the cheaper rare to take the round. Best of 5.</p><p class="sub" id="rkFlipS"></p>
+          <div class="acts"><button class="pill" type="button" data-start="flip">Play solo</button><button class="pill ghost small" type="button" data-challenge="flip">Challenge a friend</button></div></div>
       </div>
       <p class="pwnote">Solo ranked runs in this browser for now. Challenges are rolled and scored by the server. Online matchmaking and global leaderboards are coming next.</p>
       </div>
@@ -1585,6 +1682,7 @@ function applyTilt(){
     p.classList.remove('snap');
     p.style.setProperty('--ry', (pk.tiltBase+ry)+'deg'); p.style.setProperty('--rx', rx+'deg');
     p.style.setProperty('--ry-n', Math.sin((pk.tiltBase+ry)*Math.PI/180).toFixed(3));
+    packGlint(p, ry/90, -rx/90);
   }
   if(pk.state==='reveal' && !flying){
     const el = $('#topcard');
@@ -1631,8 +1729,8 @@ function newPack(keepNumber, swap){
   if(swap){ const sc=$('#scene'); if(sc){ sc.classList.add('swapin'); setTimeout(()=>sc.classList.remove('swapin'),450); } }
 }
 
-const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="sheen"></div>`;
-const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="sheen"></div>
+const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="crk a"></div><div class="crk b"></div><div class="glint"></div><div class="sheen"></div>`;
+const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="crk a"></div><div class="crk b"></div><div class="glint"></div><div class="sheen"></div>
   <div class="backcopy"><span class="side">ripjrs delight</span><div class="label"><div class="bar"></div></div></div>`;
 // pack colors: old school keeps the original; newest and any recolor its brown (same hue shift as the band colors)
 const ART_TINT = {new:[165,.75,.55], all:[195,.8,.8]};
@@ -1660,7 +1758,7 @@ function renderPack(){
   $('#stage').dataset.era = pk.era;
   $('#stage').style.setProperty('--packart', `url(${packArt(pk.era)})`);
   const F = packFront(), B = packBack();
-  $('#stageMid').innerHTML = `<div class="scene" id="scene"><div class="pshadow"></div><div class="pack snap" id="pack" tabindex="0" aria-label="Booster pack. Drag to spin, swipe across the top to tear it open.">
+  $('#stageMid').innerHTML = `<div class="scene" id="scene"><div class="pshadow"></div><div class="pack snap" id="pack" tabindex="0" aria-label="Booster pack. Drag to spin, draw a line across the top half to tear it open.">
       <div class="piece p-top">
         <div class="band f-ct"><div class="fi face">${F}</div></div><div class="band f-sl"><div class="fi face">${F}</div></div>
         <div class="band b-ct"><div class="fi face">${B}</div></div><div class="band b-sl"><div class="fi face">${B}</div></div>
@@ -1670,7 +1768,7 @@ function renderPack(){
         <div class="band b-bd"><div class="fi face">${B}</div></div><div class="band b-cb"><div class="fi face">${B}</div></div>
         <div class="wall l"></div><div class="wall r"></div><div class="fin"></div>
       </div>
-      <div class="frontui"><div class="tearline"></div><div class="tearprog" id="tearprog"></div><div class="tearzone" id="tearzone"></div></div>
+      <div class="frontui"><div class="tearline"></div><svg class="tearsvg" id="tearsvg" viewBox="0 0 60 100" preserveAspectRatio="none" aria-hidden="true"></svg><div class="tearzone" id="tearzone"></div></div>
     </div></div>`;
   $('#stageFoot').innerHTML = `<div class="stage-acts"><button class="pill ghost" type="button" id="flipBtn">Flip</button><button class="pill" type="button" id="openBtn">Open</button></div>`;
   $('#flipBtn').onclick = ()=>{ pk.ry += 180; applyPack(true); };
@@ -1684,83 +1782,6 @@ function applyPack(snap){
   p.style.setProperty('--ry', pk.ry+'deg'); p.style.setProperty('--rx', pk.rx+'deg');
   p.style.setProperty('--ry-n', Math.sin(pk.ry*Math.PI/180).toFixed(3));
 }
-function bindPack(){
-  const p = $('#pack'), zone = $('#tearzone');
-  let mode=null, sx=0, sy=0, sry=0, w=1;
-  let lastTick = 0, tearBuzzPending = false;
-  p.addEventListener('pointerdown',e=>{
-    unlockAudio();
-    if(pk.state!=='pack') return;
-    pk.dragging = true; pk.tiltBase = null; lastTick = 0;
-    const facingFront = Math.abs(((pk.ry%360)+360)%360) < 1;
-    mode = (e.target===zone && facingFront) ? 'tear' : 'spin';
-    sx=e.clientX; sy=e.clientY; sry=pk.ry; w=p.getBoundingClientRect().width;
-    p.setPointerCapture(e.pointerId);
-  });
-  p.addEventListener('pointermove',e=>{
-    if(!mode) return;
-    const dx=e.clientX-sx, dy=e.clientY-sy;
-    if(mode==='spin'){ pk.ry = sry + dx*0.6; pk.rx = Math.max(-22, Math.min(22, -dy*0.25)); applyPack(false); }
-    else {
-      const prog = Math.min(1, Math.abs(dx)/w);
-      const tp = $('#tearprog'); tp.style.transition='none'; tp.style.opacity='1'; tp.style.width=(prog*100)+'%';
-      if(dx<0){ tp.style.left='auto'; tp.style.right='0'; tp.style.transform='scaleX(-1)'; } else { tp.style.left='0'; tp.style.right='auto'; tp.style.transform='none'; }
-      const step = Math.floor(prog*8); if(step>lastTick){ lastTick=step; buzz('tick'); }
-      if(prog>0.45){ mode=null; pk.dragging=false; tearBuzzPending=true; tearOpen(); }
-    }
-  });
-  const end = ()=>{
-    pk.dragging = false;
-    if(tearBuzzPending){ tearBuzzPending=false; buzz('tear'); }   // iPhone only buzzes inside the tap itself
-    if(mode==='spin'){ pk.ry = Math.round(pk.ry/180)*180; pk.rx=0; applyPack(true); }
-    if(mode==='tear'){ const tp=$('#tearprog'); if(tp){ tp.style.transition='width .3s'; tp.style.width='0'; } }
-    mode=null;
-  };
-  p.addEventListener('pointerup',end); p.addEventListener('pointercancel',end);
-  p.addEventListener('keydown',e=>{
-    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); pk.ry += e.key==='ArrowLeft'?-180:180; applyPack(true); }
-    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tearOpen(); }
-  });
-}
-async function tearOpen(){
-  if(pk.state!=='pack') return;
-  pk.state='opening';
-  const p = $('#pack');
-  const turns = Math.round(pk.ry/360); const front = turns*360;
-  if(pk.ry!==front){ pk.ry=front; pk.rx=0; applyPack(true); await sleep(450); }
-  const tp=$('#tearprog'); if(tp){ tp.style.opacity='1'; tp.style.transition='width .18s'; tp.style.left='0'; tp.style.right='auto'; tp.style.transform='none'; tp.style.width='100%'; }
-  await sleep(160);
-  p.classList.add('opening');
-  sfx('tear');
-  if(pk.mode==='casual') genieSays(GENIE_OPEN, 'open');
-  $('#stageFoot').innerHTML = `<div class="hint">Shuffling…</div>`;
-  await Promise.all([sleep(650), pk.loading]);
-  if(pk.state!=='opening') return;
-  if(pk.err || !pk.cards){
-    $('#stageFoot').innerHTML = `<div class="hint" style="color:#FF9A85">${h(pk.err ? pk.err.message : 'Something went wrong opening that pack.')}</div><div class="stage-acts"><button class="pill" type="button" id="retryPack">Try another pack</button></div>`;
-    $('#retryPack').onclick = ()=>newPack(); return;
-  }
-  ripPack(pk.cards); if(pk.mode==='casual'){ pk.no = bumpCount(); const pn = $('#packNo'); if(pn) pn.textContent = '#'+pk.no; }
-  if(pk.mode==='ranked' && !pk.swipe){
-    // ranked: the cards deal out in a grid with their values (see rankedOpened)
-    p.classList.add('dropping'); pk.state = 'ranked';
-    const cards = pk.cards;
-    binderAdd(cards, pk.era);
-    if(!pk.source){ const rTok = {}, rNext = rollPack(pk.era, rTok); rNext.catch(()=>{}); pk.prefetch = {era: pk.era, p: rNext, tok: rTok}; }
-    await sleep(520); if(pk.state!=='ranked' || pk.cards!==cards) return;
-    rankedOpened(cards); return;
-  }
-  p.classList.add('dropping');
-  const st = document.createElement('div'); st.className='stack rise'; st.id='stack';
-  $('#stageMid').appendChild(st);
-  pk.idx=0; renderStack();
-  setTimeout(()=>{ const sc=$('#scene'); if(sc) sc.remove(); }, 900);
-  pk.state='reveal';
-  binderAdd(pk.cards, pk.era);
-  // start rolling the next pack now so "Another pack" is instant
-  if(!pk.source){ const nTok = {}, nextP = rollPack(pk.era, nTok); nextP.catch(()=>{}); pk.prefetch = {era: pk.era, p: nextP, tok: nTok}; }
-}
-
 const stackTr = k => k ? `translateY(${k*7}px) rotate(${(k%2?1:-1)*k*1.6}deg) scale(${1-k*0.025})` : 'none';
 function cardEl(c, i){
   const d = document.createElement('div');
@@ -1924,6 +1945,320 @@ $('#saveShare').addEventListener('click', async ()=>{
 });
 $('#saveDl').addEventListener('click', ()=>{ if(!savePending) return; const a=document.createElement('a'); a.href=savePending.url; a.download=savePending.name; document.body.appendChild(a); a.click(); a.remove(); });
 $('#saveDlg').addEventListener('close', ()=>{ if(savePending){ setTimeout(()=>URL.revokeObjectURL(savePending.url), 1000); savePending=null; } });
+
+/* ======================= Pack feel: tear along your own line, crinkled foil, ripping a card in half ======================= */
+
+// ---- foil: a crinkle texture lit from the left and from the right; tilting or spinning the pack crossfades them ----
+(function makeCrinkle(){
+  const go = () => { try{
+    const W = 240, H = 400, cell = 15, gx = Math.ceil(W/cell)+1, gy = Math.ceil(H/cell)+1;
+    const P = [];   // one jittered point per cell, each facet with its own tilt
+    for(let j=0;j<gy;j++) for(let i=0;i<gx;i++){ const a = Math.random()*Math.PI*2, s = .15+Math.random()*.4;
+      P.push({x:(i+Math.random())*cell, y:(j+Math.random())*cell, nx:Math.cos(a)*s, ny:Math.sin(a)*s*.7}); }
+    const mk = lx => {
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const x = c.getContext('2d'), d = x.createImageData(W, H), A = d.data;
+      const L = [lx, -.45, .7], ln = Math.hypot(...L); L[0]/=ln; L[1]/=ln; L[2]/=ln;
+      for(let py=0; py<H; py++){ const cj = Math.floor(py/cell);
+        for(let px=0; px<W; px++){ const ci = Math.floor(px/cell);
+          let b1 = 1e9, b2 = 1e9, best = null;
+          for(let dj=-1; dj<=1; dj++) for(let di=-1; di<=1; di++){
+            const ii = ci+di, jj = cj+dj; if(ii<0||jj<0||ii>=gx||jj>=gy) continue;
+            const q = P[jj*gx+ii], dx = px-q.x, dy = (py-q.y)*1.7, dd = dx*dx+dy*dy;   // facets stretched sideways, like real crinkles
+            if(dd<b1){ b2 = b1; b1 = dd; best = q; } else if(dd<b2) b2 = dd;
+          }
+          const nz = Math.sqrt(Math.max(0, 1-best.nx*best.nx-best.ny*best.ny));
+          let v = 128 + 95*(best.nx*L[0] + best.ny*L[1] + nz*L[2] - L[2]);
+          const crease = Math.sqrt(b2) - Math.sqrt(b1); if(crease < 1.2) v += (1.2-crease)*(lx>0?14:-14);   // fold lines catch the light on one side
+          v += (Math.random()-.5)*8;
+          const k = (py*W+px)*4; A[k] = A[k+1] = A[k+2] = Math.max(0, Math.min(255, v)); A[k+3] = 255;
+        }
+      }
+      x.putImageData(d, 0, 0);
+      const o = document.createElement('canvas'); o.width = W; o.height = H; const ox = o.getContext('2d'); ox.filter = 'blur(.7px)'; ox.drawImage(c, 0, 0);
+      return o.toDataURL('image/jpeg', .82);
+    };
+    const r = document.documentElement.style;
+    r.setProperty('--crA', `url(${mk(-.75)})`); r.setProperty('--crB', `url(${mk(.75)})`);
+  }catch(e){} };
+  (window.requestIdleCallback || (f=>setTimeout(f, 300)))(go);
+})();
+// light follows the mouse on desktop (tilt and spin drive it on phones)
+function packGlint(p, x, y){ p.style.setProperty('--lx', x.toFixed(3)); p.style.setProperty('--ly', y.toFixed(3)); }
+
+// ---- tearing along the line you draw ----
+// path: {pts:[{x,y}] from x=0 to x=1 in pack units (0..1), dir: 1 tore left to right, -1 right to left}
+const TEAR_MIN = .03, TEAR_MAX = .55;
+function tearPathFrom(raw){
+  const N = 24, ys = new Array(N+1).fill(null);
+  for(let k=0; k<=N; k++){
+    const x0 = k/N, near = raw.filter(p=>Math.abs(p.x-x0) < .7/N);
+    if(near.length) ys[k] = near.reduce((a,p)=>a+p.y, 0)/near.length;
+  }
+  const known = ys.map((y,k)=>y==null?-1:k).filter(k=>k>=0);
+  if(!known.length) return autoTearPath();
+  const slopeAt = (a, b) => { const s = (ys[b]-ys[a])/((b-a)||1); return Math.max(-.05, Math.min(.05, s)); };
+  const f = known[0], l = known[known.length-1];
+  const s0 = known.length>1 ? slopeAt(f, known[Math.min(known.length-1, 3)]) : 0, s1 = known.length>1 ? slopeAt(known[Math.max(0, known.length-4)], l) : 0;
+  for(let k=0; k<f; k++) ys[k] = ys[f] - s0*(f-k);
+  for(let k=l+1; k<=N; k++) ys[k] = ys[l] + s1*(k-l);
+  for(let k=f; k<=l; k++) if(ys[k]==null){ let a = k-1, b = k+1; while(ys[b]==null) b++; ys[k] = ys[a] + (ys[b]-ys[a])*(k-a)/(b-a); }
+  const sm = ys.map((y,k)=>((ys[k-1]??y) + 2*y + (ys[k+1]??y))/4);
+  const first = raw[0], last = raw[raw.length-1];
+  return roughen(sm.map(y=>Math.max(TEAR_MIN, Math.min(TEAR_MAX, y))), Math.sign(last.x-first.x) || 1);
+}
+function autoTearPath(dir=1){
+  const a = .07+Math.random()*.09, b = .07+Math.random()*.09, bow = (Math.random()-.5)*.05, N = 24;
+  return roughen(Array.from({length:N+1}, (_,k)=>{ const t = k/N; return a + (b-a)*t + bow*Math.sin(t*Math.PI); }), dir);
+}
+// foil doesn't tear clean: little zigzags along the line
+function roughen(ys, dir){
+  const N = ys.length-1, pts = [];
+  for(let k=0; k<N; k++) for(let s=0; s<4; s++){
+    const t = s/4, x = (k+t)/N, y = ys[k] + (ys[k+1]-ys[k])*t;
+    pts.push({x: k||s ? Math.min(1, Math.max(0, x + (Math.random()-.5)*.006)) : 0, y: y + (Math.random()-.5)*.011});
+  }
+  pts.push({x:1, y:ys[N] + (Math.random()-.5)*.008});
+  return {pts, dir};
+}
+const tearCover = pts => { const xs = pts.map(p=>Math.min(1, Math.max(0, p.x))); return Math.max(...xs) - Math.min(...xs); };
+const svgPts = pts => pts.map(p=>`${(p.x*60).toFixed(2)},${(p.y*100).toFixed(2)}`).join(' ');
+function tearPreview(pts){
+  const s = $('#tearsvg'); if(!s) return;
+  s.innerHTML = `<polyline class="tearpv" points="${svgPts(pts)}"/>`;
+  s.style.opacity = '1';
+}
+async function tearPreviewAuto(path, ms){
+  const s = $('#tearsvg'); if(!s) return;
+  s.innerHTML = `<polyline class="tearpv auto" pathLength="1" points="${svgPts(path.dir<0 ? path.pts.slice().reverse() : path.pts)}" style="transition:stroke-dashoffset ${ms}ms linear"/>`;
+  s.style.opacity = '1'; s.getBoundingClientRect();
+  s.firstChild.style.strokeDashoffset = '0';
+  await sleep(ms);
+}
+// swap the 3D pack's front for two flat pieces cut along the path; the top one flies off the way you tore
+function splitPack(p, path){
+  const F = packFront(), P = path.pts, svgP = svgPts(P);
+  const poly = P.map(q=>`${(q.x*100).toFixed(2)}% ${(q.y*100).toFixed(2)}%`);
+  const topClip = `polygon(0% 0%,100% 0%,${poly.slice().reverse().join(',')})`;
+  const botClip = `polygon(${poly.join(',')},100% 100%,0% 100%)`;
+  const gap = svgP + ' ' + P.slice().reverse().map(q=>`${(q.x*60).toFixed(2)},${(q.y*100+2.6+Math.random()*.8).toFixed(2)}`).join(' ');
+  let fib = '';   // little white threads of torn foil
+  for(let i=1; i<P.length-1; i+=2) if(Math.random()<.55){ const q = P[i], L = .4+Math.random()*1.1, s = Math.random()<.5?-1:1;
+    fib += `<line x1="${(q.x*60).toFixed(2)}" y1="${(q.y*100).toFixed(2)}" x2="${(q.x*60+(Math.random()-.5)*.8).toFixed(2)}" y2="${(q.y*100+s*L).toFixed(2)}"/>`; }
+  const end = path.dir>0 ? P[P.length-1] : P[0];
+  const w = document.createElement('div'); w.className = 'tearfx';
+  w.innerHTML = `<div class="tf tf-body" style="clip-path:${botClip}"><div class="face">${F}</div><svg viewBox="0 0 60 100" preserveAspectRatio="none" aria-hidden="true"><polygon class="tf-gap" points="${gap}"/><polyline class="tf-edge" points="${svgP}"/><polyline class="tf-hi" points="${svgP}"/><g class="tf-fib">${fib}</g></svg></div>
+    <div class="tf tf-top" style="clip-path:${topClip};--dir:${path.dir};transform-origin:${(end.x*100).toFixed(1)}% ${(end.y*100).toFixed(1)}%"><div class="face">${F}</div><svg viewBox="0 0 60 100" preserveAspectRatio="none" aria-hidden="true"><polyline class="tf-edge" points="${svgP}"/><g class="tf-fib">${fib}</g></svg></div>`;
+  p.appendChild(w);
+  p.classList.add('torn');
+}
+
+function bindPack(){
+  const p = $('#pack'), zone = $('#tearzone');
+  let mode = null, sx = 0, sy = 0, sry = 0, box = null, pts = [], lastTick = 0, tearBuzzPending = false;
+  const at = e => ({x:(e.clientX-box.left)/box.width, y:(e.clientY-box.top)/box.height});
+  p.addEventListener('pointermove', e=>{   // desktop: the light follows your mouse
+    if(mode || e.pointerType!=='mouse' || pk.state!=='pack') return;
+    const r = p.getBoundingClientRect(); packGlint(p, (e.clientX-r.left)/r.width-.5, (e.clientY-r.top)/r.height-.5);
+  });
+  p.addEventListener('pointerleave', ()=>{ if(!mode) packGlint(p, 0, 0); });
+  p.addEventListener('pointerdown', e=>{
+    unlockAudio();
+    if(pk.state!=='pack') return;
+    pk.dragging = true; pk.tiltBase = null; lastTick = 0;
+    const facingFront = Math.abs(((pk.ry%360)+360)%360) < 1;
+    mode = (e.target===zone && facingFront) ? 'tear' : 'spin';
+    sx = e.clientX; sy = e.clientY; sry = pk.ry; box = p.getBoundingClientRect();
+    pts = mode==='tear' ? [at(e)] : [];
+    p.setPointerCapture(e.pointerId);
+  });
+  const finish = () => { const path = tearPathFrom(pts); mode = null; pk.dragging = false; tearBuzzPending = true; tearOpen(path); };
+  p.addEventListener('pointermove', e=>{
+    if(!mode) return;
+    const dx = e.clientX-sx, dy = e.clientY-sy;
+    if(mode==='spin'){ pk.ry = sry + dx*0.6; pk.rx = Math.max(-22, Math.min(22, -dy*0.25)); applyPack(false); return; }
+    const q = at(e), last = pts[pts.length-1];
+    if(Math.hypot((q.x-last.x)*box.width, (q.y-last.y)*box.height) < 3) return;
+    pts.push(q); tearPreview(pts);
+    const cov = tearCover(pts), step = Math.floor(cov*8);
+    if(step>lastTick){ lastTick = step; buzz('tick'); }
+    if(cov > .97) finish();
+  });
+  const end = ()=>{
+    pk.dragging = false;
+    if(tearBuzzPending){ tearBuzzPending = false; buzz('tear'); }   // iPhone only buzzes inside the touch itself
+    if(mode==='spin'){ pk.ry = Math.round(pk.ry/180)*180; pk.rx = 0; applyPack(true); }
+    if(mode==='tear'){
+      if(tearCover(pts) >= .4){ finish(); buzz('tear'); return; }   // most of the way: finish the line for you
+      const s = $('#tearsvg'); if(s) s.style.opacity = '0';
+    }
+    mode = null;
+  };
+  p.addEventListener('pointerup', end); p.addEventListener('pointercancel', end);
+  p.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); pk.ry += e.key==='ArrowLeft'?-180:180; applyPack(true); }
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tearOpen(); }
+  });
+}
+
+async function tearOpen(path){
+  if(pk.state!=='pack') return;
+  pk.state = 'opening';
+  const p = $('#pack');
+  const front = Math.round(pk.ry/360)*360;
+  if(pk.ry!==front || pk.rx){ pk.ry = front; pk.rx = 0; applyPack(true); await sleep(450); }
+  if(!path){ path = autoTearPath(); await tearPreviewAuto(path, 190); }
+  if(!p.isConnected || pk.state!=='opening') return;
+  splitPack(p, path);
+  p.classList.add('opening');
+  sfx('tear');
+  if(pk.mode==='casual') genieSays(GENIE_OPEN, 'open');
+  $('#stageFoot').innerHTML = `<div class="hint">Shuffling…</div>`;
+  await Promise.all([sleep(650), pk.loading]);
+  if(pk.state!=='opening') return;
+  if(pk.err || !pk.cards){
+    $('#stageFoot').innerHTML = `<div class="hint" style="color:#FF9A85">${h(pk.err ? pk.err.message : 'Something went wrong opening that pack.')}</div><div class="stage-acts"><button class="pill" type="button" id="retryPack">Try another pack</button></div>`;
+    $('#retryPack').onclick = ()=>newPack(); return;
+  }
+  ripPack(pk.cards); if(pk.mode==='casual'){ pk.no = bumpCount(); const pn = $('#packNo'); if(pn) pn.textContent = '#'+pk.no; }
+  if(pk.mode==='ranked' && !pk.swipe){
+    // ranked: the cards deal out in a grid with their values (see rankedOpened); Rip & Flip shows just the rare
+    p.classList.add('dropping'); pk.state = 'ranked';
+    const cards = pk.cards;
+    binderAdd(game && game.mode==='flip' ? cards.filter(c=>c!==flipRare(cards)) : cards, pk.era);   // the rare gets ripped
+    if(!pk.source){ const rTok = {}, rNext = rollPack(pk.era, rTok); rNext.catch(()=>{}); pk.prefetch = {era: pk.era, p: rNext, tok: rTok}; }
+    await sleep(520); if(pk.state!=='ranked' || pk.cards!==cards) return;
+    rankedOpened(cards); return;
+  }
+  p.classList.add('dropping');
+  const st = document.createElement('div'); st.className='stack rise'; st.id='stack';
+  $('#stageMid').appendChild(st);
+  pk.idx=0; renderStack();
+  setTimeout(()=>{ const sc=$('#scene'); if(sc) sc.remove(); }, 900);
+  pk.state='reveal';
+  binderAdd(pk.cards, pk.era);
+  // start rolling the next pack now so "Another pack" is instant
+  if(!pk.source){ const nTok = {}, nextP = rollPack(pk.era, nTok); nextP.catch(()=>{}); pk.prefetch = {era: pk.era, p: nextP, tok: nTok}; }
+}
+
+// ---- ripping a card in half: jagged tear, grainy paper fibers and the thin blue core showing in the rip ----
+let paperPat = null;
+function paperPattern(ctx){
+  if(paperPat) return ctx.createPattern(paperPat, 'repeat');
+  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+  x.fillStyle = '#EEE8DA'; x.fillRect(0,0,64,64);
+  for(let i=0;i<900;i++){ const g = 200+Math.random()*55|0; x.fillStyle = `rgba(${g},${g-4},${g-14},${.35+Math.random()*.5})`; x.fillRect(Math.random()*64, Math.random()*64, 1, 1); }
+  x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = .6;
+  for(let i=0;i<40;i++){ const a = Math.random()*64, b = Math.random()*64, r = Math.random()*Math.PI; x.beginPath(); x.moveTo(a,b); x.lineTo(a+Math.cos(r)*4, b+Math.sin(r)*4); x.stroke(); }
+  paperPat = c; return ctx.createPattern(c, 'repeat');
+}
+// smooth wobbly noise, 0..1
+function wobble(n, f){ const k = Array.from({length:Math.ceil(n*f)+3}, ()=>Math.random()); return i => { const t = i*f, a = Math.floor(t), u = t-a, s = u*u*(3-2*u); return k[a]*(1-s) + k[a+1]*s; }; }
+// rip path: x for each y from the top edge to the bottom (card units 0..1), following your drag
+function ripPathFrom(raw){
+  const N = 60, xs = new Array(N+1).fill(null);
+  for(let k=0;k<=N;k++){ const y0 = k/N, near = raw.filter(p=>Math.abs(p.y-y0) < .8/N); if(near.length) xs[k] = near.reduce((a,p)=>a+p.x,0)/near.length; }
+  const known = xs.map((x,k)=>x==null?-1:k).filter(k=>k>=0);
+  if(known.length < 2) return autoRipPath(known.length ? xs[known[0]] : .5);
+  const f = known[0], l = known[known.length-1], drift = wobble(N, .12);
+  for(let k=0;k<f;k++) xs[k] = xs[f];
+  for(let k=l+1;k<=N;k++) xs[k] = xs[k-1] + (drift(k)-.5)*.02;
+  for(let k=f;k<=l;k++) if(xs[k]==null){ let a = k-1, b = k+1; while(xs[b]==null) b++; xs[k] = xs[a] + (xs[b]-xs[a])*(k-a)/(b-a); }
+  return xs.map(x=>Math.max(.2, Math.min(.8, x)));
+}
+function autoRipPath(x0){
+  const N = 60, d = wobble(N, .1); let x = x0 ?? (.42 + Math.random()*.16);
+  return Array.from({length:N+1}, (_,k)=>{ x += (d(k)-.5)*.022; return Math.max(.25, Math.min(.75, x)); });
+}
+// draw one half: the art up to the rip, a band of torn paper along it, the blue core inside the band, loose fibers
+function drawHalf(cv, img, xs, side, bandK){
+  const W = cv.width, H = cv.height, ctx = cv.getContext('2d'), dpr = W/cv.clientWidth || 1;
+  const N = xs.length-1, jag = () => (Math.random()-.5)*1.8*dpr;
+  const P = xs.map((x,k)=>({x: x*W + jag(), y: k/N*H}));
+  // finer jaggies between samples
+  const PP = []; P.forEach((p,i)=>{ PP.push(p); const q = P[i+1]; if(q) PP.push({x:(p.x+q.x)/2 + (Math.random()-.5)*2.6*dpr, y:(p.y+q.y)/2}); });
+  const band = PP.map((p,i)=>(1.4 + 5.2*bandK(i/2))*dpr);
+  ctx.clearRect(0,0,W,H);
+  ctx.save(); rr(ctx, 0, 0, W, H, W*.045); ctx.clip();
+  ctx.save();
+  ctx.beginPath(); const edge = side<0 ? -4 : W+4;
+  ctx.moveTo(edge, -4); PP.forEach(p=>ctx.lineTo(p.x, p.y)); ctx.lineTo(edge, H+4); ctx.closePath(); ctx.clip();
+  if(img) ctx.drawImage(img, 0, 0, W, H); else { ctx.fillStyle = '#2A2420'; ctx.fillRect(0,0,W,H); }
+  // torn paper band (the printed layer peels back, showing the white card stock)
+  const inner = PP.map((p,i)=>({x: p.x + side*band[i], y: p.y}));
+  ctx.beginPath(); PP.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); for(let i=inner.length-1;i>=0;i--) ctx.lineTo(inner[i].x + side*(Math.random()-.5)*1.2*dpr, inner[i].y); ctx.closePath();
+  ctx.fillStyle = paperPattern(ctx); ctx.fill();
+  // shadow where the print layer lifts
+  ctx.beginPath(); inner.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.strokeStyle = 'rgba(0,0,0,.32)'; ctx.lineWidth = 1.1*dpr; ctx.stroke();
+  // the thin blue core layer, showing through in places
+  const gaps = wobble(PP.length, .15);
+  ctx.strokeStyle = 'rgba(40,86,186,.92)'; ctx.lineWidth = .85*dpr; ctx.lineCap = 'round';
+  let on = false; ctx.beginPath();
+  PP.forEach((p,i)=>{ const x = p.x + side*band[i]*(.38 + .12*Math.sin(i*.7)), vis = gaps(i) > .38;
+    if(vis){ on ? ctx.lineTo(x, p.y) : ctx.moveTo(x, p.y); on = true; } else on = false; });
+  ctx.stroke();
+  ctx.restore();
+  // loose fibers poking out past the rip
+  ctx.lineCap = 'round';
+  for(let i=0;i<PP.length;i++) if(Math.random()<.32){ const p = PP[i], L = (.5+Math.random()*2.4)*dpr, a = (Math.random()-.5)*1.7;
+    ctx.strokeStyle = `rgba(250,247,238,${.45+Math.random()*.4})`; ctx.lineWidth = (.4+Math.random()*.5)*dpr;
+    ctx.beginPath(); ctx.moveTo(p.x + side*.6*dpr, p.y); ctx.quadraticCurveTo(p.x - side*L*.6, p.y + Math.sin(a)*L*.3, p.x - side*Math.cos(a)*L, p.y + Math.sin(a)*L); ctx.stroke(); }
+  ctx.restore();
+}
+// a card you can rip: drag down across it, or call .auto()
+function makeRipper(host, card, onRip){
+  host.innerHTML = `<div class="ripc"><img src="${h(card.img||'')}" alt="${h(card.name)}" crossorigin="anonymous" draggable="false"><canvas class="crack"></canvas><span class="riphint">Swipe down to rip</span></div>`;
+  const box = host.firstChild, crack = box.querySelector('.crack');
+  let pts = [], done = false, down = false, r = null, lastTick = 0;
+  const dpr = Math.min(3, window.devicePixelRatio||1);
+  const size = c => { c.width = Math.round(box.clientWidth*dpr); c.height = Math.round(box.clientHeight*dpr); };
+  const drawCrack = list => {
+    if(!crack.width) size(crack);
+    const x = crack.getContext('2d'), W = crack.width, H = crack.height; x.clearRect(0,0,W,H);
+    if(list.length<2) return;
+    x.lineCap = 'round'; x.lineJoin = 'round';
+    x.beginPath(); list.forEach((p,i)=>{ const X = p.x*W + (Math.random()-.5)*2*dpr, Y = p.y*H; i?x.lineTo(X,Y):x.moveTo(X,Y); });
+    x.strokeStyle = 'rgba(0,0,0,.45)'; x.lineWidth = 4*dpr; x.stroke();
+    x.strokeStyle = '#F4EFE3'; x.lineWidth = 2.4*dpr; x.stroke();
+    x.beginPath(); list.forEach((p,i)=>{ const X = p.x*W + 1.1*dpr, Y = p.y*H; i?x.lineTo(X,Y):x.moveTo(X,Y); });
+    x.strokeStyle = 'rgba(38,82,178,.9)'; x.lineWidth = .9*dpr; x.stroke();
+  };
+  async function finish(xs){
+    if(done) return; done = true;
+    box.classList.add('strain'); sfx('tear'); buzz('tear');
+    const img = await loadImg(card.img);
+    const halves = [-1, 1].map(side=>{ const c = document.createElement('canvas'); c.className = 'rh '+(side<0?'l':'r'); box.appendChild(c); size(c); return c; });
+    const bk = wobble(xs.length*2, .12);
+    drawHalf(halves[0], img, xs, -1, t=>bk(t*2));
+    drawHalf(halves[1], img, xs, 1, t=>1-bk(t*2)*.85);
+    box.classList.remove('strain'); box.classList.add('split');
+    box.style.setProperty('--rx0', (xs[0]*100).toFixed(1)+'%');
+    if(onRip) onRip();
+  }
+  box.addEventListener('pointerdown', e=>{ if(done) return; unlockAudio(); down = true; r = box.getBoundingClientRect(); pts = [{x:(e.clientX-r.left)/r.width, y:Math.max(0,(e.clientY-r.top)/r.height)}]; lastTick = 0; box.setPointerCapture(e.pointerId); box.classList.add('pulling'); });
+  box.addEventListener('pointermove', e=>{
+    if(!down || done) return;
+    const q = {x:(e.clientX-r.left)/r.width, y:Math.min(1,(e.clientY-r.top)/r.height)};
+    if(q.y <= pts[pts.length-1].y) return;   // rips only travel down
+    pts.push(q); drawCrack(pts);
+    const prog = q.y - pts[0].y, step = Math.floor(prog*6); if(step>lastTick){ lastTick = step; buzz('tick'); }
+    if(prog > .55){ down = false; finish(ripPathFrom(pts)); }
+  });
+  const up = ()=>{ if(!down) return; down = false; box.classList.remove('pulling');
+    if(pts.length>1 && pts[pts.length-1].y - pts[0].y > .3) return finish(ripPathFrom(pts));
+    drawCrack([]); };
+  box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+  return {
+    async auto(){
+      if(done) return;
+      const xs = autoRipPath(), N = xs.length-1;
+      for(let k=2; k<=N; k+=4){ drawCrack(xs.slice(0,k+1).map((x,i)=>({x, y:i/N}))); await sleep(14); }
+      finish(xs);
+    },
+    get done(){ return done; }
+  };
+}
+
 /* ======================= Accounts (Supabase + Discord) ======================= */
 // The publishable key is meant to be public; each player's data is protected by the database's row rules.
 const SB_URL = 'https://icapzxlawhmopqelkeft.supabase.co';
@@ -2227,16 +2562,16 @@ const GUESS_SECONDS = 20, GUESS_WINDOW = 25;   // skill score = average of the l
 const BUST_LINE = {all:3.00, new:1.75, old:60.00};
 const LS_RANKED = 'ripjr.ranked';
 const todayKey = () => new Date().toLocaleDateString('en-CA');
-const rk = Object.assign({era:'all', duel:{rating:START_RATING, w:0, l:0, matches:[]}, guess:{scores:[]}, bust:{best:0, runs:[]}, history:[], day:{date:'', used:0}}, lsGet(LS_RANKED, {}));
+const rk = Object.assign({era:'all', duel:{rating:START_RATING, w:0, l:0, matches:[]}, guess:{scores:[]}, bust:{best:0, runs:[]}, flip:{w:0, l:0, streak:0, best:0, matches:[]}, history:[], day:{date:'', used:0}}, lsGet(LS_RANKED, {}));
 function rkSave(){
-  rk.history = rk.history.slice(-30); rk.guess.scores = rk.guess.scores.slice(-300); rk.bust.runs = rk.bust.runs.slice(-300); rk.duel.matches = (rk.duel.matches||[]).slice(-300);
+  rk.history = rk.history.slice(-30); rk.guess.scores = rk.guess.scores.slice(-300); rk.bust.runs = rk.bust.runs.slice(-300); rk.duel.matches = (rk.duel.matches||[]).slice(-300); rk.flip.matches = (rk.flip.matches||[]).slice(-300);
   lsSet(LS_RANKED, rk);
 }
 function rankedLeft(){ if(rk.day.date!==todayKey()) rk.day = {date:todayKey(), used:0}; return Math.max(0, RANKED_PACKS_PER_DAY - rk.day.used); }
 function useRankedPack(){ rankedLeft(); rk.day.used++; rkSave(); }
 const guessSkill = (list = rk.guess.scores.slice(-GUESS_WINDOW)) => list.length ? list.reduce((a,b)=>a+b.pts,0)/list.length : null;
 const packValue = cards => +cards.reduce((n,c)=>n+(c.usd||0),0).toFixed(2);
-const MODE_NAME = {duel:'Money Spread', guess:'Guess the Value', bust:'Bank or Bust'};
+const MODE_NAME = {duel:'Money Spread', guess:'Guess the Value', bust:'Bank or Bust', flip:'Rip & Flip'};
 let game = null;
 
 // phones: a ranked match fills the whole screen (no top bar or tab bar), with Back in the top left
@@ -2255,8 +2590,8 @@ function renderRanked(){
   const sk = guessSkill(), n = rk.guess.scores.length;
   $('#rkGuessS').textContent = sk==null ? '—' : sk.toFixed(1);
   $('#rkGuessN').textContent = n >= GUESS_WINDOW ? `Skill score: average of your last ${GUESS_WINDOW} rounds` : `${GUESS_WINDOW-n} of ${GUESS_WINDOW} rounds until your skill score counts`;
-  $('#rkBustB').textContent = rk.bust.best ? money(rk.bust.best) : '—';
-  $('#rkBustL').innerHTML = `Bust line for ${h(eraLabel(rk.era))} packs: <b>${money(BUST_LINE[rk.era])}</b>`;
+  $('#rkFlipR').textContent = rk.flip.w+rk.flip.l ? `${rk.flip.w}–${rk.flip.l}` : '';
+  $('#rkFlipS').textContent = rk.flip.w+rk.flip.l ? `${rk.flip.streak>1?rk.flip.streak+' wins in a row · ':''}best streak ${rk.flip.best||0}` : 'Best of 5 against the house';
   if(false) $('#rkHist').innerHTML = rk.history.length ? rk.history.slice().reverse().slice(0,8).map(x=>`<div class="mrow"><div><b>${h(MODE_NAME[x.mode]||'')}</b> <span>· ${h(eraLabel(x.era))} · ${h(when(x.at))}</span></div><div class="${x.cls||''}">${h(x.score)}</div>${x.detail?`<span style="grid-column:1/-1">${h(x.detail)}</span>`:''}</div>`).join('') : '<p class="empty-s">No matches yet. Pick a mode above.</p>';
   document.querySelectorAll('[data-start],[data-challenge]').forEach(b=>b.disabled = !left);
   renderChallenges();
@@ -2274,6 +2609,7 @@ function rkHistory(x){ rk.history.push(Object.assign({at:new Date().toISOString(
 function foot(html){ $('#stageFoot').classList.remove('static'); $('#stageFoot').innerHTML = html; }
 function stageLabel(next){   // next: about to open the next pack
   if(!game) return '';
+  if(game.mode==='flip') return `Round ${Math.min(game.round, 5)} · ${game.you}–${game.them}`;
   if(game.ch && (game.mode==='duel' || game.mode==='guess')){ const N = CH_PACKS[game.mode], k = Math.min(Math.max(game.n + (next?1:0), 1), N); return `${game.mode==='duel'?'Pack':'Round'} ${k} of ${N}`; }
   if(game.mode==='duel') return game.ch ? `Pack ${Math.min(game.n+1, CH_PACKS.duel)} of ${CH_PACKS.duel}` : `Round ${game.round} · ${game.you}–${game.them}`;
   if(game.mode==='guess') return game.ch ? `Round ${Math.min(game.n+1, CH_PACKS.guess)} of ${CH_PACKS.guess}` : `Round ${game.round}`;
@@ -2287,13 +2623,14 @@ function startGame(mode, opts={}){
   pk.mode = 'ranked'; pk.era = game.era;
   $('#rankedHost').appendChild($('#stage'));
   $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0}); setPlay(true);
-  if(game.ch) liveStart(game);
-  $('#rkTitle').textContent = `${MODE_NAME[mode]}${game.ch ? ' challenge'+(game.ch.name?' vs '+game.ch.name:'') : mode==='duel'?' vs the Genie':''} · ${eraLabel(game.era)} packs`;
+  if(game.ch && mode!=='flip') liveStart(game);
+  $('#rkTitle').textContent = `${MODE_NAME[mode]}${game.ch ? ' challenge'+(game.ch.name?' vs '+game.ch.name:'') : mode==='duel'?' vs the Genie':mode==='flip'?' vs the house':''} · ${eraLabel(game.era)} packs`;
   nextRankedPack();
 }
 function nextRankedPack(){
   if(!game) return;
   game.locked = false; clearInterval(game.timer);
+  if(game.mode==='flip') return flipNext();
   $('#rkRight').textContent = leftText();
   if(!rankedLeft()){
     renderPanel();
@@ -2318,6 +2655,7 @@ function rankedOpened(cards, swiped){
   if(game.ch) livePing();
   $('#rkRight').textContent = leftText();
   const v = packValue(cards);
+  if(game.mode==='flip') return flipOpened(cards);
   if(game.mode==='guess') return guessStart(cards, v);
   showReveal(cards, {label:'Your pack', value:v, sound:!swiped});
   if(game.mode==='duel') (game.ch ? chDuelAfter : duelMine)(cards, v);
@@ -2492,7 +2830,12 @@ function bustBank(quiet){
 /* ---- leaving a match ---- */
 function leaveGame(){
   if(!game) return true;
-  if(game.ch && !game.chDone && game.n > 0){   // a challenge locks in as it stands
+  if(game.mode==='flip'){   // challenges are turn-based, so leaving just pauses; leaving a solo match mid-way is a loss
+    if(!game.ch && !game.over && (game.rounds.length || (game.fr && game.fr.going))){
+      if(!confirm('Leave this match? It counts as a loss.')) return false;
+      flipSoloFinish(false, true);
+    }
+  } else if(game.ch && !game.chDone && game.n > 0){   // a challenge locks in as it stands
     if(!confirm('Leave this challenge? Your score locks in as it is now.')) return false;
     if(game.mode==='bust' && !game.over) bustBank(true);
     if(game.mode==='guess' && game.cards && !game.locked){ clearInterval(game.timer); game.rounds.push({g:NaN, a:game.actual, pts:0}); }
@@ -2516,6 +2859,7 @@ function leaveGame(){
 /* ---- side panel ---- */
 function renderPanel(){
   const P = $('#rkPanel'); if(!game){ P.innerHTML = ''; return; }
+  if(game.mode==='flip'){ P.innerHTML = flipPanel(); return; }
   const chBox = game.ch ? `<div class="box"><div class="box-h"><h2>Challenge${game.ch.name?' vs '+h(game.ch.name):''}</h2></div><p class="pwnote">${{duel:`Open ${CH_PACKS.duel} packs. Each pack is matched against theirs on dollar value.`, guess:`Guess ${CH_PACKS.guess} packs. They get the exact same packs.`, bust:'They get the exact same packs. Highest bank wins.'}[game.mode]} Their score stays hidden until you both finish.</p></div>` : '';
   const liveBox = game.ch ? liveBoxHtml() : '';
   if(game.mode==='duel' && game.ch){
@@ -2558,11 +2902,11 @@ async function renderBoards(){
   const since = sinceFor(lbPeriod), inP = x => !since || x.at >= since, word = lbPeriod==='day' ? 'today' : lbPeriod==='week' ? 'this week' : 'all-time';
   const matches = (rk.duel.matches||[]).filter(inP), w = matches.filter(m=>m.won).length;
   const gs = rk.guess.scores.filter(inP), gAvg = lbPeriod==='all' ? guessSkill() : guessSkill(gs.slice(-GUESS_WINDOW));
-  const runs = rk.bust.runs.filter(inP), bestRun = runs.reduce((b,r)=>Math.max(b, r.banked||0), 0);
+  const fm = (rk.flip.matches||[]).filter(inP), fw = fm.filter(m=>m.won).length;
   $('#lbRanked').innerHTML = `
     <div class="box"><div class="box-h"><h2>Money Spread</h2></div><div class="bignum">${Math.round(rk.duel.rating).toLocaleString()}</div><div class="kvs"><div><span>Matches ${word}</span><b>${matches.length}</b></div><div><span>Won · lost</span><b>${w} · ${matches.length-w}</b></div></div></div>
     <div class="box"><div class="box-h"><h2>Guess the Value</h2></div><div class="bignum">${gAvg==null?'—':gAvg.toFixed(1)}</div><div class="kvs"><div><span>Rounds ${word}</span><b>${gs.length}</b></div><div><span>Best round</span><b>${gs.length?Math.max(...gs.map(x=>x.pts)):'—'}</b></div></div></div>
-    <div class="box"><div class="box-h"><h2>Bank or Bust</h2></div><div class="bignum">${bestRun?money(bestRun):'—'}</div><div class="kvs"><div><span>Runs ${word}</span><b>${runs.length}</b></div><div><span>Busted</span><b>${runs.filter(r=>r.bust).length}</b></div></div></div>`;
+    <div class="box"><div class="box-h"><h2>Rip & Flip</h2></div><div class="bignum">${fm.length?`${fw}–${fm.length-fw}`:'—'}</div><div class="kvs"><div><span>Matches ${word}</span><b>${fm.length}</b></div><div><span>Best streak</span><b>${rk.flip.best||0}</b></div></div></div>`;
   $('#lbNote').innerHTML = (acct.user ? 'Everyone on ripjr.com, from packs the server rolled. ' : '<b>Sign in with Discord to get on the boards.</b> ')
     + 'Daily and weekly boards reset at midnight UTC (7pm Central). Packs ripped counts up to 100 a day.';
   const boards = [['pull','#lbPulls'],['pack','#lbPacks'],['count','#lbCount']];
@@ -2588,7 +2932,7 @@ $('#lbSub').addEventListener('click', e=>{ const b = e.target.closest('[data-ls]
 // You play first, send the link, your friend plays the same mode and pack type on their own time.
 // Every pack is saved to Supabase before it's shown, so refreshing can't re-roll it.
 // Guess the Value and Bank or Bust players get the exact same packs.
-const CH_PACKS = {duel:7, guess:5};   // packs per player (Bank or Bust runs until you bank or bust)
+const CH_PACKS = {duel:7, guess:5};   // packs per player (Bank or Bust runs until you bank or bust; Rip & Flip is best of 5, see flip.js)
 const LS_PENDING_CH = 'ripjr.pendingChallenge';
 let sessUser = null;
 const meUser = () => acct.user || sessUser;
@@ -2655,6 +2999,11 @@ function chOutcome(mode, a, b){
     const rows = Array.from({length:CH_PACKS.guess}, (_,i)=>{ const x = (a.rounds||[])[i], y = (b.rounds||[])[i]; return {label:'Pack '+(i+1)+(x?' · '+money(x.a):''), my:x?'+'+x.pts:'—', their:y?'+'+y.pts:'—', r:Math.sign((x?x.pts:0)-(y?y.pts:0))}; });
     return {my:a.pts||0, their:b.pts||0, r:Math.sign((a.pts||0)-(b.pts||0)), rows, note:'Total points from 5 guesses on the same packs'};
   }
+  if(mode==='flip'){
+    const n = Math.max((a.rounds||[]).length, (b.rounds||[]).length);
+    const rows = Array.from({length:n}, (_,i)=>{ const x = (a.rounds||[])[i] || (b.rounds||[])[i] && {my:b.rounds[i].their, their:b.rounds[i].my, r:-b.rounds[i].r} || {}; return {label:'Round '+(i+1), my:'ripped '+money(+x.my||0), their:'ripped '+money(+x.their||0), r:x.r||0}; });
+    return {my:a.wins||0, their:b.wins||0, r:Math.sign((a.wins||0)-(b.wins||0)), rows, note:'Rip the cheaper rare to take a round · best of 5'};
+  }
   const show = x => x.bust ? 'Bust (pack '+(x.packs||[]).length+')' : 'Banked '+money(x.banked||0);
   return {my:money(a.banked||0), their:money(b.banked||0), r:Math.sign((a.banked||0)-(b.banked||0)), rows:[{label:'Result', my:show(a), their:show(b), r:Math.sign((a.banked||0)-(b.banked||0))}], note:'Same packs, highest bank wins'};
 }
@@ -2689,6 +3038,7 @@ async function openChallenge(id){
   if(c.cancelled){ chDialog('Challenge cancelled', `<p style="margin:0">${what}. This challenge was cancelled, so it doesn’t count for anyone.</p>`); return; }
   if(c.done){ chDialog('Challenge results', chResultsHtml(c)); return; }
   if(c.side){
+    if(c.mode==='flip' && !c.expired){ playChallenge(c); return; }   // turn-based: just open the match
     if(!c.my_result && !c.expired){
       chDialog('Your turn', `<p style="margin:0">${what}${c.side==='opponent'?' from '+h(c.creator_name):''}. ${c.my_packs?'Pick up where you left off.':''}</p><div class="dacts2"><button class="pill" type="button" id="chPlay">Play</button></div>`);
       $('#chPlay').onclick = ()=>playChallenge(c); return;
@@ -2699,9 +3049,9 @@ async function openChallenge(id){
   }
   if(c.expired){ chDialog('Challenge expired', '<p style="margin:0">This challenge expired.</p>'); return; }
   if(c.taken){ chDialog('Challenge taken', '<p style="margin:0">Someone already took this challenge.</p>'); return; }
-  const rules = {duel:`You each open ${CH_PACKS.duel} packs. Win more packs on dollar value to win.`, guess:`You both guess the value of the same ${CH_PACKS.guess} packs. Most points wins.`, bust:'You both rip the same packs. Bank before one comes in under the line. Highest bank wins.'}[c.mode];
+  const rules = {duel:`You each open ${CH_PACKS.duel} packs. Win more packs on dollar value to win.`, guess:`You both guess the value of the same ${CH_PACKS.guess} packs. Most points wins.`, bust:'You both rip the same packs. Bank before one comes in under the line. Highest bank wins.', flip:'Best of 5, taking turns picking one of two packs (the other goes to the other player). Rip the cheaper rare to take the round.'}[c.mode];
   const signed = !!meUser();
-  chDialog('You’ve been challenged', `<div class="genie-line"><img src="genie.png" alt=""><span><b>${h(c.creator_name||'Someone')}</b> challenged you to ${what}</span></div><p style="margin:0">${rules} Their score stays hidden until you finish.</p>
+  chDialog('You’ve been challenged', `<div class="genie-line"><img src="genie.png" alt=""><span><b>${h(c.creator_name||'Someone')}</b> challenged you to ${what}</span></div><p style="margin:0">${rules}${c.mode==='flip'?'':' Their score stays hidden until you finish.'}</p>
     <div class="dacts2"><button class="pill" type="button" id="chAccept">${signed?'Accept and play':'Sign in with Discord to play'}</button><button class="pill ghost" type="button" data-close>Not now</button></div>`);
   $('#chAccept').onclick = async ()=>{
     if(!meUser()){ lsSet(LS_PENDING_CH, id); signIn(); return; }
@@ -2767,6 +3117,7 @@ function chStatus(c){
   if(c.cancelled) return {st:'Cancelled', cls:''};
   if(c.done){ const o = chOutcome(c.mode, c.my_result, c.their_result); return {st:o.r>0?'Won':o.r<0?'Lost':'Tie', cls:o.r>0?'w':o.r<0?'l':''}; }
   if(c.expired) return {st:'Expired', cls:''};
+  if(c.mode==='flip') return c.flip_turn==='me' ? {st:'Your turn', cls:'turn'} : c.side==='creator' && !c.taken ? {st:'Send link', cls:''} : {st:'Their pick', cls:''};
   if(!c.my_result) return {st:'Your turn', cls:'turn'};
   if(c.side==='creator' && !c.taken) return {st:'Send link', cls:''};
   return {st:'Waiting', cls:''};
@@ -2953,6 +3304,209 @@ function profileSync(){
   profileSynced = u.id;
   rpc('set_profile', {p_name:userName(u), p_avatar:(u.user_metadata && u.user_metadata.avatar_url) || null}).catch(()=>{ profileSynced = null; });
   rpc('my_achievements', {}).then(d=>{ const a = (d.list||[]).find(x=>x.code===d.pinned); acct.titleName = a ? a.title : null; renderAccount(); }).catch(()=>{});
+}
+
+/* ======================= Rip & Flip ======================= */
+// Pick one of two sealed packs, rip its rare in half, then flip the other pack's rare.
+// Rip the CHEAPER rare to take the round (an exact tie goes to whoever picked). Best of 5.
+// Solo: the house gets the pack you didn't pick. Challenges: turn-based on the server (see flip.sql);
+// the picks alternate and the other pack goes to the other player.
+const FLIP_WINS = 3;
+const flipRare = cards => (cards||[]).find(c=>c.rar==='rare'||c.rar==='mythic') || (cards||[])[12] || (cards||[])[0];
+const flipUsd = cards => { const c = flipRare(cards); return c && c.usd!=null ? +c.usd : 0; };
+const LS_FLIP_SEEN = 'ripjr.flipSeen';   // challenge rounds you've already watched, per challenge
+const flipSeen = id => (lsGet(LS_FLIP_SEEN, {})[id]|0);
+function flipSetSeen(id, n){ const s = lsGet(LS_FLIP_SEEN, {}); s[id] = Math.max(s[id]|0, n); const k = Object.keys(s); if(k.length>80) delete s[k[0]]; lsSet(LS_FLIP_SEEN, s); }
+const miniPack = () => `<div class="pack mpack"><div class="face">${packFront()}</div></div>`;
+const cardBack = () => `<div class="cback"><div class="cb-oval"><span>ripjr</span></div></div>`;
+const flipThem = () => game && game.ch ? themName() : 'The house';
+const flipThemIn = () => { const t = flipThem(); return t==='Your opponent' || t==='The house' ? t.toLowerCase() : t; };   // mid-sentence
+function flipStageArt(){ $('#stage').dataset.era = game.era; $('#stage').style.setProperty('--packart', `url(${packArt(game.era)})`); }
+
+function flipNext(){
+  if(!game) return;
+  clearInterval(game.timer);
+  pk.swipe = false; pk.source = null; pk.state = 'idle';
+  if(game.ch) return flipChNext();
+  const mine = {}, house = {};
+  game.fr = {n:game.round, picker:'me', theirName:'The house', toks:[mine, house],
+             mineP: rollPack(game.era, mine), theirP: rollPack(game.era, house, {genie:true})};
+  game.fr.mineP.catch(()=>{}); game.fr.theirP.catch(()=>{});
+  flipPickView();
+}
+
+// two sealed packs: pick one (or, replaying a challenge round, see who picked what)
+function flipPickView(){
+  const fr = game.fr, replay = fr.pick!=null;
+  flipStageArt(); renderPanel(); setStageChrome(stageLabel());
+  const them = h(flipThem());
+  const tag = i => !replay ? '' : i===fr.pick ? (fr.picker==='me' ? 'Your pick' : `${them}’s pick`) : (fr.picker==='me' ? `${them}’s` : 'Yours');
+  const mineIdx = !replay ? -1 : fr.picker==='me' ? fr.pick : 1-fr.pick;
+  const title = !replay ? 'Pick a pack' : fr.picker==='me' ? `Round ${fr.n}: you picked` : `Round ${fr.n}: ${them} picked`;
+  $('#stageMid').innerHTML = `<div class="flpick"><div class="flpick-h">${title}</div><div class="flpacks">
+    ${[0,1].map(i=>`<button class="flpk ${replay ? (i===mineIdx?'mine':'theirs') : ''}" type="button" data-fpick="${i}" ${replay && i!==mineIdx ? 'disabled' : ''} aria-label="${i?'Right':'Left'} pack">${miniPack()}<span>${replay ? tag(i) : (i?'Right':'Left')}</span></button>`).join('')}
+  </div></div>`;
+  foot(replay ? `<div class="hint">${fr.picker==='me' ? 'The other one went to '+h(flipThemIn())+'.' : 'The other one is yours.'} Rip the cheaper rare to win.</div><div class="stage-acts"><button class="pill gold" type="button" id="flGo">Open yours</button></div>`
+              : `<div class="hint">${game.ch ? 'Your pick. The other pack goes to '+h(flipThemIn())+'.' : 'The house gets the other one.'} Rip the cheaper rare to win the round.</div>`);
+  const go = async i => {
+    if(fr.going) return; fr.going = true;
+    const b = document.querySelector(`[data-fpick="${i}"]`); if(b) b.classList.add('chosen');
+    document.querySelectorAll('[data-fpick]').forEach(x=>{ if(x!==b) x.classList.add('away'); });
+    buzz('tick');
+    if(game.ch && !replay){
+      const g = game;
+      try{
+        const s = await rpc('flip_pick', {p_id:g.ch.id, p_round:fr.n-1, p_choice:i});
+        if(game!==g) return;
+        const r = s.rounds[fr.n-1]; g.fs = s;
+        if(!r){ fr.going = false; return flipNext(); }
+        Object.assign(fr, {pick:r.pick, mine:r.mine, theirs:r.theirs, r:r.r});
+      }catch(e){ if(game!==g) return; fr.going = false; toast(e.message); return flipNext(); }
+    }
+    await sleep(380); flipOpenMine();
+  };
+  document.querySelectorAll('[data-fpick]').forEach(b=>b.onclick = ()=>go(+b.dataset.fpick));
+  if(replay) $('#flGo').onclick = ()=>go(mineIdx);
+}
+
+// your pack, full size: swipe across the top to tear it open (their sealed pack waits on the side)
+function flipOpenMine(){
+  const fr = game.fr;
+  pk.source = fr.mine ? (tok => warmImages(fr.mine).then(()=>{ if(tok.dead) throw new Error('cancelled'); return fr.mine; })) : (tok => fr.mineP);
+  newPack();
+  const side = document.createElement('div'); side.className = 'flside'; side.innerHTML = `${miniPack()}<small>${h(flipThem())}</small>`;
+  $('#stageMid').appendChild(side);
+}
+
+// called once your pack is torn open: just the rare, ready to rip
+function flipOpened(cards){
+  const fr = game.fr; fr.mineCards = cards;
+  const rare = flipRare(cards); cache.set(rare.id, rare);
+  $('#stageMid').innerHTML = `<div class="flboard">
+    <div class="flslot" id="flSlotMine"><div class="fllab">Your rare</div><div class="flcard" id="flMine"></div><div class="flprice" id="flMyP">$ ?</div></div>
+    <div class="flvs">vs</div>
+    <div class="flslot" id="flSlotThem"><div class="fllab">${h(flipThem())}</div><div class="flcard" id="flTheirs"><div class="flsealed">${miniPack()}</div></div><div class="flprice" id="flTP">$ ?</div></div>
+  </div>`;
+  const rip = makeRipper($('#flMine'), rare, flipRipped);
+  foot(`<div class="hint">Rip it in half. The cheaper rare wins the round.</div><div class="stage-acts"><button class="pill gold" type="button" id="flRip">Rip it</button></div>`);
+  $('#flRip').onclick = ()=>rip.auto();
+}
+function flipRipped(){
+  const fr = game && game.fr; if(!fr) return;
+  const rare = flipRare(fr.mineCards), usd = flipUsd(fr.mineCards);
+  setTimeout(()=>{ const el = $('#flMyP'); if(el){ el.classList.add('on'); countUp(el, usd, 650); } }, 380);
+  foot(`<div class="hint">You ripped <b>${h(rare.name)}</b>.</div><div class="stage-acts"><button class="pill gold" type="button" id="flFlip">Flip ${h(game.ch ? themName()+'’s' : 'the house’s')}</button></div>`);
+  $('#flFlip').onclick = flipTheirs;
+}
+async function flipTheirs(){
+  const g = game, fr = g && g.fr; if(!fr || fr.flipping) return;
+  fr.flipping = true;
+  const b = $('#flFlip'); if(b){ b.disabled = true; b.textContent = 'Opening…'; }
+  let tc;
+  try{ tc = fr.theirs || await fr.theirP; }
+  catch(e){
+    if(game!==g) return; fr.flipping = false;
+    if(!g.ch){ const t = {}; fr.theirP = rollPack(g.era, t, {genie:true}); fr.theirP.catch(()=>{}); }
+    if(b){ b.disabled = false; b.textContent = 'Try again'; } toast(e.message); return;
+  }
+  if(game!==g) return;
+  fr.theirCards = tc; const rare = flipRare(tc); cache.set(rare.id, rare);
+  await warmImages([rare]); if(game!==g) return;
+  const slot = $('#flTheirs'); if(!slot) return;
+  slot.querySelector('.flsealed').classList.add('zip'); sfx('tear'); buzz('tear');
+  await sleep(300); if(game!==g) return;
+  slot.innerHTML = `<div class="flflip"><div class="flf back">${cardBack()}</div><button class="flf front" type="button" data-open="${h(rare.id)}"><img src="${h(rare.img||'')}" alt="${h(rare.name)}" crossorigin="anonymous"></button></div>`;
+  slot.getBoundingClientRect(); slot.firstChild.classList.add('on');
+  await sleep(620); if(game!==g) return;
+  const el = $('#flTP'); if(el){ el.classList.add('on'); countUp(el, flipUsd(tc), 650); }
+  await sleep(750); if(game!==g) return;
+  flipVerdict();
+}
+function flipVerdict(){
+  const g = game, fr = g.fr, my = flipUsd(fr.mineCards), th = flipUsd(fr.theirCards);
+  const r = fr.r ?? (my<th ? 1 : my>th ? -1 : (fr.picker==='me' ? 1 : -1));
+  g.rounds.push({my, th, r, picker:fr.picker, mine:flipRare(fr.mineCards).name, theirs:flipRare(fr.theirCards).name});
+  if(r>0) g.you++; else g.them++;
+  if(g.ch) flipSetSeen(g.ch.id, fr.n);
+  const A = $('#flSlotMine'), B = $('#flSlotThem'); if(A) A.classList.add(r>0?'win':'lose'); if(B) B.classList.add(r>0?'lose':'win');
+  renderPanel(); setStageChrome(stageLabel());
+  const tie = my===th ? `<div class="hint">Dead even, so it goes to ${fr.picker==='me'?'you (you picked)':h(flipThemIn())+' (they picked)'}.</div>` : '';
+  const line = r>0 ? pick(['You ripped the cheaper one!','Cheap rip. Round to you.','Nice. That one deserved it.']) : pick(['Ouch. You ripped the pricier one.','That one hurt. Round to '+flipThemIn()+'.','Expensive rip.']);
+  if(r>0) sfx('hit'); else buzz('swipe');
+  if(g.you < FLIP_WINS && g.them < FLIP_WINS){
+    foot(`<div class="rres ${r>0?'win':'lose'}">${h(line)}</div><div class="hint">You ripped ${money(my)} · ${h(flipThem())} ${money(th)}</div>${tie}<div class="stage-acts"><button class="pill" type="button" id="rvNext">Next round</button></div>`);
+    $('#rvNext').onclick = ()=>{ g.round++; flipNext(); };
+    return;
+  }
+  if(g.ch) return flipChDone();
+  flipSoloFinish(g.you > g.them);
+}
+function flipSoloFinish(won, forfeit){
+  const g = game, f = rk.flip;
+  f[won?'w':'l']++; f.streak = won ? (f.streak||0)+1 : 0; f.best = Math.max(f.best||0, f.streak);
+  (f.matches ||= []).push({at:new Date().toISOString(), won});
+  g.over = true;
+  rkHistory({score: forfeit ? 'Left' : `${won?'Won':'Lost'} ${g.you}–${g.them}`, cls: won?'w':'l', detail: `${f.w} won · ${f.l} lost`});
+  if(forfeit) return;
+  renderPanel(); setStageChrome(stageLabel());
+  foot(`<div class="rres ${won?'win':'lose'}">${won?'You win the match!':'The house wins the match.'}</div><div class="hint">${g.you}–${g.them} · ${f.streak>1?`${f.streak} wins in a row · `:''}record ${f.w}–${f.l}</div><div class="stage-acts"><button class="pill" type="button" data-start="flip">Rematch</button><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
+  if(won) sfx('delight');
+}
+
+/* ---- challenges ---- */
+async function flipChNext(){
+  const g = game;
+  foot('<div class="hint">Loading the match…</div>');
+  let s;
+  try{ s = await rpc('flip_state', {p_id:g.ch.id}); }
+  catch(e){ if(game!==g) return; foot(`<div class="hint" style="color:#FF9A85">${h(e.message)}</div><div class="stage-acts"><button class="pill" type="button" id="rvRetry">Try again</button></div>`); $('#rvRetry').onclick = flipNext; return; }
+  if(game!==g) return;
+  g.fs = s; if(s.their_name) g.ch.name = s.their_name;
+  const seen = Math.min(flipSeen(g.ch.id), s.rounds.length);
+  g.rounds = s.rounds.slice(0, seen).map(r=>({my:+r.my_usd, th:+r.their_usd, r:r.r, picker:r.picker, mine:flipRare(r.mine).name, theirs:flipRare(r.theirs).name}));
+  g.you = g.rounds.filter(r=>r.r>0).length; g.them = g.rounds.length - g.you; g.round = seen+1;
+  flipStageArt(); renderPanel(); setStageChrome(stageLabel());
+  if(s.cancelled){ $('#stageMid').innerHTML = ''; foot(`<div class="hint">This challenge was cancelled, so it doesn’t count.</div><div class="stage-acts"><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`); return; }
+  if(seen < s.rounds.length){ const r = s.rounds[seen]; g.fr = {n:seen+1, picker:r.picker, pick:r.pick, mine:r.mine, theirs:r.theirs, r:r.r}; return flipPickView(); }
+  if(s.done) return flipChDone();
+  if(s.expired){ $('#stageMid').innerHTML = ''; foot(`<div class="hint">This challenge expired.</div><div class="stage-acts"><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`); return; }
+  if(s.turn==='me'){ g.fr = {n:seen+1, picker:'me'}; return flipPickView(); }
+  flipWait(s);
+}
+// their pick: wait here (checks every few seconds), or come back later from the Challenges tab
+function flipWait(s){
+  const g = game;
+  $('#stageMid').innerHTML = `<div class="flpick"><div class="flpick-h">${s.taken ? `${h(themName())}’s pick` : 'Waiting for a taker'}</div><div class="flpacks wait">${miniPack()}${miniPack()}</div>
+    <p class="pwnote center">${s.taken ? `Round ${s.rounds.length+1}. You’ll see it here as soon as they pick, or come back later. It’s in your Challenges tab.` : 'Round 1 is done. Send your link. Whoever opens it first plays round 2.'}</p></div>`;
+  foot(`<div class="stage-acts">${s.taken ? '' : '<button class="pill gold" type="button" id="flShare">Send challenge link</button>'}<button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
+  const sh = $('#flShare'); if(sh) sh.onclick = ()=>{ const c = {id:g.ch.id, mode:'flip', era:g.era}; chDialog('Send your challenge', chShareHtml(c)); bindShare(c); };
+  clearInterval(g.timer);
+  g.timer = setInterval(async ()=>{
+    if(game!==g){ clearInterval(g.timer); return; }
+    try{ const s2 = await rpc('flip_state', {p_id:g.ch.id});
+      if(game!==g) return;
+      if(s2.rounds.length > s.rounds.length || s2.cancelled || s2.taken!==s.taken){ clearInterval(g.timer); if(s2.rounds.length > s.rounds.length) sfx('menuselect'); flipChNext(); }
+    }catch(e){}
+  }, 4000);
+}
+async function flipChDone(){
+  const g = game; g.over = true; g.chDone = true; g.resultsShown = true;
+  const won = g.you > g.them;
+  foot(`<div class="rres ${won?'win':'lose'}">${won?'You win the challenge!':h(themName())+' wins the challenge.'}</div><div class="hint">${g.you}–${g.them}</div><div class="stage-acts"><button class="pill" type="button" id="rvRes">See results</button><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
+  if(won) sfx('delight');
+  renderChallenges();
+  let v = null; try{ v = await rpc('challenge_peek', {p_id:g.ch.id}); }catch(e){}
+  if(game!==g || !v || !v.done) return;
+  $('#rvRes').onclick = ()=>chDialog('Challenge results', chResultsHtml(v));
+}
+
+/* ---- side panel (desktop) ---- */
+function flipPanel(){
+  const dots = Array.from({length:5}, (_,i)=>{ const r = game.rounds[i]; return `<i class="${r ? (r.r>0?'w':'l') : ''}"></i>`; }).join('');
+  const them = game.ch ? themName() : 'House';
+  const rule = game.ch ? `<div class="box"><div class="box-h"><h2>Challenge${game.ch.name?' vs '+h(game.ch.name):''}</h2></div><p class="pwnote">Turn-based. Picks alternate, starting with whoever sent the link. The pack you don’t pick goes to them. Come back any time from the Challenges tab.</p></div>` : '';
+  return rule + `<div class="box"><div class="score"><div><b>${game.you}</b><small>You</small></div><span>–</span><div><b>${game.them}</b><small>${h(them)}</small></div></div><div class="rdots">${dots}</div><p class="pwnote center">First to ${FLIP_WINS} wins${game.ch?'':` · record ${rk.flip.w}–${rk.flip.l}`}</p></div>
+    <div class="box"><div class="box-h"><h2>Rounds</h2></div><div class="mlist">${game.rounds.length ? game.rounds.map((r,i)=>`<div class="mrow"><div><b>Round ${i+1}</b> <span>· ripped ${money(r.my)} vs ${money(r.th)}</span></div><div class="${r.r>0?'w':'l'}">${r.r>0?'Won':'Lost'}</div></div>`).join('') : '<p class="empty-s">Pick a pack, rip its rare in half. The cheaper rip takes the round.</p>'}</div></div>`;
 }
 
 /* ======================= Boot ======================= */
