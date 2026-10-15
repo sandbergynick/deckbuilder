@@ -964,6 +964,47 @@ html.fit .app{align-items:stretch}
 }
 
 
+/* binder search */
+.bsearch{width:min(260px,100%)}
+#bGrid.loading{opacity:.55;transition:opacity .2s}
+@media (max-width:600px){ #view-binder .lhead .dacts2{width:100%} .bsearch{flex:1;min-width:0} }
+
+/* ---- phones: the card menu is a compact bottom sheet (small art beside the details; tap the art to see it big) ---- */
+@media (max-width:600px){
+  #cardDlg{max-height:min(80svh,640px);overflow:hidden;display:flex;flex-direction:column}
+  #cardDlg[open]{animation:sheetUp .3s cubic-bezier(.2,.9,.25,1)}
+  @keyframes sheetUp{from{transform:translateY(40%);opacity:.4}}
+  #cardDlg .detail{display:grid;grid-template-columns:min(34vw,140px) minmax(0,1fr);
+    grid-template-areas:"head head" "img cost" "img type" "img kv" "text text" "acts acts" "prints prints";
+    grid-template-rows:auto auto auto 1fr auto auto auto;column-gap:14px;row-gap:8px;align-items:start;
+    overflow-y:auto;overscroll-behavior:contain;min-height:0;padding:0 16px calc(14px + env(safe-area-inset-bottom,0px))}
+  #cardDlg .info{display:contents}
+  #cardDlg .detail > div:first-child{grid-area:img;gap:8px}
+  #cardDlg .detail img#dImg{width:100%;max-width:none;max-height:none;cursor:zoom-in;border-radius:4.5%/3.3%}
+  #cardDlg .sheet-h{grid-area:head;position:sticky;top:0;z-index:3;background:var(--surface);margin:0 -16px;padding:18px 16px 8px;touch-action:none}
+  #cardDlg .sheet-h::before{content:"";position:absolute;left:50%;top:7px;width:38px;height:4px;margin-left:-19px;border-radius:2px;background:var(--line)}
+  #cardDlg .sheet-h h3{font-size:1.08rem;line-height:1.2}
+  #dCost{grid-area:cost}
+  #dType{grid-area:type;font-size:.84rem}
+  #dKv{grid-area:kv;display:grid;grid-template-columns:1fr;gap:6px;font-size:.74rem}
+  #dKv b{font-size:.95rem}
+  #dText{grid-area:text;font-size:.85rem;padding:9px 12px;max-height:5.6em;overflow:hidden;position:relative;cursor:pointer;transition:max-height .25s}
+  #dText::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.6em;background:linear-gradient(transparent,var(--surface-2));pointer-events:none}
+  #dText.open{max-height:none}
+  #dText.open::after,#dText.short::after{display:none}
+  #cardDlg .dacts2{grid-area:acts;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+  #cardDlg .dacts2 .pill{flex:1 1 100%;justify-content:center}
+  #cardDlg .dacts2 a:not(.pill),#cardDlg .dacts2 .linkbtn{font-size:.85rem}
+  #dPrints{grid-area:prints;display:flex!important;flex-wrap:nowrap;overflow-x:auto;gap:8px;padding-bottom:4px;scroll-snap-type:x proximity}
+  #dPrints[hidden]{display:none!important}
+  #cardDlg .prints img{width:64px;flex:none;scroll-snap-align:start}
+  /* tapped the art: show it big */
+  #cardDlg.zoom .detail{grid-template-areas:"head head" "img img" "cost cost" "type type" "kv kv" "text text" "acts acts" "prints prints";grid-template-rows:auto}
+  #cardDlg.zoom .detail > div:first-child{justify-self:center;width:min(78vw,340px)}
+  #cardDlg.zoom .detail img#dImg{cursor:zoom-out}
+  #cardDlg.zoom #dKv{grid-template-columns:repeat(3,auto);justify-content:start;gap:16px}
+}
+
 </style>
 </head>
 <body>
@@ -1105,7 +1146,7 @@ html.fit .app{align-items:stretch}
       <div><h2>Binder</h2><p class="muted num" id="bSum"></p></div>
       <div class="dacts2">
         <div class="bseg" id="bTabs" hidden><button type="button" data-b="pulls" aria-selected="true">Pulled</button><button type="button" data-b="favs" aria-selected="false">Favorites</button></div>
-        <select id="bSort" class="input bsort" aria-label="Sort"><option value="value">Most valuable</option><option value="new">Newest</option><option value="name">Name</option><option value="count">Most copies</option></select>
+        <input id="bSearch" class="input bsearch" type="search" placeholder="Search your binder" aria-label="Search your binder" autocomplete="off"><select id="bSort" class="input bsort" aria-label="Sort"><option value="value">Most valuable</option><option value="new">Newest</option><option value="name">Name</option><option value="count">Most copies</option></select>
       </div>
     </div>
     <div class="bstats" id="bStats"></div>
@@ -2105,13 +2146,13 @@ function bindPack(){
 }
 
 async function tearOpen(path){
-  if(pk.state!=='pack') return;
-  pk.state = 'opening';
   const p = $('#pack');
+  if(pk.state!=='pack' || !p) return;
+  pk.state = 'opening';
   const front = Math.round(pk.ry/360)*360;
   if(pk.ry!==front || pk.rx){ pk.ry = front; pk.rx = 0; applyPack(true); await sleep(450); }
   if(!path){ path = autoTearPath(); await tearPreviewAuto(path, 190); }
-  if(!p.isConnected || pk.state!=='opening') return;
+  if(!p.isConnected || pk.state!=='opening' || $('#pack')!==p) return;
   splitPack(p, path);
   p.classList.add('opening');
   sfx('tear');
@@ -2262,6 +2303,22 @@ function makeRipper(host, card, onRip){
   };
 }
 
+// phones: the card sheet (tap the art to enlarge, tap the rules text to expand, drag the top down to close)
+(()=>{
+  const dlg = $('#cardDlg'), phone = () => matchMedia('(max-width:600px)').matches;
+  $('#dImg').addEventListener('click', ()=>{ if(phone()) dlg.classList.toggle('zoom'); });
+  $('#dText').addEventListener('click', ()=>$('#dText').classList.toggle('open'));
+  dlg.addEventListener('close', ()=>{ dlg.classList.remove('zoom'); $('#dText').classList.remove('open'); dlg.style.transform = ''; });
+  // short rules text doesn't need the fade
+  new MutationObserver(()=>{ const t = $('#dText'); t.classList.remove('open'); requestAnimationFrame(()=>t.classList.toggle('short', t.scrollHeight <= t.clientHeight + 2)); }).observe($('#dText'), {childList:true, characterData:true, subtree:true});
+  const head = dlg.querySelector('.sheet-h'); let y0 = null, dy = 0;
+  head.addEventListener('pointerdown', e=>{ if(!phone() || e.target.closest('button')) return; y0 = e.clientY; dy = 0; head.setPointerCapture(e.pointerId); dlg.style.transition = 'none'; });
+  head.addEventListener('pointermove', e=>{ if(y0==null) return; dy = Math.max(0, e.clientY - y0); dlg.style.transform = `translateY(${dy}px)`; });
+  const end = ()=>{ if(y0==null) return; y0 = null; dlg.style.transition = 'transform .22s';
+    if(dy > 90){ dlg.style.transform = 'translateY(100%)'; setTimeout(()=>{ dlg.close(); dlg.style.transition = ''; }, 200); } else dlg.style.transform = ''; };
+  head.addEventListener('pointerup', end); head.addEventListener('pointercancel', end);
+})();
+
 /* ======================= Accounts (Supabase + Discord) ======================= */
 // The publishable key is meant to be public; each player's data is protected by the database's row rules.
 const SB_URL = 'https://icapzxlawhmopqelkeft.supabase.co';
@@ -2301,10 +2358,9 @@ async function onSignedIn(ev){
     // 1. move anything saved in this browser into the account
     const lb = lsGet(LS_BINDER, null);
     if(lb && (Object.keys(lb.items||{}).length || (lb.packs||[]).length)){
-      const items = Object.entries(lb.items||{}).map(([id,x])=>({card_id:id, card:x.card, count:x.count, first_at:x.first}));
-      for(let i=0;i<items.length;i+=200){ const { error } = await sb.rpc('add_to_binder', {items: items.slice(i,i+200)}); if(error) throw error; }
-      const packs = (lb.packs||[]).map(p=>({era:p.era, value:p.value, cards:p.cards, opened_at:p.at}));
-      if(packs.length){ const { error } = await sb.from('packs').insert(packs); if(error) throw error; }
+      const items = Object.entries(lb.items||{}).map(([id,x])=>({id, card:x.card, rar:x.card && x.card.rar, count:x.count, first:x.first}));
+      const packs = lb.total || (lb.packs||[]).length;
+      for(let i=0;i<items.length;i+=200){ const { error } = await sb.rpc('binder_add', {p_items: items.slice(i,i+200), p_packs: i ? 0 : packs}); if(error) throw error; }
       localStorage.removeItem(LS_BINDER);
     }
     const lf = lsGet(LS_FAVS, null);
@@ -2320,16 +2376,10 @@ async function onSignedIn(ev){
 }
 async function loadAccountData(){
   const sb = acct.sb, binder = new Map();
-  for(let from=0; ; from+=1000){
-    const { data, error } = await sb.from('binder').select('card_id,card,count,first_at,last_at').range(from, from+999);
-    if(error) throw error;
-    (data||[]).forEach(r=>binder.set(r.card_id, {card:r.card, count:r.count, first:r.first_at, last:r.last_at}));
-    if(!data || data.length < 1000) break;
-  }
+  // the binder itself loads a page at a time (binder_page); this map only remembers cards pulled this visit
   const f = await sb.from('favorites').select('card_name,card');
   if(f.error) throw f.error;
-  const pc = await sb.from('packs').select('id', {count:'exact', head:true});
-  acct.binder = binder; acct.favs = new Map((f.data||[]).map(r=>[r.card_name, r.card])); acct.packs = pc.count||0; acct.loaded = true;
+  acct.binder = binder; acct.favs = new Map((f.data||[]).map(r=>[r.card_name, r.card])); acct.packs = 0; acct.loaded = true;
 }
 
 // account menu (desktop button) + the same items inside the phone ⋯ menu
@@ -2387,12 +2437,11 @@ function binderAdd(cards, era){
   if(acct.user){
     Object.entries(agg).forEach(([id,x])=>{ const ex = acct.binder.get(id); acct.binder.set(id, {card:x.card, count:(ex?ex.count:0)+x.count, first:ex?ex.first:now, last:now}); });
     acct.packs++;
-    acct.sb.rpc('add_to_binder', {items:Object.entries(agg).map(([id,x])=>({card_id:id, card:x.card, count:x.count}))}).then(r=>{ if(r.error) console.warn(r.error); });
-    acct.sb.from('packs').insert({era:log.era, value:log.value, cards:log.cards}).then(r=>{ if(r.error) console.warn(r.error); packsChanged(); });
+    acct.sb.rpc('binder_add', {p_items:Object.entries(agg).map(([id,x])=>({id, count:x.count, rar:x.card.rar, card:x.card})), p_packs:1}).then(r=>{ if(r.error) console.warn(r.error); else if(ui.view==='binder') renderBinder(); });
   } else {
     const lb = lsGet(LS_BINDER, {items:{}, packs:[], total:0});
     Object.entries(agg).forEach(([id,x])=>{ const ex = lb.items[id]; lb.items[id] = {card:x.card, count:(ex?ex.count:0)+x.count, first:ex?ex.first:now, last:now}; });
-    lb.packs.push(log); if(lb.packs.length > 1000) lb.packs = lb.packs.slice(-1000);
+    lb.packs.push(log); if(lb.packs.length > 60) lb.packs = lb.packs.slice(-60);
     lb.total = (lb.total||0) + 1;
     lsSet(LS_BINDER, lb); packsChanged();
   }
@@ -2407,38 +2456,60 @@ const BINDER_PAGE = 50;   // cards per page
 $('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; binderPage = 0; renderBinder(); });
 $('#bSort').addEventListener('change', ()=>{ binderPage = 0; renderBinder(); });
 $('#bPager').addEventListener('click', e=>{ const b = e.target.closest('[data-bp]'); if(!b || b.disabled) return; binderPage += +b.dataset.bp; renderBinder(); $('#view-binder').scrollIntoView({block:'start'}); window.scrollTo({top:0}); });
-function renderBinder(){
+function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
+
+/* ---------- binder: signed in, Supabase keeps just card id + count and hands back one page at a time (searchable) ---------- */
+let binderSeq = 0, binderQ = '', binderT = 0;
+$('#bSearch').addEventListener('input', ()=>{ clearTimeout(binderT); binderT = setTimeout(()=>{ binderQ = $('#bSearch').value.trim(); binderPage = 0; renderBinder(); }, 220); });
+function binderCardHtml(x){
+  const c = x.card || {id:x.id, name:'Unknown card'}; cache.set(c.id, c); const g = glowOf(c);
+  return `<div class="card"><div class="artwrap"><button class="art ${g?'g-'+g:''}" data-open="${h(c.id)}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>${x.count>1?`<span class="top cnt">×${x.count}</span>`:''}</div><div class="cname">${h(c.name)}</div><div class="csub num">${h(c.setCode||c.set||'')}${c.usd!=null?' · '+money(c.usd):''}</div></div>`;
+}
+function binderStatsHtml(packs, kinds, value, best){
+  return `<div><b>${Number(packs).toLocaleString()}</b><span>packs opened</span></div><div><b>${Number(kinds).toLocaleString()}</b><span>different cards</span></div><div><b>$${Math.round(value).toLocaleString()}</b><span>total value</span></div>${best && best.usd ? `<div><b>${money(+best.usd)}</b><span>best pull: ${h(best.name)}</span></div>` : ''}`;
+}
+function binderPagerUi(pages){
+  $('#bPager').hidden = pages < 2;
+  $('#bPage').textContent = `Page ${binderPage+1} of ${pages}`;
+  $('#bPager [data-bp="-1"]').disabled = binderPage===0; $('#bPager [data-bp="1"]').disabled = binderPage>=pages-1;
+}
+const binderEmpty = () => `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">${binderQ ? 'No matches' : 'Your binder is empty'}</b><span>${binderQ ? 'Nothing in your binder matches “'+h(binderQ)+'”.' : 'Every card you rip lands here.'}</span></div>`;
+async function renderBinder(){
   if($('#view-binder').hidden) return;
-  document.querySelectorAll('#bTabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.b===binderTab)));
-  const sort = $('#bSort').value;
-  $('#bSort').querySelector('[value="count"]').hidden = binderTab!=='pulls';
-  let list;
-  if(binderTab==='favs'){
-    list = [...favStore().values()].map(c=>({id:c.id, card:c, count:1, last:''}));
-    $('#bSum').textContent = list.length ? `${list.length} favorite${list.length===1?'':'s'}` : '';
-    $('#bStats').innerHTML = '';
-  } else {
-    const d = binderData(); list = d.items;
-    const cards = list.reduce((n,x)=>n+x.count,0), value = list.reduce((n,x)=>n+(x.card.usd||0)*x.count,0);
-    const best = list.reduce((b,x)=>!b || (x.card.usd||0) > (b.card.usd||0) ? x : b, null);
-    $('#bSum').textContent = cards ? `${cards.toLocaleString()} cards from ${d.packs.toLocaleString()} pack${d.packs===1?'':'s'}` : '';
-    $('#bStats').innerHTML = cards ? `<div><b>${d.packs.toLocaleString()}</b><span>packs opened</span></div><div><b>${list.length.toLocaleString()}</b><span>different cards</span></div><div><b>$${Math.round(value).toLocaleString()}</b><span>total value</span></div>${best&&best.card.usd?`<div><b>${money(best.card.usd)}</b><span>best pull: ${h(best.card.name)}</span></div>`:''}` : '';
+  const sort = $('#bSort').value, seq = ++binderSeq;
+  if(acct.user && acct.sb){
+    const slow = setTimeout(()=>{ if(seq===binderSeq) $('#bGrid').classList.add('loading'); }, 200);
+    let d;
+    try{ d = await rpc('binder_page', {p_q:binderQ, p_sort:sort, p_page:binderPage, p_size:BINDER_PAGE}); }
+    catch(e){ clearTimeout(slow); if(seq===binderSeq){ $('#bGrid').classList.remove('loading'); $('#bGrid').innerHTML = `<p class="empty-s" style="grid-column:1/-1">${h(e.message)}</p>`; } return; }
+    clearTimeout(slow); if(seq!==binderSeq) return;
+    $('#bGrid').classList.remove('loading');
+    const pages = Math.max(1, Math.ceil(d.matches / BINDER_PAGE));
+    if(binderPage > pages-1){ binderPage = pages-1; return renderBinder(); }
+    $('#bSum').textContent = d.cards ? `${Number(d.cards).toLocaleString()} cards from ${Number(d.packs).toLocaleString()} pack${d.packs==1?'':'s'}` : '';
+    $('#bStats').innerHTML = d.cards ? binderStatsHtml(d.packs, d.kinds, +d.value, d.best) : '';
+    binderPagerUi(pages);
+    $('#bGrid').innerHTML = d.rows.length ? d.rows.map(binderCardHtml).join('') : binderEmpty();
+    $('#bNote').textContent = binderQ && d.matches ? `${Number(d.matches).toLocaleString()} match${d.matches==1?'':'es'}` : '';
+    return;
   }
+  // signed out: kept in this browser
+  const d = binderData(); let list = d.items;
+  const cards = list.reduce((n,x)=>n+x.count,0), value = list.reduce((n,x)=>n+(x.card.usd||0)*x.count,0);
+  const best = list.reduce((b,x)=>!b || (x.card.usd||0) > (b.card.usd||0) ? x : b, null);
+  $('#bSum').textContent = cards ? `${cards.toLocaleString()} cards from ${d.packs.toLocaleString()} pack${d.packs===1?'':'s'}` : '';
+  $('#bStats').innerHTML = cards ? binderStatsHtml(d.packs, list.length, value, best && {name:best.card.name, usd:best.card.usd}) : '';
+  if(binderQ){ const q = binderQ.toLowerCase(); list = list.filter(x=>(x.card.name||'').toLowerCase().includes(q)); }
   const by = {value:(a,b)=>(b.card.usd||0)-(a.card.usd||0), new:(a,b)=>String(b.last).localeCompare(String(a.last)), name:(a,b)=>a.card.name.localeCompare(b.card.name), count:(a,b)=>b.count-a.count||(b.card.usd||0)-(a.card.usd||0)};
   list.sort(by[sort] || by.value);
   const pages = Math.max(1, Math.ceil(list.length / BINDER_PAGE));
   binderPage = Math.min(Math.max(0, binderPage), pages-1);
+  binderPagerUi(pages);
   const shown = list.slice(binderPage*BINDER_PAGE, (binderPage+1)*BINDER_PAGE);
-  $('#bPager').hidden = pages < 2;
-  $('#bPage').textContent = `Page ${binderPage+1} of ${pages}`;
-  $('#bPager [data-bp="-1"]').disabled = binderPage===0; $('#bPager [data-bp="1"]').disabled = binderPage>=pages-1;
-  $('#bGrid').innerHTML = shown.length ? shown.map(x=>{
-    const c = x.card; cache.set(c.id, c); const g = binderTab==='pulls' ? glowOf(c) : '';
-    return `<div class="card"><div class="artwrap"><button class="art ${g?'g-'+g:''}" data-open="${c.id}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>${x.count>1?`<span class="top cnt">×${x.count}</span>`:''}</div><div class="cname">${h(c.name)}</div><div class="csub num">${h(c.setCode||c.set||'')}${c.usd!=null?' · '+money(c.usd):''}</div></div>`;
-  }).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">${binderTab==='favs'?'No favorites yet':'Your binder is empty'}</b><span>${binderTab==='favs'?'Tap the ☆ on any card to save it here.':'Every card you rip lands here.'}</span></div>`;
-  $('#bNote').textContent = acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep it in your account.' : '');
+  $('#bGrid').innerHTML = shown.length ? shown.map(binderCardHtml).join('') : binderEmpty();
+  $('#bNote').textContent = list.length ? 'Saved in this browser. Sign in to keep it in your account.' : '';
 }
-function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
+
 
 /* ======================= Views ======================= */
 const ui = {view:''};
@@ -2478,7 +2549,8 @@ function packLog(since){
 }
 async function packLogFetch(since){
   let out;
-  if(acct.user && acct.sb){
+  if(acct.user){ out = {packs:[], count:0, latest:null};   // the old per-pack history table isn't used any more
+  } else if(false){
     let q = acct.sb.from('packs').select('era,value,cards,opened_at');
     if(since) q = q.gte('opened_at', since);
     const r = await q.order('value', {ascending:false}).limit(400);
@@ -3288,7 +3360,7 @@ async function renderAchievements(){
   $('#achNote').innerHTML = `<b>${earned} of ${list.length}</b> earned. Pin one as your title and it shows next to your name on the boards.`;
   grid.innerHTML = list.map(a=>{
     const on = !!a.earned_at, pinned = a.code===d.pinned;
-    const have = a.code==='master' ? d.p9 : d.packs;
+    const have = a.code==='master' ? d.p9 : a.code==='landman' ? (d.duals||0) : d.packs;
     const prog = !on && a.goal ? `<div class="bar"><i style="width:${Math.min(100, Math.round(have/a.goal*100))}%"></i></div><small class="num">${Math.min(have, a.goal).toLocaleString()} / ${a.goal.toLocaleString()}</small>` : '';
     return `<div class="ach ${on?'on':''} ${pinned?'pinned':''}"><div class="ach-t">${h(a.title)}</div><div class="ach-d">${h(a.description)}</div>${prog}
       ${on ? `<div class="ach-f"><small>${h(new Date(a.earned_at).toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'}))}</small><button class="pill small ${pinned?'':'ghost'}" type="button" data-pin="${h(a.code)}" data-on="${pinned?1:0}">${pinned?'Pinned ✓':'Pin as title'}</button></div>` : ''}</div>`;
