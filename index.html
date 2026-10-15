@@ -833,6 +833,37 @@ html.fit .app{align-items:stretch}
 }
 #fSort{width:auto;padding:8px 10px;font-size:.88rem}
 
+/* global boards */
+.lbrow{display:grid;grid-template-columns:24px 34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px;border-radius:12px}
+.lbrow.me{background:var(--gold-soft);box-shadow:inset 0 0 0 1px rgba(90,162,255,.35)}
+.lbrow .n{color:var(--muted);font-weight:800;text-align:center}
+.lbrow .av{width:34px;height:34px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:var(--surface-2);font-weight:800;color:var(--muted)}
+.lbrow .lbcard{width:34px;aspect-ratio:488/680;height:auto;border-radius:3px;object-fit:cover}
+.lbrow .who2{min-width:0}
+.lbrow .who2 b{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbrow .who2 small{display:block;font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbrow .who2 i,.wtitle{font-style:normal;color:var(--accent);font-weight:800}
+.wtitle{display:block;font-size:.8rem;margin-top:2px}
+.lbrow .v{font-weight:800;font-variant-numeric:tabular-nums}
+/* achievements */
+.achgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.ach{background:var(--surface);border-radius:20px;padding:16px;display:grid;gap:6px;align-content:start;opacity:.62}
+.ach.on{opacity:1;box-shadow:inset 0 0 0 2px rgba(244,191,58,.35)}
+.ach.pinned{box-shadow:inset 0 0 0 2px var(--accent)}
+.ach-t{font:700 1.25rem/1.15 var(--f-display)}
+.ach.on .ach-t{color:var(--accent)}
+.ach-d{color:var(--muted);font-size:.9rem}
+.ach small{color:var(--muted);font-size:.78rem}
+.ach-f{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
+.achpop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:80;border:0;display:grid;gap:2px;justify-items:center;text-align:center;
+  background:linear-gradient(135deg,#3A2B12,#2A211B);color:var(--ink);padding:12px 22px 14px;border-radius:20px;box-shadow:0 0 0 2px var(--accent),0 18px 40px rgba(0,0,0,.5);animation:achIn .5s cubic-bezier(.2,.9,.3,1.3) both;min-width:240px}
+.achpop .achpop-k{font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+.achpop b{font:700 1.5rem/1.1 var(--f-display)}
+.achpop span:last-child{font-size:.85rem;color:var(--muted)}
+.achpop.out{animation:achOut .3s ease-in forwards}
+@keyframes achIn{from{opacity:0;transform:translate(-50%,-20px) scale(.85)}}
+@keyframes achOut{to{opacity:0;transform:translate(-50%,-12px)}}
+
 </style>
 </head>
 <body>
@@ -931,18 +962,26 @@ html.fit .app{align-items:stretch}
 
   <section class="view" id="view-boards" hidden aria-label="Leaderboards">
     <div class="rk-head">
-      <div><span class="eyebrow2">LEADERBOARDS</span><h1>Your records</h1></div>
-      <div class="bseg" id="lbTabs" role="tablist" aria-label="Period"><button type="button" role="tab" data-lb="day">Daily</button><button type="button" role="tab" data-lb="week">Weekly</button><button type="button" role="tab" data-lb="all">All-time</button></div>
+      <div><span class="eyebrow2">LEADERBOARDS</span><h1>Leaderboards</h1></div>
+      <div class="rk-meta">
+        <div class="bseg" id="lbSub" role="tablist" aria-label="Show"><button type="button" role="tab" data-ls="boards">Boards</button><button type="button" role="tab" data-ls="ach">Achievements</button></div>
+        <div class="bseg" id="lbTabs" role="tablist" aria-label="Period"><button type="button" role="tab" data-lb="day">Daily</button><button type="button" role="tab" data-lb="week">Weekly</button><button type="button" role="tab" data-lb="all">All-time</button></div>
+      </div>
     </div>
-    <p class="lbnote">Global leaderboards are on the way. For now these are your own records<span id="lbWhere"></span>.</p>
-    <h2 class="sec">Free ripping</h2>
-    <div class="boards">
-      <div class="box"><div class="box-h"><h2>Best single pull</h2></div><div class="rows" id="lbPulls"></div></div>
-      <div class="box"><div class="box-h"><h2>Best pack</h2></div><div class="rows" id="lbPacks"></div></div>
-      <div class="box"><div class="box-h"><h2>Packs ripped</h2></div><div id="lbCount"></div></div>
+    <div id="lbBoards" style="display:grid;gap:16px">
+      <p class="lbnote" id="lbNote"></p>
+      <div class="boards">
+        <div class="box"><div class="box-h"><h2>Best single pull</h2></div><div class="rows" id="lbPulls"></div></div>
+        <div class="box"><div class="box-h"><h2>Best pack</h2></div><div class="rows" id="lbPacks"></div></div>
+        <div class="box"><div class="box-h"><h2>Packs ripped</h2></div><div class="rows" id="lbCount"></div></div>
+      </div>
+      <h2 class="sec">Your ranked</h2>
+      <div class="boards" id="lbRanked"></div>
     </div>
-    <h2 class="sec">Ranked</h2>
-    <div class="boards" id="lbRanked"></div>
+    <div id="lbAch" hidden style="display:grid;gap:16px">
+      <p class="lbnote" id="achNote"></p>
+      <div class="achgrid" id="achGrid"></div>
+    </div>
   </section>
 
   <section class="view" id="view-favs" hidden aria-label="Favorites">
@@ -1030,7 +1069,7 @@ const $ = s => document.querySelector(s);
 const h = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const syms = s => h(s).replace(/\{([^}]+)\}/g,'<span class="sym">$1</span>');
 const pips = ci => '<span class="pips">'+(ci.length?ci:['C']).map(c=>`<i class="pip ${c}" title="${c}"></i>`).join('')+'</span>';
-const money = n => n==null ? '—' : '$'+n.toFixed(2);
+const money = n => n==null || isNaN(n) ? '—' : '$'+Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});   // $30,000.00
 const cap = s => s ? s[0].toUpperCase()+s.slice(1) : s;
 const gem = (w=12) => `<svg width="${w}" height="${w}" aria-hidden="true"><use href="#i-gem"/></svg>`;
 // the genie talks: a one-liner every time you open a pack, and sometimes a reaction to a big pull
@@ -1299,11 +1338,13 @@ const setQ = codes => '('+codes.map(c=>'e:'+c).join(' or ')+')';
 // Packs are rolled by Supabase when its card data is loaded (one quick call, and the browser can't pick the cards).
 // Until then, or if Supabase is unreachable, they come straight from Scryfall like before.
 let serverPacksOff = 0;
-async function rollPack(era, tok={}){
+async function rollPack(era, tok={}, opts={}){
   if(!rollPack.waited){ rollPack.waited = true; for(let i=0; !acct.sb && i<20; i++) await sleep(100); }   // first pack: give the accounts library a moment to load
   if(acct.sb && Date.now() > serverPacksOff){
     try{
-      const r = await acct.sb.rpc('roll_pack', {p_era: era});
+      // signed-in players' packs are recorded for the boards and achievements; the Genie's aren't
+      let r = await acct.sb.rpc(opts.genie ? 'roll_pack_genie' : 'roll_pack', {p_era: era});
+      if(r.error && /slow down/i.test(r.error.message||'')){ await sleep(800); r = await acct.sb.rpc('roll_pack', {p_era: era}); }
       if(r.error) throw r.error;
       if(Array.isArray(r.data) && r.data.length >= 15){
         if(tok.dead) throw new Error('cancelled');
@@ -1778,7 +1819,7 @@ function packStats(){
   return {total, best};
 }
 function showSummary(){
-  pk.state='summary';
+  pk.state='summary'; achCheck(pk.cards);
   const {total,best} = packStats();
   $('#stageMid').innerHTML = `<div class="summary"><h2>Your pulls</h2>
     <div style="color:rgba(242,238,228,.7);font-size:.92rem;text-align:center">Worth about <b style="color:#ECEBE8">${money(total)}</b>${best?` · Best pull: <b style="color:#fff">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
@@ -1940,6 +1981,7 @@ const ACCT_ACTIONS = {
   signin: signIn, signout: signOut,
   binder: ()=>{ binderTab='pulls'; setView('binder'); },
   favs: ()=>setView('favs'),
+  ach: ()=>{ lbSub = 'ach'; setView('boards'); },
   privacy: ()=>{ const on = !!acct.user; $('#privDelete').hidden = !on; $('#privDelWrap').hidden = !on; $('#privDlg').showModal(); },
 };
 function renderAccount(){
@@ -1949,7 +1991,7 @@ function renderAccount(){
     b.classList.add('in'); b.innerHTML = (av?`<img src="${h(av)}" alt="">`:'')+h(userName(u));
   } else { b.classList.remove('in'); b.textContent = 'Sign in'; }
   const items = u
-    ? `<div class="who">Signed in as<b>${h(userName(u))}</b></div><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="favs">Favorites</button><button type="button" role="menuitem" data-m="privacy">Privacy &amp; account</button><button type="button" role="menuitem" data-m="signout">Sign out</button>`
+    ? `<div class="who">Signed in as<b>${h(userName(u))}</b>${acct.titleName?`<i class="wtitle">${h(acct.titleName)}</i>`:''}</div><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="favs">Favorites</button><button type="button" role="menuitem" data-m="ach">Achievements</button><button type="button" role="menuitem" data-m="privacy">Privacy &amp; account</button><button type="button" role="menuitem" data-m="signout">Sign out</button>`
     : `<button type="button" role="menuitem" data-m="signin">Sign in with Discord</button><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="privacy">Privacy</button>`;
   document.querySelectorAll('.acctitems').forEach(x=>x.innerHTML = items);
 }
@@ -2040,7 +2082,7 @@ function renderBinder(){
   }).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">${binderTab==='favs'?'No favorites yet':'Your binder is empty'}</b><span>${binderTab==='favs'?'Tap the ☆ on any card to save it here.':'Every card you rip lands here.'}</span></div>`;
   $('#bNote').textContent = acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep it in your account.' : '');
 }
-function refreshView(){ logMemo = {}; warmBoards(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
+function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
 
 /* ======================= Views ======================= */
 const ui = {view:''};
@@ -2245,7 +2287,7 @@ function nextRankedPack(){
   pk.swipe = game.mode==='duel';
   if(game.mode==='duel' && !game.ch){   // the Genie's pack rolls while you open yours
     if(game.genieTok) game.genieTok.dead = true;
-    game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok); game.genieP.catch(()=>{});
+    game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok, {genie:true}); game.genieP.catch(()=>{});
     genieSay(game.round===1 ? 'Best of seven. Rip yours first.' : pick(['Your move.','Go on, rip it.','I’m feeling lucky.','Let’s see it.']));
   }
   setStageChrome(stageLabel(true)); newPack(); renderPanel();
@@ -2254,7 +2296,7 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 // called by the pack screen once a ranked pack is torn open
 function rankedOpened(cards, swiped){
   if(!game || game.over) return;
-  useRankedPack(); game.n++; game.lastCards = cards;
+  useRankedPack(); game.n++; game.lastCards = cards; achCheck(cards);
   if(game.ch) livePing();
   $('#rkRight').textContent = leftText();
   const v = packValue(cards);
@@ -2309,7 +2351,7 @@ function duelMine(cards, v){
     catch(e){
       if(!game) return;
       b.disabled = false; b.textContent = 'Try again'; toast(e.message);
-      game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok); game.genieP.catch(()=>{}); return;
+      game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok, {genie:true}); game.genieP.catch(()=>{}); return;
     }
     if(!game || game.over) return;
     sfx('tear');
@@ -2487,28 +2529,41 @@ function renderPanel(){
 /* ======================= Leaderboards (your own records for now) ======================= */
 let lbPeriod = 'day', lbSeq = 0;
 $('#lbTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-lb]'); if(!b) return; lbPeriod = b.dataset.lb; renderBoards(); });
+let lbSub = 'boards';
 async function renderBoards(){
-  const seq = ++lbSeq, since = sinceFor(lbPeriod);
+  const seq = ++lbSeq;
   document.querySelectorAll('#lbTabs [data-lb]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.lb===lbPeriod)));
-  $('#lbWhere').textContent = acct.user ? '' : ' (saved in this browser; sign in to keep them)';
-  const slow = setTimeout(()=>{ if(seq===lbSeq) $('#lbPulls').innerHTML = $('#lbPacks').innerHTML = '<p class="empty-s">Loading…</p>'; }, 150);
-  let d;
-  try{ d = await packLog(since); }catch(e){ d = {packs:[], count:0}; toast('Couldn’t load your packs: '+(e.message||e)); }
-  clearTimeout(slow); if(seq!==lbSeq) return;
-  const word = lbPeriod==='day' ? 'today' : lbPeriod==='week' ? 'this week' : 'yet';
-  const pulls = topPulls(d.packs, 5), packs = d.packs.slice().sort((a,b)=>b.value-a.value).slice(0,5);
-  $('#lbPulls').innerHTML = pulls.length ? pulls.map((x,i)=>pullRow(x,i,lbPeriod)).join('') : `<p class="empty-s">No pulls ${word}.</p>`;
-  $('#lbPacks').innerHTML = packs.length ? packs.map((p,i)=>packRow(p,i,lbPeriod)).join('') : `<p class="empty-s">No packs ${word}.</p>`;
-  $('#lbCount').innerHTML = `<div class="bignum">${d.count.toLocaleString()}</div><p class="pwnote">packs ripped ${lbPeriod==='all'?'all-time':word}. On the global board this will count up to 100 a day.</p>`;
-  const inP = x => !since || x.at >= since;
+  document.querySelectorAll('#lbSub [data-ls]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.ls===lbSub)));
+  $('#lbBoards').hidden = lbSub!=='boards'; $('#lbAch').hidden = lbSub!=='ach'; $('#lbTabs').hidden = lbSub!=='boards';
+  if(lbSub==='ach') return renderAchievements();
+  // your ranked stats (kept in this browser for now)
+  const since = sinceFor(lbPeriod), inP = x => !since || x.at >= since, word = lbPeriod==='day' ? 'today' : lbPeriod==='week' ? 'this week' : 'all-time';
   const matches = (rk.duel.matches||[]).filter(inP), w = matches.filter(m=>m.won).length;
   const gs = rk.guess.scores.filter(inP), gAvg = lbPeriod==='all' ? guessSkill() : guessSkill(gs.slice(-GUESS_WINDOW));
   const runs = rk.bust.runs.filter(inP), bestRun = runs.reduce((b,r)=>Math.max(b, r.banked||0), 0);
   $('#lbRanked').innerHTML = `
-    <div class="box"><div class="box-h"><h2>Money Spread</h2></div><div class="bignum">${Math.round(rk.duel.rating).toLocaleString()}</div><div class="kvs"><div><span>Matches ${lbPeriod==='all'?'all-time':word}</span><b>${matches.length}</b></div><div><span>Won · lost</span><b>${w} · ${matches.length-w}</b></div></div></div>
-    <div class="box"><div class="box-h"><h2>Guess the Value</h2></div><div class="bignum">${gAvg==null?'—':gAvg.toFixed(1)}</div><div class="kvs"><div><span>Rounds ${lbPeriod==='all'?'all-time':word}</span><b>${gs.length}</b></div><div><span>Best round</span><b>${gs.length?Math.max(...gs.map(x=>x.pts)):'—'}</b></div></div></div>
-    <div class="box"><div class="box-h"><h2>Bank or Bust</h2></div><div class="bignum">${bestRun?money(bestRun):'—'}</div><div class="kvs"><div><span>Runs ${lbPeriod==='all'?'all-time':word}</span><b>${runs.length}</b></div><div><span>Busted</span><b>${runs.filter(r=>r.bust).length}</b></div></div></div>`;
+    <div class="box"><div class="box-h"><h2>Money Spread</h2></div><div class="bignum">${Math.round(rk.duel.rating).toLocaleString()}</div><div class="kvs"><div><span>Matches ${word}</span><b>${matches.length}</b></div><div><span>Won · lost</span><b>${w} · ${matches.length-w}</b></div></div></div>
+    <div class="box"><div class="box-h"><h2>Guess the Value</h2></div><div class="bignum">${gAvg==null?'—':gAvg.toFixed(1)}</div><div class="kvs"><div><span>Rounds ${word}</span><b>${gs.length}</b></div><div><span>Best round</span><b>${gs.length?Math.max(...gs.map(x=>x.pts)):'—'}</b></div></div></div>
+    <div class="box"><div class="box-h"><h2>Bank or Bust</h2></div><div class="bignum">${bestRun?money(bestRun):'—'}</div><div class="kvs"><div><span>Runs ${word}</span><b>${runs.length}</b></div><div><span>Busted</span><b>${runs.filter(r=>r.bust).length}</b></div></div></div>`;
+  $('#lbNote').innerHTML = (acct.user ? 'Everyone on ripjr.com, from packs the server rolled. ' : '<b>Sign in with Discord to get on the boards.</b> ')
+    + 'Daily and weekly boards reset at midnight UTC (7pm Central). Packs ripped counts up to 100 a day.';
+  const boards = [['pull','#lbPulls'],['pack','#lbPacks'],['count','#lbCount']];
+  const slow = setTimeout(()=>{ if(seq===lbSeq) boards.forEach(([,s])=>$(s).innerHTML = '<p class="empty-s">Loading…</p>'); }, 150);
+  if(!await sbReady()){ clearTimeout(slow); boards.forEach(([,s])=>$(s).innerHTML = '<p class="empty-s">Boards aren’t available right now.</p>'); return; }
+  const res = await Promise.all(boards.map(([k])=>rpc('leaderboard', {p_board:k, p_period:lbPeriod}).catch(err=>({error:err.message}))));
+  clearTimeout(slow); if(seq!==lbSeq) return;
+  res.forEach((r,i)=>{ $(boards[i][1]).innerHTML = boardRows(boards[i][0], r); });
 }
+const avatarHtml = x => x.avatar ? `<img class="av" src="${h(x.avatar)}" alt="" loading="lazy">` : `<span class="av">${h((x.name||'?').slice(0,1).toUpperCase())}</span>`;
+function boardRows(kind, r){
+  if(!r || r.error) return `<p class="empty-s">${h((r && r.error) || 'Couldn’t load this board.')}</p>`;
+  if(!r.rows.length) return '<p class="empty-s">Nobody yet. Rip a pack and take the top spot.</p>';
+  const val = v => kind==='count' ? Number(v).toLocaleString() : money(+v);
+  const row = x => `<div class="lbrow ${x.me?'me':''}"><span class="n">${x.rank}</span>${kind==='pull' && x.img ? `<img class="lbcard" src="${h(x.img)}" alt="" loading="lazy">` : avatarHtml(x)}<span class="who2"><b>${h(x.name)}</b><small>${x.title?`<i>${h(x.title)}</i>`:''}${x.title && kind==='pull' && x.card?' · ':''}${kind==='pull' && x.card?h(x.card):''}</small></span><span class="v">${val(x.value)}</span></div>`;
+  const mine = r.me && !r.rows.some(x=>x.me) ? `<div class="lbrow me"><span class="n">${r.me.rank}</span><span class="av">★</span><span class="who2"><b>You</b><small>of ${Number(r.players).toLocaleString()} players</small></span><span class="v">${val(r.me.value)}</span></div>` : '';
+  return r.rows.map(row).join('') + mine;
+}
+$('#lbSub').addEventListener('click', e=>{ const b = e.target.closest('[data-ls]'); if(!b) return; lbSub = b.dataset.ls; renderBoards(); });
 
 
 /* ======================= Challenge links (Supabase: see challenges.sql) ======================= */
@@ -2826,6 +2881,59 @@ function liveOffer(){
   };
   t.onclick = e=>{ const b = e.target.closest('[data-rv]'); if(b) show(b.dataset.rv); };
   if(isPhone()) setTimeout(()=>{ if(game && game.lastMine===idx && t.isConnected) show('theirs'); }, 1600);
+}
+
+/* ======================= Achievements (titles you can pin) ======================= */
+// Earned on the server from the packs it rolls for you. The pop-up waits until you've seen the pack that earned it.
+async function achCheck(cards){
+  if(!acct.user || !acct.sb || !cards || !cards.length) return;
+  const ref = cards[0].id + ':' + cards[cards.length-1].id;
+  try{ const list = await rpc('ach_pending', {p_ref:ref}); (list||[]).forEach(achToast); if((list||[]).length && ui.view==='boards' && lbSub==='ach') renderAchievements(); }catch(e){}
+}
+const achQueue = [];
+function achToast(a){ achQueue.push(a); if(achQueue.length===1) setTimeout(achNext, 600); }
+function achNext(){
+  const a = achQueue[0]; if(!a) return;
+  const el = document.createElement('button'); el.type = 'button'; el.className = 'achpop';
+  el.innerHTML = `<span class="achpop-k">🏆 Achievement unlocked</span><b>${h(a.title)}</b><span>${h(a.description)}</span>`;
+  document.body.appendChild(el); sfx('delight'); buzz('hit');
+  let gone = false;
+  const done = ()=>{ if(gone) return; gone = true; el.classList.add('out'); setTimeout(()=>{ el.remove(); achQueue.shift(); achNext(); }, 320); };
+  el.onclick = ()=>{ done(); lbSub = 'ach'; if(!game) setView('boards'); };
+  setTimeout(done, 3600);
+}
+async function renderAchievements(){
+  const grid = $('#achGrid');
+  if(!acct.user){
+    $('#achNote').innerHTML = 'Sign in with Discord to earn achievements. Each one is a title you can pin next to your name on the boards.';
+    grid.innerHTML = '<div><button class="pill" type="button" data-signin>Sign in with Discord</button></div>'; return;
+  }
+  let d;
+  try{ d = await rpc('my_achievements', {}); }catch(e){ grid.innerHTML = `<p class="empty-s">${h(e.message)}</p>`; return; }
+  const list = d.list || [], earned = list.filter(a=>a.earned_at).length;
+  acct.title = d.pinned || null; acct.titleName = (list.find(a=>a.code===d.pinned)||{}).title || null; renderAccount();
+  $('#achNote').innerHTML = `<b>${earned} of ${list.length}</b> earned. Pin one as your title and it shows next to your name on the boards.`;
+  grid.innerHTML = list.map(a=>{
+    const on = !!a.earned_at, pinned = a.code===d.pinned;
+    const have = a.code==='master' ? d.p9 : d.packs;
+    const prog = !on && a.goal ? `<div class="bar"><i style="width:${Math.min(100, Math.round(have/a.goal*100))}%"></i></div><small class="num">${Math.min(have, a.goal).toLocaleString()} / ${a.goal.toLocaleString()}</small>` : '';
+    return `<div class="ach ${on?'on':''} ${pinned?'pinned':''}"><div class="ach-t">${h(a.title)}</div><div class="ach-d">${h(a.description)}</div>${prog}
+      ${on ? `<div class="ach-f"><small>${h(new Date(a.earned_at).toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'}))}</small><button class="pill small ${pinned?'':'ghost'}" type="button" data-pin="${h(a.code)}" data-on="${pinned?1:0}">${pinned?'Pinned ✓':'Pin as title'}</button></div>` : ''}</div>`;
+  }).join('');
+}
+document.addEventListener('click', async e=>{
+  const b = e.target.closest('[data-pin]'); if(!b) return;
+  const off = b.dataset.on==='1';
+  try{ await rpc('pin_title', {p_code: off ? null : b.dataset.pin}); sfx(off ? 'remove' : 'add'); toast(off ? 'Title unpinned' : 'Title pinned'); }catch(err){ toast(err.message); }
+  renderAchievements();
+});
+// your Discord name and avatar for the boards (once per session)
+let profileSynced = null;
+function profileSync(){
+  const u = acct.user; if(!u || !acct.sb || profileSynced===u.id) return;
+  profileSynced = u.id;
+  rpc('set_profile', {p_name:userName(u), p_avatar:(u.user_metadata && u.user_metadata.avatar_url) || null}).catch(()=>{ profileSynced = null; });
+  rpc('my_achievements', {}).then(d=>{ const a = (d.list||[]).find(x=>x.code===d.pinned); acct.titleName = a ? a.title : null; renderAccount(); }).catch(()=>{});
 }
 
 /* ======================= Boot ======================= */
