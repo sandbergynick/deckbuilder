@@ -903,6 +903,8 @@ html.fit .app{align-items:stretch}
 .ripc .rh.l{transform-origin:20% 100%}
 .ripc .rh.r{transform-origin:80% 100%}
 .ripc.split{cursor:default}
+.ripc.auto{pointer-events:none}
+.ripc.auto .riphint{display:none}
 .ripc.split > img,.ripc.split .crack,.ripc.split .riphint{opacity:0}
 .ripc.split .rh.l{transform:translate(-4%,2%) rotate(-5deg)}
 .ripc.split .rh.r{transform:translate(4%,3.5%) rotate(4.5deg)}
@@ -3417,9 +3419,15 @@ async function flipTheirs(){
   await sleep(300); if(game!==g) return;
   slot.innerHTML = `<div class="flflip"><div class="flf back">${cardBack()}</div><button class="flf front" type="button" data-open="${h(rare.id)}"><img src="${h(rare.img||'')}" alt="${h(rare.name)}" crossorigin="anonymous"></button></div>`;
   slot.getBoundingClientRect(); slot.firstChild.classList.add('on');
-  await sleep(620); if(game!==g) return;
+  await sleep(900); if(game!==g) return;
+  // they rip theirs too
+  foot(`<div class="hint">${h(flipThem())} ${game.ch ? 'rips theirs in half…' : 'rips its rare in half…'}</div>`);
+  const theirRip = makeRipper(slot, rare); slot.firstChild.classList.add('auto');
+  await sleep(250); if(game!==g) return;
+  await theirRip.auto();
+  await sleep(450); if(game!==g) return;
   const el = $('#flTP'); if(el){ el.classList.add('on'); countUp(el, flipUsd(tc), 650); }
-  await sleep(750); if(game!==g) return;
+  await sleep(900); if(game!==g) return;
   flipVerdict();
 }
 function flipVerdict(){
@@ -3434,7 +3442,7 @@ function flipVerdict(){
   const line = r>0 ? pick(['You ripped the cheaper one!','Cheap rip. Round to you.','Nice. That one deserved it.']) : pick(['Ouch. You ripped the pricier one.','That one hurt. Round to '+flipThemIn()+'.','Expensive rip.']);
   if(r>0) sfx('hit'); else buzz('swipe');
   if(g.you < FLIP_WINS && g.them < FLIP_WINS){
-    foot(`<div class="rres ${r>0?'win':'lose'}">${h(line)}</div><div class="hint">You ripped ${money(my)} · ${h(flipThem())} ${money(th)}</div>${tie}<div class="stage-acts"><button class="pill" type="button" id="rvNext">Next round</button></div>`);
+    foot(`<div class="rres ${r>0?'win':'lose'}">${h(line)}</div><div class="hint">You ripped ${money(my)} · ${h(flipThem())} ripped ${money(th)}</div>${tie}<div class="stage-acts"><button class="pill" type="button" id="rvNext">Next round</button></div>`);
     $('#rvNext').onclick = ()=>{ g.round++; flipNext(); };
     return;
   }
