@@ -804,6 +804,35 @@ html.fit .app{align-items:stretch}
   .stage-mid{--cw:min(300px,68vw);--cw:min(300px,68vw,max(150px,calc((100svh - 300px) * .62)))}
 }
 
+/* ranked sub-tabs, challenge rows, live view */
+.rksub{justify-self:start}
+.badge:not(:empty){display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:var(--bad);color:#fff;font:800 .7rem/1 var(--f-body)}
+.chrow2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.chrow .turn{color:var(--accent);font-weight:800}
+.chx{width:34px;height:34px;font-size:1.15rem}
+.livedot{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:800;color:var(--muted)}
+.livedot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.livedot.on{color:var(--good)} .livedot.on::before{background:var(--good);box-shadow:0 0 0 4px rgba(107,196,125,.2)}
+.rgrid.mini{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.rgrid.mini .rc img{box-shadow:none}
+.rvtoggle{display:inline-flex;gap:4px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px}
+.rvtoggle button{border:0;background:transparent;color:#ECEBE8;font:800 .82rem/1 var(--f-body);padding:8px 12px;border-radius:999px;white-space:nowrap}
+.rvtoggle button[aria-pressed="true"]{background:rgba(255,255,255,.2)}
+/* favorites lookup */
+.flook{position:relative;display:flex;align-items:center;gap:10px;background:var(--field);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:0 0 0 2px var(--line),0 4px 0 rgba(0,0,0,.22);max-width:640px}
+.flook:focus-within{box-shadow:0 0 0 2px var(--gold),0 4px 0 rgba(0,0,0,.22)}
+.flook svg{color:var(--muted);flex:none}
+.flook input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-size:1.02rem;padding:8px 0;outline:none}
+.flook input::placeholder{color:var(--muted)}
+.aclist{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;list-style:none;margin:0;padding:6px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow-lift),0 0 0 1px var(--line);max-height:320px;overflow:auto}
+.aclist li{padding:10px 12px;border-radius:10px;cursor:pointer}
+.aclist li:hover,.aclist li[aria-selected="true"]{background:var(--surface-2)}
+@media (max-width: 600px){
+  .tabbar{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tabbar button{font-size:.68rem}
+}
+#fSort{width:auto;padding:8px 10px;font-size:.88rem}
+
 </style>
 </head>
 <body>
@@ -813,6 +842,8 @@ html.fit .app{align-items:stretch}
   <symbol id="i-pack" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="1.5"/><path d="M6 7h12M6 17h12"/></g></symbol>
   <symbol id="i-swords" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m19 21 2-2"/></g></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></g></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m13 13 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="i-binder" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v18"/></g></symbol>
 </svg>
 
@@ -824,6 +855,7 @@ html.fit .app{align-items:stretch}
       <button role="tab" type="button" data-view="ranked" aria-selected="false">Ranked</button>
       <button role="tab" type="button" data-view="boards" aria-selected="false">Leaderboards</button>
       <button role="tab" type="button" data-view="binder" aria-selected="false">Binder</button>
+      <button role="tab" type="button" data-view="favs" aria-selected="false">Favorites</button>
     </div>
     <div class="nav-r"><button class="helpbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="helpbtn" id="navSound" type="button" aria-label="Sound and haptics"></button><button class="acctbtn" id="acctBtn" type="button" aria-label="Account" aria-haspopup="true" aria-expanded="false">Sign in</button><button class="helpbtn" id="navMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button></div>
     <div class="navmenu" id="navMenu" hidden role="menu">
@@ -874,6 +906,8 @@ html.fit .app{align-items:stretch}
           <div class="bseg" id="rkEra" role="tablist" aria-label="Pack type"><button type="button" role="tab" data-rera="all">Any</button><button type="button" role="tab" data-rera="old">Old school</button><button type="button" role="tab" data-rera="new" id="rkEraNew">Newest</button></div>
         </div>
       </div>
+      <div class="bseg rksub" id="rkSub" role="tablist" aria-label="Ranked"><button type="button" role="tab" data-rs="modes">Modes</button><button type="button" role="tab" data-rs="ch">Challenges <span class="badge num" id="rkChN"></span></button></div>
+      <div id="rkModes" style="display:grid;gap:20px">
       <div class="modes">
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><rect x="30" y="12" width="34" height="48" rx="4" transform="rotate(-10 47 36)" fill="#5AA2FF" opacity=".55"/><rect x="56" y="14" width="34" height="48" rx="4" transform="rotate(10 73 38)" fill="#F4BF3A"/><text x="73" y="45" text-anchor="middle" font-size="22" font-weight="800" fill="#2A1C0E" transform="rotate(10 73 38)">$</text></svg><img src="mode-spread.jpg" alt="Money Spread" onerror="this.remove()"></div><h2>Money Spread <span id="rkDuelR"></span></h2><p>Best of 7. The higher pack value takes the round.</p><p class="sub num" id="rkDuelWL"></p>
           <div class="acts"><button class="pill" type="button" data-start="duel">Duel the Genie</button><button class="pill ghost small" type="button" disabled>Find a match<span class="soon">SOON</span></button><button class="pill ghost small" type="button" data-challenge="duel">Challenge a friend</button></div></div>
@@ -882,9 +916,12 @@ html.fit .app{align-items:stretch}
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><rect x="22" y="44" width="14" height="22" rx="2" fill="#5AA2FF"/><rect x="42" y="30" width="14" height="36" rx="2" fill="#5AA2FF"/><rect x="62" y="20" width="14" height="46" rx="2" fill="#F4BF3A"/><rect x="82" y="58" width="14" height="8" rx="2" fill="#EF6A5B"/><path d="M14 52h92" stroke="#EF6A5B" stroke-width="2.5" stroke-dasharray="5 4"/></svg><img src="mode-bust.jpg" alt="Bank or Bust" onerror="this.remove()"></div><h2>Bank or Bust <span id="rkBustB"></span></h2><p>Rip packs to stack value. Bank before a pack comes in under the line.</p><p class="sub" id="rkBustL"></p>
           <div class="acts"><button class="pill" type="button" data-start="bust">Start a run</button><button class="pill ghost small" type="button" data-challenge="bust">Challenge a friend</button></div></div>
       </div>
-      <div class="box" id="rkChBox" hidden><div class="box-h"><h2>Challenges</h2></div><div class="mlist" id="rkCh"></div></div>
-      <div class="box"><div class="box-h"><h2>Recent matches</h2></div><div class="mlist" id="rkHist"></div></div>
-      <p class="pwnote">Ranked runs in this browser for now. Challenge links are saved to your account. Online matchmaking and global leaderboards are coming next.</p>
+      <p class="pwnote">Solo ranked runs in this browser for now. Challenges are rolled and scored by the server. Online matchmaking and global leaderboards are coming next.</p>
+      </div>
+      <div id="rkChs" hidden style="display:grid;gap:14px">
+        <p class="pwnote">Your challenge links. Open one to play or see results. The × deletes a challenge nobody took yet, cancels one that’s in progress (it won’t count for either of you), or clears a finished one from your list.</p>
+        <div class="mlist" id="rkCh"></div>
+      </div>
     </div>
     <div id="rkPlay" hidden>
       <div class="rk-bar"><button class="backbtn" type="button" data-back aria-label="Back to Ranked">‹ Back</button><span class="rk-title" id="rkTitle"></span><span class="muted num" id="rkRight"></span></div>
@@ -908,11 +945,27 @@ html.fit .app{align-items:stretch}
     <div class="boards" id="lbRanked"></div>
   </section>
 
+  <section class="view" id="view-favs" hidden aria-label="Favorites">
+    <div class="lhead">
+      <div><h2>Favorites</h2><p class="muted num" id="fSum"></p></div>
+      <select id="fSort" class="input bsort" aria-label="Sort"><option value="value">Most valuable</option><option value="name">Name</option></select>
+    </div>
+    <form class="flook" id="favForm" role="search" autocomplete="off">
+      <svg width="20" height="20" aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="favQ" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="favList" placeholder="Look up any card to add it" aria-label="Look up a card">
+      <button class="pill" type="submit">Find</button>
+      <ul class="aclist" id="favList" role="listbox" hidden></ul>
+    </form>
+    <span class="status" id="fStatus" role="status"></span>
+    <div class="grid" id="fGrid"></div>
+    <p class="pwnote" id="fNote"></p>
+  </section>
+
   <section class="view" id="view-binder" hidden aria-label="Binder">
     <div class="lhead">
       <div><h2>Binder</h2><p class="muted num" id="bSum"></p></div>
       <div class="dacts2">
-        <div class="bseg" id="bTabs"><button type="button" data-b="pulls" aria-selected="true">Pulled</button><button type="button" data-b="favs" aria-selected="false">Favorites</button></div>
+        <div class="bseg" id="bTabs" hidden><button type="button" data-b="pulls" aria-selected="true">Pulled</button><button type="button" data-b="favs" aria-selected="false">Favorites</button></div>
         <select id="bSort" class="input bsort" aria-label="Sort"><option value="value">Most valuable</option><option value="new">Newest</option><option value="name">Name</option><option value="count">Most copies</option></select>
       </div>
     </div>
@@ -928,6 +981,7 @@ html.fit .app{align-items:stretch}
   <button type="button" data-view="ranked" aria-selected="false"><svg width="22" height="22"><use href="#i-swords"/></svg>Ranked</button>
   <button type="button" data-view="boards" aria-selected="false"><svg width="22" height="22"><use href="#i-trophy"/></svg>Boards</button>
   <button type="button" data-view="binder" aria-selected="false"><svg width="22" height="22"><use href="#i-binder"/></svg>Binder</button>
+  <button type="button" data-view="favs" aria-selected="false"><svg width="22" height="22"><use href="#i-star"/></svg>Favorites</button>
 </nav>
 
 <footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy.</footer>
@@ -1885,7 +1939,7 @@ async function loadAccountData(){
 const ACCT_ACTIONS = {
   signin: signIn, signout: signOut,
   binder: ()=>{ binderTab='pulls'; setView('binder'); },
-  favs: ()=>{ binderTab='favs'; setView('binder'); },
+  favs: ()=>setView('favs'),
   privacy: ()=>{ const on = !!acct.user; $('#privDelete').hidden = !on; $('#privDelWrap').hidden = !on; $('#privDlg').showModal(); },
 };
 function renderAccount(){
@@ -1912,7 +1966,7 @@ const isFav = c => favStore().has(c.name);
 function setFavUI(c){ const b = $('#dFav'); if(!b || !c) return; const on = isFav(c); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '★' : '☆'; b.title = on ? 'Remove from favorites' : 'Add to favorites'; }
 $('#dFav').addEventListener('click', async ()=>{
   const c = dlgCard; if(!c) return;
-  const on = !isFav(c), card = keepCard(c);
+  const on = !isFav(c), card = keepCard(Object.assign({}, dlgShown && dlgShown.name===c.name ? dlgShown : c, {name:c.name}));   // keeps the artwork you're looking at
   if(acct.user){
     if(on) acct.favs.set(c.name, card); else acct.favs.delete(c.name);
     const r = on ? await acct.sb.from('favorites').upsert({card_name:c.name, card}, {onConflict:'user_id,card_name'}) : await acct.sb.from('favorites').delete().eq('card_name', c.name);
@@ -1922,6 +1976,7 @@ $('#dFav').addEventListener('click', async ()=>{
   }
   sfx(on ? 'add' : 'remove'); setFavUI(c); toast(on ? 'Added to favorites' : 'Removed from favorites');
   if(ui.view==='binder') renderBinder();
+  if(ui.view==='favs') renderFavs();
 });
 
 /* ---------- binder ---------- */
@@ -1949,7 +2004,7 @@ function binderData(){
   const lb = lsGet(LS_BINDER, {items:{}, packs:[], total:0});
   return {items:Object.entries(lb.items).map(([id,x])=>Object.assign({id}, x)), packs:lb.total || lb.packs.length};
 }
-let binderTab = 'pulls', binderPage = 0;
+let binderTab = 'pulls', binderPage = 0;   // favorites have their own tab now
 const BINDER_PAGE = 50;   // cards per page
 $('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; binderPage = 0; renderBinder(); });
 $('#bSort').addEventListener('change', ()=>{ binderPage = 0; renderBinder(); });
@@ -1985,11 +2040,11 @@ function renderBinder(){
   }).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">${binderTab==='favs'?'No favorites yet':'Your binder is empty'}</b><span>${binderTab==='favs'?'Tap the ☆ on any card to save it here.':'Every card you rip lands here.'}</span></div>`;
   $('#bNote').textContent = acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep it in your account.' : '');
 }
-function refreshView(){ logMemo = {}; warmBoards(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
+function refreshView(){ logMemo = {}; warmBoards(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
 
 /* ======================= Views ======================= */
 const ui = {view:''};
-const VIEWS = ['casual','ranked','boards','binder'];
+const VIEWS = ['casual','ranked','boards','binder','favs'];
 function setView(v){
   const prev = ui.view;
   if(prev==='ranked' && v!=='ranked' && game && !leaveGame()) return;
@@ -2003,6 +2058,7 @@ function setView(v){
   if(v==='ranked') renderRanked();
   if(v==='boards') renderBoards();
   if(v==='binder') renderBinder();
+  if(v==='favs') renderFavs();
   window.scrollTo({top:0});
 }
 document.addEventListener('click',e=>{ const t = e.target.closest('button[data-view]'); if(t) setView(t.dataset.view); });
@@ -2141,10 +2197,14 @@ function renderRanked(){
   $('#rkGuessN').textContent = n >= GUESS_WINDOW ? `Skill score: average of your last ${GUESS_WINDOW} rounds` : `${GUESS_WINDOW-n} of ${GUESS_WINDOW} rounds until your skill score counts`;
   $('#rkBustB').textContent = rk.bust.best ? money(rk.bust.best) : '—';
   $('#rkBustL').innerHTML = `Bust line for ${h(eraLabel(rk.era))} packs: <b>${money(BUST_LINE[rk.era])}</b>`;
-  $('#rkHist').innerHTML = rk.history.length ? rk.history.slice().reverse().slice(0,8).map(x=>`<div class="mrow"><div><b>${h(MODE_NAME[x.mode]||'')}</b> <span>· ${h(eraLabel(x.era))} · ${h(when(x.at))}</span></div><div class="${x.cls||''}">${h(x.score)}</div>${x.detail?`<span style="grid-column:1/-1">${h(x.detail)}</span>`:''}</div>`).join('') : '<p class="empty-s">No matches yet. Pick a mode above.</p>';
+  if(false) $('#rkHist').innerHTML = rk.history.length ? rk.history.slice().reverse().slice(0,8).map(x=>`<div class="mrow"><div><b>${h(MODE_NAME[x.mode]||'')}</b> <span>· ${h(eraLabel(x.era))} · ${h(when(x.at))}</span></div><div class="${x.cls||''}">${h(x.score)}</div>${x.detail?`<span style="grid-column:1/-1">${h(x.detail)}</span>`:''}</div>`).join('') : '<p class="empty-s">No matches yet. Pick a mode above.</p>';
   document.querySelectorAll('[data-start],[data-challenge]').forEach(b=>b.disabled = !left);
   renderChallenges();
+  document.querySelectorAll('#rkSub [data-rs]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.rs===ui.rsub)));
+  $('#rkModes').hidden = ui.rsub!=='modes'; $('#rkChs').hidden = ui.rsub!=='ch';
 }
+ui.rsub = 'modes';
+$('#rkSub').addEventListener('click', e=>{ const b = e.target.closest('[data-rs]'); if(!b) return; ui.rsub = b.dataset.rs; renderRanked(); });
 $('#rkEra').addEventListener('click', e=>{ const b = e.target.closest('[data-rera]'); if(!b) return; rk.era = b.dataset.rera; rkSave(); renderRanked(); });
 document.addEventListener('click', e=>{
   const s = e.target.closest('[data-start]'); if(s && !s.disabled){ startGame(s.dataset.start); return; }
@@ -2152,8 +2212,9 @@ document.addEventListener('click', e=>{
 });
 function rkHistory(x){ rk.history.push(Object.assign({at:new Date().toISOString(), era:game.era, mode:game.mode}, x)); rkSave(); }
 function foot(html){ $('#stageFoot').classList.remove('static'); $('#stageFoot').innerHTML = html; }
-function stageLabel(){
+function stageLabel(next){   // next: about to open the next pack
   if(!game) return '';
+  if(game.ch && (game.mode==='duel' || game.mode==='guess')){ const N = CH_PACKS[game.mode], k = Math.min(Math.max(game.n + (next?1:0), 1), N); return `${game.mode==='duel'?'Pack':'Round'} ${k} of ${N}`; }
   if(game.mode==='duel') return game.ch ? `Pack ${Math.min(game.n+1, CH_PACKS.duel)} of ${CH_PACKS.duel}` : `Round ${game.round} · ${game.you}–${game.them}`;
   if(game.mode==='guess') return game.ch ? `Round ${Math.min(game.n+1, CH_PACKS.guess)} of ${CH_PACKS.guess}` : `Round ${game.round}`;
   return `Pack ${game.packs.length+1} · ${money(game.pot)} on the line`;
@@ -2166,6 +2227,7 @@ function startGame(mode, opts={}){
   pk.mode = 'ranked'; pk.era = game.era;
   $('#rankedHost').appendChild($('#stage'));
   $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0}); setPlay(true);
+  if(game.ch) liveStart(game);
   $('#rkTitle').textContent = `${MODE_NAME[mode]}${game.ch ? ' challenge'+(game.ch.name?' vs '+game.ch.name:'') : mode==='duel'?' vs the Genie':''} · ${eraLabel(game.era)} packs`;
   nextRankedPack();
 }
@@ -2186,19 +2248,21 @@ function nextRankedPack(){
     game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok); game.genieP.catch(()=>{});
     genieSay(game.round===1 ? 'Best of seven. Rip yours first.' : pick(['Your move.','Go on, rip it.','I’m feeling lucky.','Let’s see it.']));
   }
-  setStageChrome(stageLabel()); newPack(); renderPanel();
+  setStageChrome(stageLabel(true)); newPack(); renderPanel();
 }
 const pick = a => a[Math.floor(Math.random()*a.length)];
 // called by the pack screen once a ranked pack is torn open
 function rankedOpened(cards, swiped){
   if(!game || game.over) return;
-  useRankedPack(); game.n++;
+  useRankedPack(); game.n++; game.lastCards = cards;
+  if(game.ch) livePing();
   $('#rkRight').textContent = leftText();
   const v = packValue(cards);
   if(game.mode==='guess') return guessStart(cards, v);
   showReveal(cards, {label:'Your pack', value:v, sound:!swiped});
   if(game.mode==='duel') (game.ch ? chDuelAfter : duelMine)(cards, v);
   if(game.mode==='bust') bustAfter(cards, v);
+  if(game && game.ch && !game.chDone) liveAfterMine(game.n-1);
 }
 // the 15 cards dealt out in a grid; values hidden while guessing
 const TIERS = ['hit','hit2','hit3'];
@@ -2321,6 +2385,7 @@ function lockGuess(){
   guessDone(g, a, pts);
 }
 function guessDone(g, a, pts){
+  if(game.ch){ game.lastCards = game.cards; livePing(); setTimeout(()=>liveAfterMine(game.n-1), 0); }
   rk.guess.scores.push({at:new Date().toISOString(), pts});
   game.rounds.push({g, a, pts});
   rkHistory({score:`+${pts} pts`, cls: pts>=60?'w':'', detail:`Guessed ${isNaN(g)?'nothing':money(g)} · actual ${money(a)}`});
@@ -2384,7 +2449,7 @@ function leaveGame(){
   if(game.genieTok) game.genieTok.dead = true;
   game = null;
   if(pk.tok) pk.tok.dead = true;
-  pk.state = 'idle'; pk.source = null; pk.swipe = false; setPlay(false);
+  pk.state = 'idle'; pk.source = null; pk.swipe = false; setPlay(false); liveStop();
   return true;
 }
 
@@ -2392,9 +2457,10 @@ function leaveGame(){
 function renderPanel(){
   const P = $('#rkPanel'); if(!game){ P.innerHTML = ''; return; }
   const chBox = game.ch ? `<div class="box"><div class="box-h"><h2>Challenge${game.ch.name?' vs '+h(game.ch.name):''}</h2></div><p class="pwnote">${{duel:`Open ${CH_PACKS.duel} packs. Each pack is matched against theirs on dollar value.`, guess:`Guess ${CH_PACKS.guess} packs. They get the exact same packs.`, bust:'They get the exact same packs. Highest bank wins.'}[game.mode]} Their score stays hidden until you both finish.</p></div>` : '';
+  const liveBox = game.ch ? liveBoxHtml() : '';
   if(game.mode==='duel' && game.ch){
     const total = game.rounds.reduce((a,r)=>a+r.you,0);
-    P.innerHTML = chBox + `<div class="box"><div class="box-h"><h2>Your packs</h2></div><div class="big">${money(total)}</div><div class="mlist">${Array.from({length:CH_PACKS.duel},(_,i)=>{ const r = game.rounds[i]; return `<div class="mrow"><div><b>Pack ${i+1}</b> <span>${r && r.best ? '· '+h(r.best.name) : ''}</span></div><div>${r?money(r.you):'—'}</div></div>`; }).join('')}</div></div>`;
+    P.innerHTML = liveBox + chBox + `<div class="box"><div class="box-h"><h2>Your packs</h2></div><div class="big">${money(total)}</div><div class="mlist">${Array.from({length:CH_PACKS.duel},(_,i)=>{ const r = game.rounds[i]; return `<div class="mrow"><div><b>Pack ${i+1}</b> <span>${r && r.best ? '· '+h(r.best.name) : ''}</span></div><div>${r?money(r.you):'—'}</div></div>`; }).join('')}</div></div>`;
     return;
   }
   if(game.mode==='duel'){
@@ -2405,14 +2471,14 @@ function renderPanel(){
   }
   if(game.mode==='guess'){
     const sk = guessSkill(), n = rk.guess.scores.length;
-    P.innerHTML = chBox + (game.ch ? `<div class="box"><div class="box-h"><h2>Challenge points</h2></div><div class="big">${game.rounds.reduce((a,r)=>a+r.pts,0)}</div></div>` : '') + `<div class="box"><div class="box-h"><h2>Skill score</h2></div><div class="big">${sk==null?'—':sk.toFixed(1)}</div>
+    P.innerHTML = liveBox + chBox + (game.ch ? `<div class="box"><div class="box-h"><h2>Challenge points</h2></div><div class="big">${game.rounds.reduce((a,r)=>a+r.pts,0)}</div></div>` : '') + `<div class="box"><div class="box-h"><h2>Skill score</h2></div><div class="big">${sk==null?'—':sk.toFixed(1)}</div>
       ${n < GUESS_WINDOW ? `<div class="bar"><i style="width:${Math.round(n/GUESS_WINDOW*100)}%"></i></div><p class="pwnote">${GUESS_WINDOW-n} of ${GUESS_WINDOW} rounds until your score counts</p>` : `<p class="pwnote">Average of your last ${GUESS_WINDOW} rounds</p>`}</div>
       <div class="box"><div class="box-h"><h2>This session</h2></div><div class="mlist">${game.rounds.length ? game.rounds.slice().reverse().map((r,i)=>`<div class="mrow"><div><b>Round ${game.rounds.length-i}</b> <span>· ${isNaN(r.g)?'no guess':money(r.g)} vs ${money(r.a)}</span></div><div class="${r.pts>=60?'w':''}">+${r.pts}</div></div>`).join('') : '<p class="empty-s">Exact guesses score 100. Being off by double scores 0. Faster guesses get up to 10 bonus points.</p>'}</div></div>`;
   }
   if(game.mode==='bust'){
     const line = game.line || BUST_LINE[game.era], vals = game.packs.map(p=>p.v), mx = Math.max(line*3, ...vals, 1), H = 150, y = v => Math.round(Math.sqrt(v/mx)*(H-24));   // square-root scale so small packs still show
     const bars = game.packs.map(p=>`<div><small>${money(p.v)}</small><i class="${p.bust?'bust':''}" style="height:${Math.max(4, y(p.v))}px"></i></div>`).join('') + (game.over ? '' : `<div><small>?</small><i class="next" style="height:${y(line)+10}px"></i></div>`);
-    P.innerHTML = chBox + `<div class="box"><div class="box-h"><h2>On the line</h2></div><div class="big acc">${money(game.pot)}</div><p class="pwnote center">${game.packs.length} pack${game.packs.length===1?'':'s'} ripped · any pack under <b style="color:var(--bad)">${money(line)}</b> busts</p></div>
+    P.innerHTML = liveBox + chBox + `<div class="box"><div class="box-h"><h2>On the line</h2></div><div class="big acc">${money(game.pot)}</div><p class="pwnote center">${game.packs.length} pack${game.packs.length===1?'':'s'} ripped · any pack under <b style="color:var(--bad)">${money(line)}</b> busts</p></div>
       <div class="box"><div class="bars"><span class="ln" style="bottom:${y(line)}px"></span>${bars}</div><div class="legend"><span>Pack 1</span><b>bust line ${money(line)}</b></div></div>
       <div class="box"><div class="kvs"><div><span>Best run</span><b>${rk.bust.best?money(rk.bust.best):'—'}</b></div><div><span>Pack type</span><b>${h(eraLabel(game.era))}</b></div></div><p class="pwnote">About 1 pack in 5 should come in under the line. Banking ends the run and records it.</p></div>`;
   }
@@ -2528,8 +2594,8 @@ function chResultsHtml(c){
     <p class="pwnote center">${h(MODE_NAME[c.mode])} · ${h(eraLabel(c.era))} packs · ${h(o.note)}</p>
     <div class="mlist">${o.rows.map(r=>`<div class="mrow"><div><b>${h(r.label)}</b> <span>· you ${h(r.my)} · ${h(them)} ${h(r.their)}</span></div><div class="${r.r>0?'w':r.r<0?'l':''}">${r.r>0?'Won':r.r<0?'Lost':'Tie'}</div></div>`).join('')}</div>`;
 }
-function chShareHtml(c){
-  return `<p style="margin:0">Your score is locked in and stays hidden until they play. Send this link to anyone. The first person to open it and sign in takes the challenge.</p>
+function chShareHtml(c, before){
+  return `<p style="margin:0">${before ? 'Send this link, then start opening. If they jump in while you’re playing, you’ll see their packs as they open them.' : 'Your score is locked in and stays hidden until they play.'} The first person to open it and sign in takes the challenge.</p>
     <input class="input" id="chLinkIn" readonly value="${h(chLink(c.id))}" aria-label="Challenge link">
     <div class="dacts2">${navigator.share?'<button class="pill" type="button" id="chShare">Share link</button>':''}<button class="pill ${navigator.share?'ghost':''}" type="button" id="chCopy">Copy link</button></div>
     <p class="pwnote">Links expire after 3 days.</p>`;
@@ -2547,6 +2613,7 @@ async function openChallenge(id){
   try{ c = await rpc('challenge_peek', {p_id:id}); }catch(e){ toast(e.message); return; }
   if(!c){ chDialog('Challenge', '<p style="margin:0">That challenge link doesn’t exist.</p>'); return; }
   const what = `<b>${h(MODE_NAME[c.mode])}</b> · ${h(eraLabel(c.era))} packs`;
+  if(c.cancelled){ chDialog('Challenge cancelled', `<p style="margin:0">${what}. This challenge was cancelled, so it doesn’t count for anyone.</p>`); return; }
   if(c.done){ chDialog('Challenge results', chResultsHtml(c)); return; }
   if(c.side){
     if(!c.my_result && !c.expired){
@@ -2582,8 +2649,13 @@ async function createChallenge(mode){
   if(!rankedLeft()){ toast('That’s all your ranked packs for today. Casual is unlimited.'); return; }
   try{
     const id = await rpc('challenge_create', {p_mode:mode, p_era:rk.era, p_name:userName(meUser()), p_avatar:meAvatar()});
-    let line = null; try{ const v = await rpc('challenge_peek', {p_id:id}); line = v && v.bust_line ? +v.bust_line : null; }catch(e){}
-    startGame(mode, {era:rk.era, line, ch:{id, side:'creator', name:''}});
+    let v = null; try{ v = await rpc('challenge_peek', {p_id:id}); }catch(e){}
+    const c = v || {id, mode, era:rk.era};
+    const line = v && v.bust_line ? +v.bust_line : null;
+    chDialog('Send your challenge', chShareHtml(c, true) + `<div class="dacts2"><button class="pill gold" type="button" id="chStart">Start opening</button></div>`);
+    bindShare(c);
+    $('#chStart').onclick = ()=>{ $('#chDlg').close(); startGame(mode, {era:rk.era, line, ch:{id, side:'creator', name:''}}); };
+    renderChallenges();
   }catch(e){ toast(e.message); }
 }
 async function chFinish(){
@@ -2600,9 +2672,9 @@ async function chFinish(){
     foot(`<div class="hint" style="color:#FF9A85">Couldn’t save your score: ${h(e.message)}</div><div class="stage-acts"><button class="pill" type="button" id="rvRetry">Try again</button></div>`);
     $('#rvRetry').onclick = chFinish; return;
   }
-  renderChallenges();
+  renderChallenges(); livePing();
   if(game!==g) return;
-  if(v.done){
+  if(v.done){ g.resultsShown = true;
     const o = chOutcome(v.mode, v.my_result, v.their_result);
     foot(`<div class="rres ${o.r>0?'win':o.r<0?'lose':''}">${o.r>0?'You win the challenge!':o.r<0?h(theirName(v))+' wins the challenge.':'It’s a tie!'}</div><div class="stage-acts"><button class="pill" type="button" id="rvRes">See results</button><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
     $('#rvRes').onclick = ()=>chDialog('Challenge results', chResultsHtml(v));
@@ -2616,27 +2688,45 @@ async function chFinish(){
     foot(`<div class="rres">Locked in!</div><div class="hint">Results show up once ${h(theirName(v))} finishes.</div><div class="stage-acts"><button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
   }
 }
-// "Challenges" list on the Ranked hub
+// Challenges sub-tab on Ranked (with an X on each one)
 let chSeq = 0;
+function chStatus(c){
+  if(c.cancelled) return {st:'Cancelled', cls:''};
+  if(c.done){ const o = chOutcome(c.mode, c.my_result, c.their_result); return {st:o.r>0?'Won':o.r<0?'Lost':'Tie', cls:o.r>0?'w':o.r<0?'l':''}; }
+  if(c.expired) return {st:'Expired', cls:''};
+  if(!c.my_result) return {st:'Your turn', cls:'turn'};
+  if(c.side==='creator' && !c.taken) return {st:'Send link', cls:''};
+  return {st:'Waiting', cls:''};
+}
 async function renderChallenges(){
-  const box = $('#rkChBox'), seq = ++chSeq;
-  if(!acct.user || !acct.sb){ box.hidden = true; return; }
+  const seq = ++chSeq, box = $('#rkCh');
+  if(!acct.user || !acct.sb){
+    $('#rkChN').textContent = '';
+    box.innerHTML = '<div class="empty-s">Sign in to send challenge links to friends and play theirs.</div><div><button class="pill" type="button" data-signin>Sign in with Discord</button></div>';
+    return;
+  }
   let list;
-  try{ list = await rpc('my_challenges', {}); }catch(e){ box.hidden = true; return; }
+  try{ list = await rpc('my_challenges', {}); }catch(e){ box.innerHTML = `<p class="empty-s">${h(e.message)}</p>`; return; }
   if(seq!==chSeq) return;
-  box.hidden = !list.length;
-  $('#rkCh').innerHTML = list.slice(0,10).map(c=>{
-    const them = (c.side==='creator' ? c.opponent_name : c.creator_name);
-    let st, cls = '';
-    if(c.done){ const o = chOutcome(c.mode, c.my_result, c.their_result); st = o.r>0?'Won':o.r<0?'Lost':'Tie'; cls = o.r>0?'w':o.r<0?'l':''; }
-    else if(c.expired) st = 'Expired';
-    else if(!c.my_result) st = 'Your turn';
-    else if(c.side==='creator' && !c.taken) st = 'Send link';
-    else st = 'Waiting';
-    return `<button class="mrow chrow" type="button" data-ch="${h(c.id)}"><div><b>${h(MODE_NAME[c.mode])}</b> <span>· ${them?'vs '+h(them):'no taker yet'} · ${h(eraLabel(c.era))}</span></div><div class="${cls}">${h(st)}</div></button>`;
-  }).join('');
+  const turns = list.filter(c=>chStatus(c).st==='Your turn').length;
+  $('#rkChN').textContent = turns ? String(turns) : '';
+  box.innerHTML = list.length ? list.map(c=>{
+    const them = (c.side==='creator' ? c.opponent_name : c.creator_name), s = chStatus(c);
+    return `<div class="chrow2"><button class="mrow chrow" type="button" data-ch="${h(c.id)}"><div><b>${h(MODE_NAME[c.mode])}</b> <span>· ${them?'vs '+h(them):'no taker yet'} · ${h(eraLabel(c.era))}</span></div><div class="${s.cls}">${h(s.st)}</div></button><button class="close chx" type="button" data-chx="${h(c.id)}" data-live="${c.taken && !c.done && !c.expired && !c.cancelled ? 1 : 0}" aria-label="Remove this challenge" title="Remove">×</button></div>`;
+  }).join('') : '<p class="empty-s">No challenges yet. Pick a mode and hit “Challenge a friend.”</p>';
+}
+async function cancelChallenge(id, live){
+  if(live==='1' && !confirm('Cancel this challenge? It won’t count for either of you.')) return;
+  try{
+    const r = await rpc('challenge_cancel', {p_id:id});
+    sfx('remove');
+    toast(r==='cancelled' ? 'Challenge cancelled' : r==='deleted' ? 'Challenge deleted' : 'Removed from your list');
+  }catch(e){ toast(e.message); }
+  renderChallenges();
 }
 document.addEventListener('click', e=>{
+  if(e.target.closest('[data-signin]')){ signIn(); return; }
+  const x = e.target.closest('[data-chx]'); if(x){ cancelChallenge(x.dataset.chx, x.dataset.live); return; }
   const r = e.target.closest('[data-ch]'); if(r){ openChallenge(r.dataset.ch); return; }
   const b = e.target.closest('[data-challenge]'); if(b && !b.disabled) createChallenge(b.dataset.challenge);
 });
@@ -2645,6 +2735,98 @@ document.addEventListener('click', e=>{
 sbReady().then(ok=>{ if(!ok) return; rpc('get_pack_settings', {}).then(st=>{
   if(st && st.cards_loaded && st.bust_line){ for(const k of ['all','new','old']) if(+st.bust_line[k] > 0) BUST_LINE[k] = +st.bust_line[k]; if(ui.view==='ranked' && !game) renderRanked(); }
 }).catch(()=>{}); });
+
+/* ======================= Live challenges: see the other player's packs as they open them ======================= */
+// Supabase Realtime only nudges ("I just opened a pack"); the packs themselves come from challenge_their_pack,
+// which only hands over a pack once you've played that pack yourself. Polls every 12s in case a nudge is missed.
+const live = {id:null, ch:null, timer:0, packs:[], info:null, here:false, shownIdx:-1};
+const isPhone = () => matchMedia('(max-width: 600px)').matches;
+function liveStart(g){
+  liveStop();
+  live.id = g.ch.id; live.packs = []; live.info = null; live.here = false; live.shownIdx = -1;
+  try{
+    if(acct.sb && acct.sb.channel){
+      const me = (meUser() && meUser().id) || 'me';
+      live.ch = acct.sb.channel('chal-'+g.ch.id, {config:{broadcast:{self:false}, presence:{key:me}}});
+      live.ch.on('broadcast', {event:'progress'}, ()=>liveRefresh())
+        .on('presence', {event:'sync'}, ()=>{ try{ live.here = Object.keys(live.ch.presenceState()).some(k=>k!==me); }catch(e){} renderLive(); })
+        .subscribe(st=>{ if(st==='SUBSCRIBED'){ try{ live.ch.track({at:Date.now()}); }catch(e){} } });
+    }
+  }catch(e){ live.ch = null; }
+  live.timer = setInterval(liveRefresh, 12000);
+  liveRefresh();
+}
+function liveStop(){
+  clearInterval(live.timer); live.timer = 0;
+  if(live.ch){ try{ acct.sb.removeChannel(live.ch); }catch(e){} live.ch = null; }
+  live.id = null;
+}
+function livePing(){
+  if(live.ch){ try{ const p = live.ch.send({type:'broadcast', event:'progress', payload:{at:Date.now()}}); if(p && p.catch) p.catch(()=>{}); }catch(e){} }
+  setTimeout(liveRefresh, 500);
+}
+let liveBusy = false;
+async function liveRefresh(){
+  if(liveBusy || !live.id || !game || !game.ch || game.ch.id!==live.id) return;
+  liveBusy = true;
+  try{
+    const info = await rpc('challenge_live', {p_id:live.id});
+    if(!info || !game || !game.ch || game.ch.id!==live.id) return;
+    live.info = info;
+    if(info.their_name && !game.ch.name){ game.ch.name = info.their_name; }
+    for(let i=0; i<info.their_n; i++){
+      const have = live.packs[i];
+      if(have && (game.mode!=='guess' || have.guessed)) continue;
+      const p = await rpc('challenge_their_pack', {p_id:live.id, p_idx:i});
+      if(!p) break;
+      live.packs[i] = p; (p.cards||[]).forEach(c=>cache.set(c.id, c));
+    }
+    renderLive(); liveOffer();
+    if(info.done && game.chDone && !game.resultsShown){   // they finished after you: show the results right away
+      game.resultsShown = true;
+      const v = await rpc('challenge_peek', {p_id:live.id});
+      if(v && v.done){ chDialog('Challenge results', chResultsHtml(v)); const o = chOutcome(v.mode, v.my_result, v.their_result); if(o.r>0) sfx('delight'); renderChallenges(); }
+    }
+  }catch(e){} finally{ liveBusy = false; }
+}
+const themName = () => (game && game.ch && game.ch.name) || 'Your opponent';
+// desktop: a box in the side panel with their latest pack (the panel is hidden on phones)
+function liveBoxHtml(){
+  const info = live.info, packs = live.packs.filter(Boolean), last = packs[packs.length-1];
+  let status;
+  if(!info || !info.taken) status = 'Waiting for someone to open your link…';
+  else if(info.cancelled) status = 'This challenge was cancelled.';
+  else if(info.their_done) status = 'They’ve finished.';
+  else if(info.their_ahead) status = 'They’re ahead of you. Their packs show up as you catch up.';
+  else status = packs.length ? `They’ve opened ${packs.length} pack${packs.length===1?'':'s'}.` : 'They haven’t opened a pack yet.';
+  const line = p => game.mode==='guess' ? (p.guessed ? `guessed ${p.guess==null?'nothing':money(p.guess)} · +${p.pts|0}` : 'guessing…') : money(p.value);
+  return `<div class="box" id="liveBox"><div class="box-h"><h2>${h(info && info.taken ? themName() : 'Your opponent')}</h2><span class="livedot ${live.here?'on':''}">${live.here?'Here now':'Away'}</span></div>
+    <p class="pwnote">${h(status)}</p>
+    ${last ? `<div class="rv-h"><span style="color:var(--muted)">Their pack ${last.idx+1}</span><b style="color:var(--ink);font-size:1.3rem">${game.mode==='guess' && !last.guessed ? '$ ?' : money(last.value)}</b></div>
+      <div class="rgrid mini">${(last.cards||[]).map(c=>`<button class="rc" type="button" data-open="${h(c.id)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:'<span class="ph"></span>'}</button>`).join('')}</div>
+      <div class="mlist">${packs.map(p=>`<div class="mrow"><div><b>Pack ${p.idx+1}</b></div><div>${h(line(p))}</div></div>`).join('')}</div>` : ''}
+  </div>`;
+}
+function renderLive(){ const b = $('#liveBox'); if(b) b.outerHTML = liveBoxHtml(); }
+// phones: after you finish a pack, their same pack plays right after yours (never at the same time)
+function liveAfterMine(idx){ if(game) { game.lastMine = idx; game.mineCards = game.mode==='guess' ? game.cards : (game.mineCards = game.lastCards); } liveOffer(); }
+function liveOffer(){
+  if(!game || !game.ch || game.lastMine==null) return;
+  const idx = game.lastMine, p = live.packs[idx];
+  if(!p || live.shownIdx===idx || (game.mode==='guess' && !p.guessed)) return;
+  if(!$('#stageFoot .stage-acts')) return;   // only once your own pack is done and its buttons are showing
+  live.shownIdx = idx;
+  const mine = game.lastCards, mineV = packValue(mine||[]);
+  const t = document.createElement('div'); t.className = 'rvtoggle'; t.innerHTML = `<button type="button" data-rv="mine" aria-pressed="true">You · ${money(mineV)}</button><button type="button" data-rv="theirs" aria-pressed="false">${h(themName())} · ${game.mode==='guess' && !p.guessed ? '$ ?' : money(p.value)}</button>`;
+  $('#stageFoot').prepend(t);
+  const show = which => {
+    t.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.rv===which)));
+    if(which==='theirs') showReveal(p.cards, {label:`${themName()}’s pack ${idx+1}`, value:p.value, quiet:false, sound:false});
+    else showReveal(mine, {label:'Your pack', value:mineV, quiet:true});
+  };
+  t.onclick = e=>{ const b = e.target.closest('[data-rv]'); if(b) show(b.dataset.rv); };
+  if(isPhone()) setTimeout(()=>{ if(game && game.lastMine===idx && t.isConnected) show('theirs'); }, 1600);
+}
 
 /* ======================= Boot ======================= */
 renderAccount();
@@ -2665,6 +2847,57 @@ warmBoards();
   const pending = lsGet(LS_PENDING_CH, null); if(pending) openChallenge(pending); })();
 // phones can nudge the page (rotating, the address bar, the keyboard): snap Casual back to the top
 ['resize','pageshow','orientationchange'].forEach(t=>window.addEventListener(t, ()=>{ if(ui.view==='casual') window.scrollTo(0,0); }));
+
+/* ======================= Favorites (own tab, with a card lookup) ======================= */
+let favSort = 'value';
+function renderFavs(){
+  if($('#view-favs').hidden) return;
+  const list = [...favStore().values()];
+  const by = {value:(a,b)=>(b.usd||0)-(a.usd||0), name:(a,b)=>a.name.localeCompare(b.name)};
+  list.sort(by[favSort] || by.value);
+  $('#fSum').textContent = list.length ? `${list.length} favorite${list.length===1?'':'s'}` : '';
+  $('#fGrid').innerHTML = list.length ? list.map(c=>{ cache.set(c.id, c);
+    return `<div class="card"><div class="artwrap"><button class="art" data-open="${h(c.id)}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button></div><div class="cname">${h(c.name)}</div><div class="csub">${h(c.setCode||'')}${c.usd!=null?' · '+money(c.usd):''}</div></div>`;
+  }).join('') : `<div class="empty" style="grid-column:1/-1">${gem(22)}<b style="color:var(--ink)">No favorites yet</b><span>Look up any card above, or tap the ☆ on a card you pull.</span></div>`;
+  $('#fNote').textContent = acct.user ? '' : (list.length ? 'Saved in this browser. Sign in to keep them in your account.' : '');
+}
+$('#fSort').addEventListener('change', e=>{ favSort = e.target.value; renderFavs(); });
+// card lookup: Scryfall's autocomplete as you type, then open the card (its ☆ adds it)
+let acT = 0, acSeq = 0, acItems = [], acIdx = -1;
+const acList = () => $('#favList');
+function acClose(){ acList().hidden = true; acItems = []; acIdx = -1; $('#favQ').setAttribute('aria-expanded','false'); }
+function acRender(){
+  const L = acList();
+  if(!acItems.length){ acClose(); return; }
+  L.innerHTML = acItems.map((n,i)=>`<li role="option" data-ac="${i}" aria-selected="${i===acIdx}">${h(n)}</li>`).join('');
+  L.hidden = false; $('#favQ').setAttribute('aria-expanded','true');
+}
+$('#favQ').addEventListener('input', e=>{
+  const q = e.target.value.trim(); clearTimeout(acT);
+  if(q.length < 2){ acClose(); return; }
+  acT = setTimeout(async ()=>{
+    const seq = ++acSeq;
+    try{ const j = await sf('/cards/autocomplete?q='+encodeURIComponent(q)); if(seq!==acSeq) return; acItems = (j.data||[]).slice(0,8); acIdx = -1; acRender(); }catch(err){}
+  }, 220);
+});
+$('#favQ').addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown' && acItems.length){ e.preventDefault(); acIdx = (acIdx+1) % acItems.length; acRender(); }
+  else if(e.key==='ArrowUp' && acItems.length){ e.preventDefault(); acIdx = (acIdx-1+acItems.length) % acItems.length; acRender(); }
+  else if(e.key==='Escape'){ acClose(); }
+});
+$('#favForm').addEventListener('submit', e=>{ e.preventDefault(); const n = acItems[acIdx<0?0:acIdx] || $('#favQ').value.trim(); if(n) lookupCard(n); });
+acList().addEventListener('mousedown', e=>{ const li = e.target.closest('[data-ac]'); if(!li) return; e.preventDefault(); lookupCard(acItems[+li.dataset.ac]); });
+document.addEventListener('click', e=>{ if(!e.target.closest('#favForm')) acClose(); });
+async function lookupCard(name){
+  acClose(); $('#favQ').blur();
+  $('#fStatus').textContent = 'Finding '+name+'…';
+  try{
+    const j = await sf('/cards/named?fuzzy='+encodeURIComponent(name));
+    if(j.not_found || !j.id){ $('#fStatus').textContent = 'Couldn’t find a card called “'+name+'”.'; return; }
+    const c = cardLite(j); cache.set(c.id, c); $('#fStatus').textContent = '';
+    openCard(c);
+  }catch(err){ $('#fStatus').textContent = err.message; }
+}
 
 </script>
 </body>
