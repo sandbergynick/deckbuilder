@@ -6,17 +6,17 @@
 <title>ripjr.com</title>
 <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<meta name="description" content="Rip Magic booster packs for free, then go head to head in ranked: Value Duel, Guess the Value and Bank or Bust.">
+<meta name="description" content="Rip Magic booster packs for free, then go head to head in ranked: Money Spread, Guess the Value and Rip & Flip.">
 <meta property="og:site_name" content="ripjr.com">
 <meta property="og:title" content="ripjr.com">
-<meta property="og:description" content="Rip Magic booster packs for free, then go head to head in ranked.">
+<meta property="og:description" content="Free Magic booster packs, ranked duels with the Genie, and challenges with friends.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ripjr.com/">
-<meta property="og:image" content="https://ripjr.com/preview.png">
+<meta property="og:image" content="https://ripjr.com/share-home.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ripjr.com/preview.png">
+<meta name="twitter:image" content="https://ripjr.com/share-home.jpg">
 <meta name="theme-color" content="#2A211B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3012,7 +3012,10 @@ const LS_PENDING_CH = 'ripjr.pendingChallenge';
 let sessUser = null;
 const meUser = () => acct.user || sessUser;
 const meAvatar = () => { const u = meUser(); return (u && u.user_metadata && u.user_metadata.avatar_url) || null; };
-const chLink = id => location.origin + location.pathname + '?c=' + encodeURIComponent(id);
+// challenge links look like ripjr.com/c/rip-and-flip/abc123 so you can tell the mode from the link itself;
+// a little Netlify function shows a matching preview in Discord, then sends you on to the site
+const MODE_SLUG = {duel:'money-spread', guess:'guess-the-value', flip:'rip-and-flip', bust:'bank-or-bust'};
+const chLink = (id, mode) => location.origin + '/c/' + (MODE_SLUG[mode] || 'play') + '/' + encodeURIComponent(id);
 function sbReady(){
   return new Promise(res=>{
     const t0 = Date.now();
@@ -3093,14 +3096,14 @@ function chResultsHtml(c){
 }
 function chShareHtml(c, before){
   return `<p style="margin:0">${before ? 'Send this link, then start opening. If they jump in while you’re playing, you’ll see their packs as they open them.' : 'Your score is locked in and stays hidden until they play.'} The first person to open it and sign in takes the challenge.</p>
-    <input class="input" id="chLinkIn" readonly value="${h(chLink(c.id))}" aria-label="Challenge link">
+    <input class="input" id="chLinkIn" readonly value="${h(chLink(c.id, c.mode))}" aria-label="Challenge link">
     <div class="dacts2">${navigator.share?'<button class="pill" type="button" id="chShare">Share link</button>':''}<button class="pill ${navigator.share?'ghost':''}" type="button" id="chCopy">Copy link</button></div>
     <p class="pwnote">Links expire after 3 days.</p>`;
 }
 function bindShare(c){
   const text = `${userName(meUser())||'Someone'} challenged you to ${MODE_NAME[c.mode]} (${eraLabel(c.era)} packs) on ripjr.com`;
-  const s = $('#chShare'); if(s) s.onclick = async ()=>{ try{ await navigator.share({title:'ripjr.com challenge', text, url:chLink(c.id)}); }catch(e){} };
-  const cp = $('#chCopy'); if(cp) cp.onclick = async ()=>{ try{ await navigator.clipboard.writeText(chLink(c.id)); toast('Link copied'); }catch(e){ $('#chLinkIn').select(); toast('Press and hold to copy the link'); } };
+  const s = $('#chShare'); if(s) s.onclick = async ()=>{ try{ await navigator.share({title:'ripjr.com challenge', text, url:chLink(c.id, c.mode)}); }catch(e){} };
+  const cp = $('#chCopy'); if(cp) cp.onclick = async ()=>{ try{ await navigator.clipboard.writeText(chLink(c.id, c.mode)); toast('Link copied'); }catch(e){ $('#chLinkIn').select(); toast('Press and hold to copy the link'); } };
 }
 // open a challenge from a link or from your list
 async function openChallenge(id){
@@ -3623,7 +3626,7 @@ if('scrollRestoration' in history) history.scrollRestoration = 'manual';   // do
 setView('casual');
 warmBoards();
 // challenge links: ripjr.com/?c=CODE (kept through Discord sign-in)
-(()=>{ const c = new URLSearchParams(location.search).get('c');
+(()=>{ let c = new URLSearchParams(location.search).get('c'); if(c) c = c.split('/').filter(Boolean).pop();   // ?c=ID (or the old ?c=mode/ID)
   if(c){ lsSet(LS_PENDING_CH, c); history.replaceState(null, '', location.pathname); }
   const pending = lsGet(LS_PENDING_CH, null); if(pending) openChallenge(pending); })();
 // phones can nudge the page (rotating, the address bar, the keyboard): snap Casual back to the top
