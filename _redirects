@@ -1,0 +1,2 @@
+# if the challenge-preview function is ever off, challenge links still work (the site reads the code from ?c=)
+/c/*   /?c=:splat   302
