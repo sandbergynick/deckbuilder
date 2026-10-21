@@ -971,7 +971,8 @@ html.fit .app{align-items:stretch}
 
 /* ---- phones: the card menu is a compact bottom sheet (small art beside the details; tap the art to see it big) ---- */
 @media (max-width:600px){
-  #cardDlg{max-height:min(80svh,640px);overflow:hidden;display:flex;flex-direction:column}
+  #cardDlg{max-height:min(80svh,640px);overflow:hidden}
+  #cardDlg[open]{display:flex;flex-direction:column}   /* only when open: a plain display rule would keep the closed popup on screen */
   #cardDlg[open]{animation:sheetUp .3s cubic-bezier(.2,.9,.25,1)}
   @keyframes sheetUp{from{transform:translateY(40%);opacity:.4}}
   #cardDlg .detail{display:grid;grid-template-columns:min(34vw,140px) minmax(0,1fr);
@@ -1004,6 +1005,9 @@ html.fit .app{align-items:stretch}
   #cardDlg.zoom .detail img#dImg{cursor:zoom-out}
   #cardDlg.zoom #dKv{grid-template-columns:repeat(3,auto);justify-content:start;gap:16px}
 }
+
+.bload{display:flex;flex-direction:column;align-items:center;gap:14px;padding:70px 0;color:var(--muted);font-weight:600}
+.bload .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent,#F4BF3A);animation:sp .8s linear infinite}
 
 </style>
 </head>
@@ -2478,6 +2482,8 @@ async function renderBinder(){
   if($('#view-binder').hidden) return;
   const sort = $('#bSort').value, seq = ++binderSeq;
   if(acct.user && acct.sb){
+    // first load (or nothing on screen yet): a spinner; changing pages/search: dim what's there
+    if(!$('#bGrid .card')) $('#bGrid').innerHTML = '<div class="bload" style="grid-column:1/-1"><span class="spin" aria-hidden="true"></span>Loading your binder…</div>';
     const slow = setTimeout(()=>{ if(seq===binderSeq) $('#bGrid').classList.add('loading'); }, 200);
     let d;
     try{ d = await rpc('binder_page', {p_q:binderQ, p_sort:sort, p_page:binderPage, p_size:BINDER_PAGE}); }
@@ -3489,7 +3495,7 @@ function flipRipped(){
   const rare = flipRare(fr.mineCards), usd = flipUsd(fr.mineCards);
   setTimeout(()=>{ const el = $('#flMyP'); if(el){ el.classList.add('on'); countUp(el, usd, 650); } }, 380);
   setTimeout(()=>flipSay(usd >= 15 ? 'ripBig' : usd < 1 ? 'ripSmall' : 'ripMid'), 900);
-  foot(`<div class="hint">You ripped <b>${h(rare.name)}</b>.</div><div class="stage-acts"><button class="pill gold" type="button" id="flFlip">Flip ${h(game.ch ? themName()+'’s' : 'the house’s')}</button></div>`);
+  foot(`<div class="hint">You ripped <b>${h(rare.name)}</b>.</div><div class="stage-acts"><button class="pill gold" type="button" id="flFlip">Flip ${h(game.ch ? themName()+'’s' : 'the Genie’s')}</button></div>`);
   $('#flFlip').onclick = flipTheirs;
 }
 async function flipTheirs(){
