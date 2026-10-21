@@ -9,6 +9,9 @@ import { Readable } from 'node:stream';
 const SB_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 const SB_KEY = process.env.SUPABASE_SECRET_KEY || '';
 const SCRYFALL = process.env.SCRYFALL_API || 'https://api.scryfall.com';
+// MTGJSON (free, open data) fills in prices Scryfall doesn't have, mostly old cards that rarely sell on TCGplayer
+const MTGJSON = process.env.MTGJSON_API || 'https://mtgjson.com/api/v5';
+const OLD_SETS = ['lea', 'leb', '2ed', 'arn', 'atq', 'drk', 'leg'];
 const BATCH = 1000;
 const BASICS = new Set(['Plains', 'Island', 'Swamp', 'Mountain', 'Forest']);
 const UA = { 'User-Agent': 'ripjr.com-card-sync/1.0 (github actions)', 'Accept': 'application/json' };
@@ -37,6 +40,7 @@ function slim(c) {
     is_token: /\bToken\b/.test(type || ''),
     judge: (c.promo_types || []).includes('judgegift'),
     usd: num(p.usd) ?? num(p.usd_foil) ?? num(p.usd_etched),
+    price_src: (num(p.usd) ?? num(p.usd_foil) ?? num(p.usd_etched)) != null ? 'tcg' : null,
     img: noQuery(img.normal || img.large), back_img: noQuery(back),
     type_line: type || null,
     mana: c.mana_cost || f.map(x => x.mana_cost).filter(Boolean).join(' // ') || null,
@@ -97,6 +101,103 @@ async function* objectsIn(byteChunks) {
   }
 }
 
+/* ---------- missing prices ---------- */
+// today's euro → dollar rate (for Cardmarket prices); a sensible default if the lookup fails
+async function eurRate() {
+  try {
+    const j = await (await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD', { headers: UA })).json();
+    const r = j && j.rates && +j.rates.USD;
+    if (r > 0.6 && r < 2) return r;
+  } catch (e) {}
+  return 1.08;
+}
+// gunzip if needed, then parse (for the small per-set MTGJSON files)
+async function jsonGz(url) {
+  const r = await fetch(url, { headers: { 'User-Agent': UA['User-Agent'] } });
+  if (!r.ok) return null;
+  let buf = Buffer.from(await r.arrayBuffer());
+  if (buf[0] === 0x1f && buf[1] === 0x8b) buf = zlib.gunzipSync(buf);
+  return JSON.parse(buf.toString('utf8'));
+}
+// MTGJSON's daily price file is one huge {"meta":…,"data":{uuid:{…},…}} object. Read it as a stream and keep only
+// the cards we asked for, so the whole thing never sits in memory.
+async function mtgjsonPrices(wanted) {
+  const res = await fetch(`${MTGJSON}/AllPricesToday.json.gz`, { headers: { 'User-Agent': UA['User-Agent'] } });
+  if (!res.ok || !res.body) throw new Error('MTGJSON price download failed: ' + res.status);
+  const out = new Map(), dec = new TextDecoder();
+  let depth = 0, inStr = false, esc = false, str = '', grab = false, lastStr = null, top = null, key = null, cap = null, parts = [];
+  for await (const chunk of bytesOf(res)) {
+    const s = dec.decode(chunk, { stream: true });
+    let from = cap ? 0 : -1;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (inStr) {
+        if (esc) { esc = false; if (grab) str += ch; }
+        else if (ch === '\\') { esc = true; if (grab) str += ch; }
+        else if (ch === '"') { inStr = false; if (grab) { lastStr = str; grab = false; } }
+        else if (grab) str += ch;
+        continue;
+      }
+      if (ch === '"') { inStr = true; if (depth <= 2 && !cap) { grab = true; str = ''; } continue; }
+      if (ch === ':') { if (depth === 1) top = lastStr; else if (depth === 2 && top === 'data') key = lastStr; continue; }
+      if (ch === '{' || ch === '[') {
+        if (depth === 2 && top === 'data' && ch === '{' && wanted.has(key)) { cap = key; parts = []; from = i; }
+        depth++; continue;
+      }
+      if (ch === '}' || ch === ']') {
+        depth--;
+        if (cap && depth === 2) { parts.push(s.slice(from, i + 1)); try { out.set(cap, JSON.parse(parts.join(''))); } catch (e) {} cap = null; parts = []; from = -1; }
+      }
+    }
+    if (cap) parts.push(s.slice(from));
+  }
+  return out;
+}
+// best available price: US stores first (TCGplayer, Mana Pool, Card Kingdom, CardSphere), then Cardmarket in euros
+const STORES = [['tcgplayer', 'tcg'], ['manapool', 'mp'], ['cardkingdom', 'ck'], ['cardsphere', 'cs']];
+const latest = o => { if (!o) return null; const d = Object.keys(o).sort(); return d.length ? num(o[d[d.length - 1]]) : null; };
+const retail = x => x && x.retail ? (latest(x.retail.normal) ?? latest(x.retail.foil) ?? latest(x.retail.etched)) : null;
+function pickPrice(p, eur, rate) {
+  const paper = (p && p.paper) || {};
+  for (const [k, src] of STORES) { const v = retail(paper[k]); if (v > 0) return { usd: v, src: paper[k].currency === 'EUR' ? 'cm' : src }; }
+  if (eur > 0) return { usd: eur * rate, src: 'cm' };                 // Scryfall's own Cardmarket price
+  const cm = retail(paper.cardmarket); if (cm > 0) return { usd: cm * rate, src: 'cm' };
+  return null;
+}
+// fill in what we can for cards Scryfall had no dollar price for: [{row, set, eur}]
+async function fillPrices(missing) {
+  const rate = await eurRate();
+  const bySet = new Map();
+  for (const m of missing) bySet.set(m.set, (bySet.get(m.set) || 0) + 1);
+  const sets = [...new Set([...OLD_SETS.filter(s => bySet.has(s)), ...[...bySet.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0])])].slice(0, 150);
+  const want = new Set(missing.map(m => m.row.id)), uuidOf = new Map();
+  console.log(`  ${missing.length.toLocaleString()} cards had no TCGplayer price; checking MTGJSON for ${sets.length} sets (EUR→USD ${rate.toFixed(3)})…`);
+  for (let i = 0; i < sets.length; i += 6) {
+    await Promise.all(sets.slice(i, i + 6).map(async code => {
+      try {
+        const j = await jsonGz(`${MTGJSON}/${code.toUpperCase()}.json.gz`);
+        const d = j && j.data; if (!d) return;
+        for (const c of [...(d.cards || []), ...(d.tokens || [])]) {
+          const sid = c.identifiers && c.identifiers.scryfallId;
+          if (sid && want.has(sid) && !uuidOf.has(sid)) uuidOf.set(sid, c.uuid);
+        }
+      } catch (e) { console.log(`  (skipped ${code}: ${String(e.message || e).slice(0, 80)})`); }
+    }));
+  }
+  let prices = new Map();
+  if (uuidOf.size) {
+    try { prices = await mtgjsonPrices(new Set(uuidOf.values())); }
+    catch (e) { console.log('  MTGJSON prices unavailable today: ' + (e.message || e)); }
+  }
+  const tally = {};
+  for (const m of missing) {
+    const got = pickPrice(prices.get(uuidOf.get(m.row.id)), m.eur, rate);
+    if (got) { m.row.usd = +got.usd.toFixed(2); m.row.price_src = got.src; tally[got.src] = (tally[got.src] || 0) + 1; }
+  }
+  const filled = Object.values(tally).reduce((a, b) => a + b, 0);
+  console.log(`  filled ${filled.toLocaleString()} of ${missing.length.toLocaleString()} missing prices ${JSON.stringify(tally)}; ${(missing.length - filled).toLocaleString()} still unpriced`);
+}
+
 // Finds the Default Cards file's download link. Tries the direct endpoint, then the full bulk-data list,
 // and waits and retries a few times in case Scryfall is in the middle of publishing a new file.
 async function findBulkFile() {
@@ -127,14 +228,21 @@ async function main() {
   if (!res.ok || !res.body) throw new Error('Download failed: ' + res.status);
 
   let seen = 0, kept = 0, batch = [];
+  const missing = [];   // no TCGplayer price: held back and loaded after the MTGJSON lookup
   const flush = async () => { if (!batch.length) return; await sb('/rest/v1/cards?on_conflict=id', batch); kept += batch.length; batch = []; };
   for await (const c of objectsIn(bytesOf(res))) {
     seen++;
     const row = slim(c);
+    if (row && row.usd == null) { const p = c.prices || {}; missing.push({ row, set: c.set, eur: num(p.eur) ?? num(p.eur_foil) }); continue; }
     if (row) batch.push(row);
     if (batch.length >= BATCH) { await flush(); if (kept % 10000 === 0) console.log(`  ${kept.toLocaleString()} cards loaded…`); }
   }
   await flush();
+  if (missing.length) {
+    try { await fillPrices(missing); } catch (e) { console.log('  price fill-in skipped: ' + (e.message || e)); }
+    for (const m of missing) { batch.push(m.row); if (batch.length >= BATCH) await flush(); }
+    await flush();
+  }
   console.log(`Read ${seen.toLocaleString()} cards from Scryfall, loaded ${kept.toLocaleString()} into Supabase.`);
   if (kept < 1000) throw new Error('Too few cards loaded; something went wrong.');
 
