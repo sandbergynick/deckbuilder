@@ -1052,6 +1052,27 @@ html #stage .pack{--c0:var(--p0,#2F5BC9);--cm:var(--pm,#2F5BC9);--c2:var(--p2,#2
 .setrow b{font-weight:700;font-size:.95rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .setrow small{color:var(--muted);font-size:.78rem;white-space:nowrap}
 
+/* Guess the Value: the 3 cards you price */
+.pf-rec{grid-template-columns:repeat(3,minmax(0,1fr))}
+.gtrio-w{width:min(600px,100%);margin-inline:auto}
+.gtrio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,2.4vw,22px);align-items:end}
+.gtrio .rc{position:relative;gap:6px}
+.gtrio .rc small{font-size:.86rem;color:var(--ink)}
+.gtag{font-style:normal;font:800 .7rem/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center}
+.gtrio .rc:first-child .gtag{color:var(--accent)}
+
+/* the Genie's tips (first visit) */
+.gtip{position:fixed;z-index:90;left:50%;bottom:calc(var(--tabH,0px) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(460px,calc(100vw - 32px));
+  display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px 16px 14px 12px;border-radius:20px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow-lift);animation:gtipIn .35s cubic-bezier(.2,.8,.2,1) both}
+.gtip img{width:58px;height:58px;object-fit:contain;margin-top:-2px}
+.gtip b{display:block;font:700 1.05rem/1.25 var(--f-body);margin-bottom:3px}
+.gtip p{margin:0;font-size:.92rem;line-height:1.4;color:var(--muted)}
+.gtip .gtip-a{display:flex;gap:8px;align-items:center;margin-top:10px}
+.gtip .gtip-a small{color:var(--faint);font-size:.78rem;margin-left:auto}
+.gtip button.lnk{border:0;background:none;color:var(--muted);font:inherit;font-size:.82rem;padding:4px;cursor:pointer;text-decoration:underline}
+@keyframes gtipIn{from{opacity:0;transform:translate(-50%,14px)}}
+@media (min-width:901px){.gtip{left:auto;right:24px;transform:none;bottom:24px}@keyframes gtipIn{from{opacity:0;transform:translateY(14px)}}}
+
 
 /* ======================= Theme: Genie night (dark) and Genie day (light) =======================
    The Genie is the only decoration: his blue and his gold carry the whole site. No borders between areas;
@@ -1200,6 +1221,7 @@ dialog{box-shadow:var(--shadow-lift)}
     <div class="navmenu" id="navMenu" hidden role="menu">
       <button type="button" role="menuitem" data-m="sound">Sound &amp; haptics<span></span></button>
       <button type="button" role="menuitem" data-m="theme">Theme<span></span></button>
+      <button type="button" role="menuitem" data-m="tips">Genie’s tips<span>Show again</span></button>
       <div class="acctitems"></div>
     </div>
     <div class="navmenu" id="acctMenu" hidden role="menu"><div class="acctitems"></div></div>
@@ -1249,8 +1271,8 @@ dialog{box-shadow:var(--shadow-lift)}
       <div id="rkModes" style="display:grid;gap:20px">
       <div class="modes">
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><rect x="30" y="12" width="34" height="48" rx="4" transform="rotate(-10 47 36)" fill="#5AA2FF" opacity=".55"/><rect x="56" y="14" width="34" height="48" rx="4" transform="rotate(10 73 38)" fill="#F4BF3A"/><text x="73" y="45" text-anchor="middle" font-size="22" font-weight="800" fill="#2A1C0E" transform="rotate(10 73 38)">$</text></svg><img src="mode-spread.jpg" alt="Money Spread" onerror="this.remove()"></div><h2>Money Spread <span id="rkDuelR"></span></h2><p>Best of 7. The higher pack value takes the round.</p><p class="sub num" id="rkDuelWL"></p>
-          <div class="acts"><button class="pill" type="button" data-start="duel">Duel the Genie</button><button class="pill ghost small" type="button" disabled>Find a match<span class="soon">SOON</span></button><button class="pill ghost small" type="button" data-challenge="duel">Challenge a friend</button></div></div>
-        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="26" fill="none" stroke="#46372C" stroke-width="7"/><path d="M60 14a26 26 0 0 1 24 36" fill="none" stroke="#5AA2FF" stroke-width="7" stroke-linecap="round"/><text x="60" y="49" text-anchor="middle" font-size="26" font-weight="800" fill="#F4BF3A">?</text></svg><img src="mode-guess.jpg" alt="Guess the Value" onerror="this.remove()"></div><h2>Guess the Value <span id="rkGuessS"></span></h2><p>Prices hidden. You get 20 seconds to guess what the pack is worth.</p><p class="sub" id="rkGuessN"></p>
+          <div class="acts"><button class="pill" type="button" data-start="duel">Duel the Genie</button><button class="pill ghost small" type="button" data-challenge="duel">Challenge a friend</button></div></div>
+        <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="26" fill="none" stroke="#46372C" stroke-width="7"/><path d="M60 14a26 26 0 0 1 24 36" fill="none" stroke="#5AA2FF" stroke-width="7" stroke-linecap="round"/><text x="60" y="49" text-anchor="middle" font-size="26" font-weight="800" fill="#F4BF3A">?</text></svg><img src="mode-guess.jpg" alt="Guess the Value" onerror="this.remove()"></div><h2>Guess the Value <span id="rkGuessS"></span></h2><p>Rip a pack, then you get 20 seconds to guess what its rare, an uncommon and a common are worth together.</p><p class="sub" id="rkGuessN"></p>
           <div class="acts"><button class="pill" type="button" data-start="guess">Play</button><button class="pill ghost small" type="button" data-challenge="guess">Challenge a friend</button></div></div>
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><path d="M38 10h22l-3 9 4 8-5 9 4 9-4 8 4 9-3 8H38a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z" fill="#F4BF3A" transform="rotate(-9 47 40)"/><path d="M64 12h20a4 4 0 0 1 4 4v52a4 4 0 0 1-4 4H64l3-8-4-9 4-8-4-9 4-9-4-8z" fill="#F4BF3A" transform="rotate(8 74 42) translate(4 0)"/><path d="M60 19l4 8-5 9 4 9-4 8 4 9" fill="none" stroke="#2F5DB8" stroke-width="1.6" transform="rotate(-9 47 40)"/></svg><img src="mode-flip.jpg" alt="Rip &amp; Flip" onerror="this.remove()"></div><h2>Rip &amp; Flip <span id="rkFlipR"></span></h2><p>Pick one of two packs and rip its rare in half. Rip the cheaper rare to take the round. Best of 5.</p><p class="sub" id="rkFlipS"></p>
           <div class="acts"><button class="pill" type="button" data-start="flip">Duel the Genie</button><button class="pill ghost small" type="button" data-challenge="flip">Challenge a friend</button></div></div>
@@ -1278,12 +1300,10 @@ dialog{box-shadow:var(--shadow-lift)}
     <div id="lbBoards" style="display:grid;gap:16px">
       <p class="lbnote" id="lbNote"></p>
       <div class="boards">
-        <div class="box"><div class="box-h"><h2>Best single pull</h2></div><div class="rows" id="lbPulls"></div></div>
+        <div class="box"><div class="box-h"><h2>Price guessing</h2></div><div class="rows" id="lbGuess"></div></div>
         <div class="box"><div class="box-h"><h2>Best pack</h2></div><div class="rows" id="lbPacks"></div></div>
         <div class="box"><div class="box-h"><h2>Packs ripped</h2></div><div class="rows" id="lbCount"></div></div>
       </div>
-      <h2 class="sec">Your ranked</h2>
-      <div class="boards" id="lbRanked"></div>
     </div>
   </section>
 
@@ -1331,7 +1351,7 @@ dialog{box-shadow:var(--shadow-lift)}
   <button type="button" data-view="favs" aria-selected="false"><svg width="22" height="22"><use href="#i-star"/></svg>Favorites</button>
 </nav>
 
-<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 61</span></footer>
+<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 62</span></footer>
 
 <dialog id="saveDlg" aria-label="Save your pulls"><div class="sheet">
   <div class="sheet-h"><h3>Your pulls</h3><button class="close" data-close aria-label="Close">×</button></div>
@@ -2087,7 +2107,7 @@ function showSummary(){
   pk.state='summary'; achCheck(pk.cards);
   const {total,best} = packStats();
   $('#stageMid').innerHTML = `<div class="summary"><h2>Your pulls</h2>
-    <div style="color:var(--muted);font-size:.92rem;text-align:center">Worth about <b style="color:var(--ink)">${money(total)}</b>${best?` · Best pull: <b style="color:var(--ink)">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
+    <div style="color:var(--muted);font-size:.92rem;text-align:center">Worth about <b style="color:var(--ink)">${money(total)}</b>${best?` · Top card: <b style="color:var(--ink)">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
     <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Another pack</button><button class="pill ghost" type="button" id="binderPack">Binder</button></div>
     <div class="sumgrid">${pk.cards.map((c,i)=>{ cache.set(c.id,c); const g = glowOf(c);
       return `<button class="sumcard ${g?'glow-'+g:''} ${c.rar}" type="button" data-open="${c.id}" style="animation-delay:${i*35}ms">${c.img?`<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" loading="lazy">`:'<span class="ph"></span>'}<span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><span>${h(c.name)}</span><small>${money(c.usd)}</small></button>`; }).join('')}</div></div>`;
@@ -2144,7 +2164,7 @@ async function exportPackImage(){
     x.fillText(`${rarLabel(c)}${c.usd!=null?' · '+money(c.usd):''}`, cx+20, cy+ch+53);
   });
   x.fillStyle='rgba(242,238,228,.75)'; x.font=`500 20px ${sans}`;
-  x.fillText(best ? `Best pull: ${best.name} (${money(best.usd)})` : 'No priced cards in this one', pad, H-foot+44);
+  x.fillText(best ? `Top card: ${best.name} (${money(best.usd)})` : 'No priced cards in this one', pad, H-foot+44);
   x.fillStyle='rgba(242,238,228,.38)'; x.font=`400 14px ${sans}`;
   x.fillText('Unofficial Fan Content. Not approved/endorsed by Wizards. Card images © Wizards of the Coast, via Scryfall.', pad, H-foot+72);
   try{
@@ -2614,7 +2634,7 @@ function binderCardHtml(x){
   return `<div class="card"><div class="artwrap"><button class="art ${g?'g-'+g:''}" data-open="${h(c.id)}" aria-label="View ${h(c.name)}">${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" loading="lazy">`:''}</button>${x.count>1?`<span class="top cnt">×${x.count}</span>`:''}</div><div class="cname">${h(c.name)}</div><div class="csub num">${h(c.setCode||c.set||'')}${c.usd!=null?' · '+money(c.usd):''}</div></div>`;
 }
 function binderStatsHtml(packs, kinds, value, best){
-  return `<div><b>${Number(packs).toLocaleString()}</b><span>packs opened</span></div><div><b>${Number(kinds).toLocaleString()}</b><span>different cards</span></div><div><b>$${Math.round(value).toLocaleString()}</b><span>total value</span></div>${best && best.usd ? `<div><b>${money(+best.usd)}</b><span>best pull: ${h(best.name)}</span></div>` : ''}`;
+  return `<div><b>${Number(packs).toLocaleString()}</b><span>packs opened</span></div><div><b>${Number(kinds).toLocaleString()}</b><span>different cards</span></div><div><b>$${Math.round(value).toLocaleString()}</b><span>total value</span></div>`;
 }
 function binderPagerUi(pages){
   $('#bPager').hidden = pages < 2;
@@ -2792,6 +2812,7 @@ const todayKey = () => new Date().toLocaleDateString('en-CA');
 const rk = Object.assign({era:'all', duel:{rating:START_RATING, w:0, l:0, matches:[]}, guess:{scores:[]}, bust:{best:0, runs:[]}, flip:{w:0, l:0, streak:0, best:0, matches:[]}, history:[], day:{date:'', used:0}}, lsGet(LS_RANKED, {}));
 function rkSave(){
   rk.history = rk.history.slice(-30); rk.guess.scores = rk.guess.scores.slice(-300); rk.bust.runs = rk.bust.runs.slice(-300); rk.duel.matches = (rk.duel.matches||[]).slice(-300); rk.flip.matches = (rk.flip.matches||[]).slice(-300);
+rk.guess.scores = rk.guess.scores.filter(s=>s.v===3);   // the 3-card game started fresh (old whole-pack rounds don't count)
   lsSet(LS_RANKED, rk);
 }
 function rankedLeft(){ if(rk.day.date!==todayKey()) rk.day = {date:todayKey(), used:0}; return Math.max(0, RANKED_PACKS_PER_DAY - rk.day.used); }
@@ -2866,6 +2887,7 @@ function nextRankedPack(){
   // challenges: packs come from (and are saved to) Supabase; Money Spread packs open card by card like Casual
   pk.source = game.ch ? (ch => tok => chPack(ch.id, game ? game.n : 0, game.era, tok))(game.ch) : null;
   pk.swipe = game.mode==='duel';
+  if(game.mode==='guess' && !game.ch && genieOnServer()){ const g = game; pk.source = tok => guessDeal(g, tok); }   // signed in: the server deals and scores it
   if(game.mode==='duel' && !game.ch){   // the Genie's pack rolls while you open yours
     if(game.gstart){ const g = game; pk.source = tok => genieDuelSource(g, tok); }   // signed in: both packs come from the server
     else {
@@ -2982,10 +3004,11 @@ function duelFinish(won, forfeit){
 
 /* ---- Guess the Value ---- */
 function guessStart(cards, v){
-  game.cards = cards; game.actual = v; game.locked = false;
+  game.cards = cards; game.trio = guessTrio(cards); game.actual = +game.trio.reduce((a,c)=>a+(+c.usd||0),0).toFixed(2); game.locked = false;
   if(game.ch) rpc('challenge_reveal', {p_id:game.ch.id, p_idx:game.n-1}).catch(()=>{});   // starts the server's 20-second clock
-  showReveal(cards, {label:'What’s this pack worth?', hide:true});
-  foot(`<form class="gbox" id="gForm" autocomplete="off"><div class="timer" id="gTimer"><b class="num">${GUESS_SECONDS}</b></div><label class="gin"><span>$</span><input id="gIn" type="text" inputmode="decimal" placeholder="0.00" aria-label="Your guess in dollars"></label><button class="pill gold" type="submit">Lock in</button></form><div class="hint">Up to 100 points for accuracy, plus a speed bonus. Unpriced cards count as $0.</div>`);
+  else if(game.gqid) rpc('guess_reveal', {p_id:game.gqid}).catch(()=>{});
+  showTrio(game.trio, false);
+  foot(`<form class="gbox" id="gForm" autocomplete="off"><div class="timer" id="gTimer"><b class="num">${GUESS_SECONDS}</b></div><label class="gin"><span>$</span><input id="gIn" type="text" inputmode="decimal" placeholder="0.00" aria-label="Your guess in dollars"></label><button class="pill gold" type="submit">Lock in</button></form><div class="hint">Guess the 3 cards’ combined price. Up to 100 points for accuracy, plus a speed bonus.</div>`);
   if(!matchMedia('(pointer: coarse)').matches) $('#gIn').focus({preventScroll:true});
   $('#gForm').onsubmit = e=>{ e.preventDefault(); lockGuess(); };
   game.t0 = performance.now();
@@ -2995,6 +3018,48 @@ function guessStart(cards, v){
     if(t){ t.style.setProperty('--p', (left/GUESS_SECONDS).toFixed(3)); t.querySelector('b').textContent = Math.ceil(left); t.classList.toggle('low', left<=5); }
     if(left<=0) lockGuess();
   }, 100);
+}
+// the 3 cards you price: the rare, an uncommon and a common (the server marks them with "pick")
+const TRIO_ORDER = {mythic:0, rare:0, uncommon:1, common:2};
+function guessTrio(cards){
+  let t = cards.filter(c=>c.pick);
+  if(!t.length){
+    const r = cards.find(c=>c.rar==='rare'||c.rar==='mythic') || cards[cards.length-1];
+    const any = k => { const l = cards.filter(c=>c.rar===k && c!==r); return l.length ? l[Math.floor(Math.random()*l.length)] : null; };
+    t = [r, any('uncommon'), any('common')].filter(Boolean);
+    t.forEach(c=>c.pick = true);
+  }
+  return t.slice().sort((a,b)=>(TRIO_ORDER[a.rar]??0)-(TRIO_ORDER[b.rar]??0));
+}
+const TRIO_LABEL = c => c.rar==='mythic' ? 'Mythic' : c.rar==='rare' ? 'Rare' : c.rar==='uncommon' ? 'Uncommon' : c.rar==='common' ? 'Common' : 'Rare slot';
+function showTrio(trio, shown, total){
+  trio.forEach(c=>cache.set(c.id, c));
+  $('#stageMid').innerHTML = `<div class="rv gtrio-w"><div class="rv-h"><span>${shown ? 'Together they’re worth' : 'What are these 3 worth together?'}</span><b id="rvTotal">${shown ? money(total) : '$ ?'}</b></div>
+    <div class="gtrio">${trio.map((c,i)=>`<${shown?`button type="button" data-open="${h(c.id)}"`:'div'} class="rc" style="animation-delay:${i*90}ms"><em class="gtag">${TRIO_LABEL(c)}</em>${c.img?`<img src="${h(c.img)}" alt="${h(c.name)}" crossorigin="anonymous">`:'<span class="ph"></span>'}<small>${shown ? (c.usd==null ? 'no price ($0)' : money(+c.usd)) : h(c.name)}</small></${shown?'button':'div'}>`).join('')}</div></div>`;
+}
+// signed in: the server deals the pack (and remembers the right answer)
+async function guessDeal(g, tok){
+  const r = await rpc('guess_deal', {p_era:g.era});
+  if(tok.dead || game!==g) throw new Error('cancelled');
+  g.gqid = r.id;
+  await warmImages(r.cards);
+  return r.cards;
+}
+async function lockGuessSolo(g){
+  const gm = game;
+  foot('<div class="hint">Checking your guess…</div>');
+  let r;
+  try{ r = await rpc('guess_submit', {p_id:gm.gqid, p_guess: isNaN(g) ? null : g}); }
+  catch(e){
+    if(game!==gm) return;
+    foot(`<div class="hint" style="color:var(--bad)">${h(e.message)}</div><div class="stage-acts"><button class="pill" type="button" id="rvRetry">Try again</button></div>`);
+    $('#rvRetry').onclick = ()=>lockGuessSolo(g); return;
+  }
+  if(game!==gm) return;
+  if(r.cards){ gm.cards = r.cards; gm.trio = guessTrio(r.cards); }
+  gm.gqid = null;
+  guessDone(g, +r.actual, r.pts|0);
+  if(r.late) toast('Time ran out before your guess landed, so it scored 0.');
 }
 function guessPoints(g, a, left){
   let acc = 0;
@@ -3009,16 +3074,17 @@ function lockGuess(){
   const left = Math.max(0, GUESS_SECONDS - (performance.now()-game.t0)/1000);
   const raw = ($('#gIn') ? $('#gIn').value : '').replace(/[^0-9.]/g,''), g = raw==='' ? NaN : parseFloat(raw), a = game.actual;
   if(game.ch) return lockGuessCh(g);   // challenges: the server times and scores the guess
+  if(game.gqid) return lockGuessSolo(g);
   const pts = isNaN(g) ? 0 : guessPoints(g, a, left);
   guessDone(g, a, pts);
 }
 function guessDone(g, a, pts){
   if(game.ch){ game.lastCards = game.cards; livePing(); setTimeout(()=>liveAfterMine(game.n-1), 0); }
-  rk.guess.scores.push({at:new Date().toISOString(), pts});
+  rk.guess.scores.push({at:new Date().toISOString(), pts, v:3});
   game.rounds.push({g, a, pts});
   rkHistory({score:`+${pts} pts`, cls: pts>=60?'w':'', detail:`Guessed ${isNaN(g)?'nothing':money(g)} · actual ${money(a)}`});
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
-  showReveal(game.cards, {label:'Actual value', value:a});
+  showTrio(game.trio || guessTrio(game.cards), true, a);
   foot(`<div class="gres"><div><small>You guessed</small><b>${isNaN(g)?'—':money(g)}</b></div><div><small>Actual</small><b>${money(a)}</b></div><div><small>Points</small><b class="${pts>=60?'win':''}">+${pts}</b></div></div><div class="stage-acts">${game.ch ? `<button class="pill" type="button" id="rvNext">${game.n>=CH_PACKS.guess?'Finish':'Next pack'}</button>` : '<button class="pill" type="button" id="rvNext">Next round</button><button class="pill ghost" type="button" data-back>Done</button>'}</div>`);
   $('#rvNext').onclick = ()=>{ if(game.ch && game.n>=CH_PACKS.guess) return chFinish(); game.round++; nextRankedPack(); };
   renderPanel();
@@ -3076,7 +3142,7 @@ function leaveGame(){
       duelFinish(false, true);
     }
     if(game.mode==='bust' && game.pot>0) bustBank(true);   // walking away banks what you have
-    if(game.mode==='guess' && game.cards && !game.locked){ rk.guess.scores.push({at:new Date().toISOString(), pts:0}); rkHistory({score:'+0 pts', detail:'Left before guessing'}); }
+    if(game.mode==='guess' && game.cards && !game.locked){ rk.guess.scores.push({at:new Date().toISOString(), pts:0, v:3}); rkHistory({score:'+0 pts', detail:'Left before guessing'}); }
   }
   clearInterval(game.timer);
   if(game.genieTok) game.genieTok.dead = true;
@@ -3091,7 +3157,7 @@ function leaveGame(){
 function renderPanel(){
   const P = $('#rkPanel'); if(!game){ P.innerHTML = ''; return; }
   if(game.mode==='flip'){ P.innerHTML = flipPanel(); return; }
-  const chBox = game.ch ? `<div class="box"><div class="box-h"><h2>Challenge${game.ch.name?' vs '+h(game.ch.name):''}</h2></div><p class="pwnote">${{duel:`Open ${CH_PACKS.duel} packs. Each pack is matched against theirs on dollar value.`, guess:`Guess ${CH_PACKS.guess} packs. They get the exact same packs.`, bust:'They get the exact same packs. Highest bank wins.'}[game.mode]} Their score stays hidden until you both finish.</p></div>` : '';
+  const chBox = game.ch ? `<div class="box"><div class="box-h"><h2>Challenge${game.ch.name?' vs '+h(game.ch.name):''}</h2></div><p class="pwnote">${{duel:`Open ${CH_PACKS.duel} packs. Each pack is matched against theirs on dollar value.`, guess:`Price 3 cards from each of ${CH_PACKS.guess} packs. They get the exact same packs and cards.`, bust:'They get the exact same packs. Highest bank wins.'}[game.mode]} Their score stays hidden until you both finish.</p></div>` : '';
   const liveBox = game.ch ? liveBoxHtml() : '';
   if(game.mode==='duel' && game.ch){
     const total = game.rounds.reduce((a,r)=>a+r.you,0);
@@ -3108,7 +3174,7 @@ function renderPanel(){
     const sk = guessSkill(), n = rk.guess.scores.length;
     P.innerHTML = liveBox + chBox + (game.ch ? `<div class="box"><div class="box-h"><h2>Challenge points</h2></div><div class="big">${game.rounds.reduce((a,r)=>a+r.pts,0)}</div></div>` : '') + `<div class="box"><div class="box-h"><h2>Skill score</h2></div><div class="big">${sk==null?'—':sk.toFixed(1)}</div>
       ${n < GUESS_WINDOW ? `<div class="bar"><i style="width:${Math.round(n/GUESS_WINDOW*100)}%"></i></div><p class="pwnote">${GUESS_WINDOW-n} of ${GUESS_WINDOW} rounds until your score counts</p>` : `<p class="pwnote">Average of your last ${GUESS_WINDOW} rounds</p>`}</div>
-      <div class="box"><div class="box-h"><h2>This session</h2></div><div class="mlist">${game.rounds.length ? game.rounds.slice().reverse().map((r,i)=>`<div class="mrow"><div><b>Round ${game.rounds.length-i}</b> <span>· ${isNaN(r.g)?'no guess':money(r.g)} vs ${money(r.a)}</span></div><div class="${r.pts>=60?'w':''}">+${r.pts}</div></div>`).join('') : '<p class="empty-s">Exact guesses score 100. Being off by double scores 0. Faster guesses get up to 10 bonus points.</p>'}</div></div>`;
+      <div class="box"><div class="box-h"><h2>This session</h2></div><div class="mlist">${game.rounds.length ? game.rounds.slice().reverse().map((r,i)=>`<div class="mrow"><div><b>Round ${game.rounds.length-i}</b> <span>· ${isNaN(r.g)?'no guess':money(r.g)} vs ${money(r.a)}</span></div><div class="${r.pts>=60?'w':''}">+${r.pts}</div></div>`).join('') : '<p class="empty-s">Guess what the rare, an uncommon and a common are worth together. Exact guesses score 100, being off by double scores 0, and faster guesses get up to 10 bonus points.</p>'}</div></div>`;
   }
   if(game.mode==='bust'){
     const line = game.line || BUST_LINE[game.era], vals = game.packs.map(p=>p.v), mx = Math.max(line*3, ...vals, 1), H = 150, y = v => Math.round(Math.sqrt(v/mx)*(H-24));   // square-root scale so small packs still show
@@ -3126,18 +3192,9 @@ let lbSub = 'boards';
 async function renderBoards(){
   const seq = ++lbSeq;
   document.querySelectorAll('#lbTabs [data-lb]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.lb===lbPeriod)));
-  // your ranked stats (kept in this browser for now)
-  const since = sinceFor(lbPeriod), inP = x => !since || x.at >= since, word = lbPeriod==='day' ? 'today' : lbPeriod==='week' ? 'this week' : 'all-time';
-  const matches = (rk.duel.matches||[]).filter(inP), w = matches.filter(m=>m.won).length;
-  const gs = rk.guess.scores.filter(inP), gAvg = lbPeriod==='all' ? guessSkill() : guessSkill(gs.slice(-GUESS_WINDOW));
-  const fm = (rk.flip.matches||[]).filter(inP), fw = fm.filter(m=>m.won).length;
-  $('#lbRanked').innerHTML = `
-    <div class="box"><div class="box-h"><h2>Money Spread</h2></div><div class="bignum">${Math.round(rk.duel.rating).toLocaleString()}</div><div class="kvs"><div><span>Matches ${word}</span><b>${matches.length}</b></div><div><span>Won · lost</span><b>${w} · ${matches.length-w}</b></div></div></div>
-    <div class="box"><div class="box-h"><h2>Guess the Value</h2></div><div class="bignum">${gAvg==null?'—':gAvg.toFixed(1)}</div><div class="kvs"><div><span>Rounds ${word}</span><b>${gs.length}</b></div><div><span>Best round</span><b>${gs.length?Math.max(...gs.map(x=>x.pts)):'—'}</b></div></div></div>
-    <div class="box"><div class="box-h"><h2>Rip & Flip</h2></div><div class="bignum">${fm.length?`${fw}–${fm.length-fw}`:'—'}</div><div class="kvs"><div><span>Matches ${word}</span><b>${fm.length}</b></div><div><span>Best streak</span><b>${rk.flip.best||0}</b></div></div></div>`;
   $('#lbNote').innerHTML = (acct.user ? 'Everyone on ripjr.com, from packs the server rolled. ' : '<b>Sign in with Discord to get on the boards.</b> ')
-    + 'Daily and weekly boards reset at midnight UTC (7pm Central). Packs ripped counts up to 100 a day.';
-  const boards = [['pull','#lbPulls'],['pack','#lbPacks'],['count','#lbCount']];
+    + 'Daily and weekly boards reset at midnight UTC (7pm Central). Price guessing is your average score (3+ rounds for the daily board, 5+ for weekly, your last 25 for all-time). Packs ripped counts up to 100 a day.';
+  const boards = [['guess','#lbGuess'],['pack','#lbPacks'],['count','#lbCount']];
   const slow = setTimeout(()=>{ if(seq===lbSeq) boards.forEach(([,s])=>$(s).innerHTML = '<p class="empty-s">Loading…</p>'); }, 150);
   if(!await sbReady()){ clearTimeout(slow); boards.forEach(([,s])=>$(s).innerHTML = '<p class="empty-s">Boards aren’t available right now.</p>'); return; }
   const res = await Promise.all(boards.map(([k])=>rpc('leaderboard', {p_board:k, p_period:lbPeriod}).catch(err=>({error:err.message}))));
@@ -3148,8 +3205,8 @@ const avatarHtml = x => x.avatar ? `<img class="av" src="${h(x.avatar)}" alt="" 
 function boardRows(kind, r){
   if(!r || r.error) return `<p class="empty-s">${h((r && r.error) || 'Couldn’t load this board.')}</p>`;
   if(!r.rows.length) return '<p class="empty-s">Nobody yet. Rip a pack and take the top spot.</p>';
-  const val = v => kind==='count' ? Number(v).toLocaleString() : money(+v);
-  const row = x => `<div class="lbrow ${x.me?'me':''} ${x.uid?'click':''}" ${x.uid?`role="button" tabindex="0" data-prof="${h(x.uid)}" aria-label="${h(x.name)}’s profile"`:''}><span class="n">${x.rank}</span>${kind==='pull' && x.img ? `<img class="lbcard" src="${h(x.img)}" alt="" loading="lazy">` : avatarHtml(x)}<span class="who2"><b>${h(x.name)}</b><small>${x.title?`<i>${h(x.title)}</i>`:''}${x.title && kind==='pull' && x.card?' · ':''}${kind==='pull' && x.card?h(x.card):''}</small></span><span class="v">${val(x.value)}</span></div>`;
+  const val = v => kind==='count' ? Number(v).toLocaleString() : kind==='guess' ? (+v).toFixed(1) : money(+v);
+  const row = x => `<div class="lbrow ${x.me?'me':''} ${x.uid?'click':''}" ${x.uid?`role="button" tabindex="0" data-prof="${h(x.uid)}" aria-label="${h(x.name)}’s profile"`:''}><span class="n">${x.rank}</span>${avatarHtml(x)}<span class="who2"><b>${h(x.name)}</b><small>${x.title?`<i>${h(x.title)}</i>`:''}${x.title && kind==='guess' && x.card?' · ':''}${kind==='guess' && x.card?h(x.card)+' round'+(x.card==='1'?'':'s'):''}</small></span><span class="v">${val(x.value)}</span></div>`;
   const mine = r.me && !r.rows.some(x=>x.me) ? `<div class="lbrow me"><span class="n">${r.me.rank}</span><span class="av">★</span><span class="who2"><b>You</b><small>of ${Number(r.players).toLocaleString()} players</small></span><span class="v">${val(r.me.value)}</span></div>` : '';
   return r.rows.map(row).join('') + mine;
 }
@@ -3209,7 +3266,7 @@ async function lockGuessCh(g){
     $('#rvRetry').onclick = ()=>lockGuessCh(g); return;
   }
   if(game!==gm) return;
-  gm.cards = r.cards; gm.cards.forEach(c=>cache.set(c.id, c));
+  gm.cards = r.cards; gm.trio = guessTrio(r.cards); gm.cards.forEach(c=>cache.set(c.id, c));
   guessDone(g, +r.actual, r.pts|0);
   if(r.late) toast('Time ran out before your guess landed, so it scored 0.');
 }
@@ -3227,8 +3284,8 @@ function chOutcome(mode, a, b){
     return {my:w, their:l, r: Math.sign(w-l) || Math.sign((a.total||0)-(b.total||0)), rows, note:'Packs won (ties go to the higher total value)'};
   }
   if(mode==='guess'){
-    const rows = Array.from({length:CH_PACKS.guess}, (_,i)=>{ const x = (a.rounds||[])[i], y = (b.rounds||[])[i]; return {label:'Pack '+(i+1)+(x?' · '+money(x.a):''), my:x?'+'+x.pts:'—', their:y?'+'+y.pts:'—', r:Math.sign((x?x.pts:0)-(y?y.pts:0))}; });
-    return {my:a.pts||0, their:b.pts||0, r:Math.sign((a.pts||0)-(b.pts||0)), rows, note:'Total points from 5 guesses on the same packs'};
+    const rows = Array.from({length:CH_PACKS.guess}, (_,i)=>{ const x = (a.rounds||[])[i], y = (b.rounds||[])[i]; return {label:'Pack '+(i+1)+(x?' · 3 cards '+money(x.a):''), my:x?'+'+x.pts:'—', their:y?'+'+y.pts:'—', r:Math.sign((x?x.pts:0)-(y?y.pts:0))}; });
+    return {my:a.pts||0, their:b.pts||0, r:Math.sign((a.pts||0)-(b.pts||0)), rows, note:'Total points from 5 guesses on the same cards'};
   }
   if(mode==='flip'){
     const n = Math.max((a.rounds||[]).length, (b.rounds||[]).length);
@@ -3281,7 +3338,7 @@ async function openChallenge(id){
   }
   if(c.expired){ chDialog('Challenge expired', '<p style="margin:0">This challenge expired.</p>'); return; }
   if(c.taken){ chDialog('Challenge taken', '<p style="margin:0">Someone already took this challenge.</p>'); return; }
-  const rules = {duel:`You each open ${CH_PACKS.duel} packs. Win more packs on dollar value to win.`, guess:`You both guess the value of the same ${CH_PACKS.guess} packs. Most points wins.`, bust:'You both rip the same packs. Bank before one comes in under the line. Highest bank wins.', flip:'Best of 5, taking turns picking one of two packs (the other goes to the other player). Rip the cheaper rare to take the round.'}[c.mode];
+  const rules = {duel:`You each open ${CH_PACKS.duel} packs. Win more packs on dollar value to win.`, guess:`You both get the same ${CH_PACKS.guess} packs and price the same 3 cards from each (the rare, an uncommon and a common). Most points wins.`, bust:'You both rip the same packs. Bank before one comes in under the line. Highest bank wins.', flip:'Best of 5, taking turns picking one of two packs (the other goes to the other player). Rip the cheaper rare to take the round.'}[c.mode];
   const signed = !!meUser();
   chDialog('You’ve been challenged', `<div class="genie-line"><img src="genie.png" alt=""><span><b>${h(c.creator_name||'Someone')}</b> challenged you to ${what}</span></div><p style="margin:0">${rules}${c.mode==='flip'?'':' Their score stays hidden until you finish.'}</p>
     <div class="dacts2"><button class="pill" type="button" id="chAccept">${signed?'Accept and play':'Sign in with Discord to play'}</button>${c.invited_me?'<button class="pill ghost" type="button" id="chDecline">Decline</button>':''}<button class="pill ghost" type="button" data-close>Not now</button></div>`);
@@ -3828,9 +3885,8 @@ async function openProfile(uid){
   $('#profBody').innerHTML = `
     <div class="pf-top">${p.avatar ? `<img class="pf-av" src="${h(p.avatar)}" alt="">` : `<span class="pf-av">${h((p.name||'?').slice(0,1).toUpperCase())}</span>`}
       <div class="pf-id"><b>${h(p.name)}${p.me ? ' <small>(you)</small>' : ''}</b>${p.title ? `<i>${h(p.title)}</i>` : ''}<small>${Number(p.packs||0).toLocaleString()} packs ripped · ${p.ach||0} of ${p.ach_total||0} achievements</small></div></div>
-    <div class="pf-rec"><div><b class="num">${w}–${l}</b><small>ranked record</small></div><div><b class="num">${pct(w, l)}</b><small>win rate</small></div></div>
+    <div class="pf-rec"><div><b class="num">${w}–${l}</b><small>ranked record</small></div><div><b class="num">${pct(w, l)}</b><small>win rate</small></div><div><b class="num">${p.guess!=null ? (+p.guess).toFixed(1) : '—'}</b><small>price guessing</small></div></div>
     ${rows ? `<div class="pf-modes">${rows}</div>` : '<p class="pwnote center">No ranked matches yet. Genie matches and challenges count here.</p>'}
-    ${p.best ? `<div class="pf-best">${p.best.img ? `<img src="${h(p.best.img)}" alt="" loading="lazy">` : ''}<div><small>Best pull</small><b>${h(p.best.name||'')}</b><span class="num">${money(+p.best.usd)}</span></div></div>` : ''}
     ${p.me ? `<div class="pf-ch"><button class="pill ghost" type="button" id="pfAch">Your achievements</button></div>` : ''}
     ${canChallenge ? `<div class="pf-ch"><small>Challenge ${h(p.name)} · ${h(eraLabel(rk.era))} packs</small><div class="pf-chb">${['duel','guess','flip'].map(m=>`<button class="pill ${m==='flip'?'gold':'ghost'} small" type="button" data-invite="${m}">${h(MODE_NAME[m])}</button>`).join('')}</div></div>`
       : !p.me && !meUser() ? '<p class="pwnote center">Sign in to challenge players.</p>' : ''}`;
@@ -4002,6 +4058,57 @@ document.addEventListener('click', e=>{ if(e.target.closest('.themebtn')) toggle
 ACCT_ACTIONS.theme = toggleTheme;
 try{ matchMedia('(prefers-color-scheme: light)').addEventListener('change', e=>{ let saved = null; try{ saved = localStorage.getItem(LS_THEME); }catch(er){} if(!saved) setTheme(e.matches ? 'light' : 'dark'); }); }catch(e){}
 setTheme(themeNow());
+
+/* ======================= The Genie's tips: one short tip the first time you reach each part of the site ======================= */
+const LS_TIPS = 'ripjr.tips';
+const TIPS = {
+  welcome:{t:'Welcome to ripjr!', p:'I’m the Genie. Drag your finger (or mouse) across the pack to tear it open along whatever line you draw. Ripping is free and unlimited.'},
+  cards:  {t:'Flip through your pull', p:'Tap or swipe to see each card. Tap any card for its price and details. Everything you rip goes into your Binder.'},
+  ranked: {t:'Ranked: play me, or your friends', p:'Money Spread: the bigger pack wins. Guess the Value: price 3 cards. Rip & Flip: rip a rare in half, cheaper rare wins. Sign in with Discord so your wins count.'},
+  guess:  {t:'Price these 3', p:'Type what the rare, the uncommon and the common are worth together. Exact is 100 points, off by double is 0, and answering fast earns a bonus.'},
+  flip:   {t:'Rip & Flip', p:'Pick a pack, then rip its rare right down the middle. Whoever rips the cheaper rare takes the round. Best of 5.'},
+  boards: {t:'The leaderboards', p:'Price guessing, best pack and packs ripped. Daily boards reset at midnight UTC. Tap anyone’s name to see their profile.'},
+  binder: {t:'Your binder', p:'Every card you’ve ripped lives here. Search it by name, and sort by value or newest.'},
+};
+const tipsSeen = lsGet(LS_TIPS, {});
+let tipQ = [], tipOn = null;
+function tip(k){
+  if(!TIPS[k] || tipsSeen[k] || tipOn===k || tipQ.includes(k)) return;
+  tipQ.push(k); if(!tipOn) tipNext();
+}
+function tipDone(k){
+  tipsSeen[k] = 1; lsSet(LS_TIPS, tipsSeen);
+  const el = document.querySelector('.gtip'); if(el && (!k || tipOn===k)){ el.remove(); tipOn = null; setTimeout(tipNext, 350); }
+  tipQ = tipQ.filter(x=>x!==k);
+}
+function tipNext(){
+  const k = tipQ.shift(); if(!k || tipsSeen[k]) return k && tipNext();
+  tipOn = k;
+  const el = document.createElement('div'); el.className = 'gtip'; el.setAttribute('role', 'status');
+  el.innerHTML = `<img src="genie.png" alt=""><div><b>${h(TIPS[k].t)}</b><p>${h(TIPS[k].p)}</p><div class="gtip-a"><button class="pill small" type="button" data-tipok>Got it</button><button class="lnk" type="button" data-tipoff>No more tips</button></div></div>`;
+  el.querySelector('[data-tipok]').onclick = ()=>tipDone(k);
+  el.querySelector('[data-tipoff]').onclick = ()=>{ Object.keys(TIPS).forEach(x=>tipsSeen[x] = 1); tipQ = []; tipDone(k); };
+  document.body.appendChild(el);
+}
+function tipsReset(){ Object.keys(tipsSeen).forEach(k=>delete tipsSeen[k]); lsSet(LS_TIPS, tipsSeen); toast('The Genie will show his tips again.'); tipView(ui.view); }
+function tipView(v){
+  if(v==='casual') setTimeout(()=>{ if(ui.view==='casual') tip('welcome'); }, 900);
+  if(v==='ranked' && !game) tip('ranked');
+  if(v==='boards') tip('boards');
+  if(v==='binder') tip('binder');
+}
+{
+  const _setView = setView;
+  setView = function(v){ const r = _setView.apply(this, arguments); try{ if(tipOn==='welcome' && v!=='casual'){} tipView(v); }catch(e){} return r; };
+  const _guessStart = guessStart;
+  guessStart = function(){ const r = _guessStart.apply(this, arguments); tip('guess'); return r; };
+  const _startGame = startGame;
+  startGame = function(mode){ const r = _startGame.apply(this, arguments); if(mode==='flip') tip('flip'); return r; };
+  // the welcome tip is done once you tear your first pack; the cards tip shows then
+  const _tearOpen = typeof tearOpen==='function' ? tearOpen : null;
+  if(_tearOpen) tearOpen = function(){ const r = _tearOpen.apply(this, arguments); if(tipOn==='welcome') tipDone('welcome'); else tipsSeen.welcome = 1; if(!game) setTimeout(()=>tip('cards'), 1600); return r; };
+}
+ACCT_ACTIONS.tips = tipsReset;
 
 /* ======================= Boot ======================= */
 renderAccount();
