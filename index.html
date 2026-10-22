@@ -1010,6 +1010,40 @@ html.fit .app{align-items:stretch}
 .bload .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent,#F4BF3A);animation:sp .8s linear infinite}
 .kv small.est{display:block;font:600 .7rem/1.2 var(--f-body);color:var(--muted);margin-top:2px}
 
+/* ---- profiles ---- */
+.lbrow.click{cursor:pointer;transition:background .15s}
+.lbrow.click:hover,.lbrow.click:focus-visible{background:var(--surface-2)}
+.plink{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#profDlg{width:min(460px,calc(100vw - 24px))}
+.pf{display:grid;gap:16px}
+.pf-top{display:flex;gap:14px;align-items:center}
+.pf-av{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;background:var(--surface-2);font:700 1.6rem/1 var(--f-display)}
+.pf-id{display:grid;gap:3px;min-width:0}
+.pf-id b{font:700 1.3rem/1.15 var(--f-display)}
+.pf-id b small{font:600 .8rem var(--f-body);color:var(--muted)}
+.pf-id i{font-style:normal;font-size:.82rem;font-weight:700;color:var(--accent)}
+.pf-id > small{color:var(--muted);font-size:.82rem}
+.pf-rec{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pf-rec > div{background:var(--surface-2);border-radius:14px;padding:12px 14px;display:grid;gap:2px}
+.pf-rec b{font:800 1.6rem/1.1 var(--f-body)}
+.pf-rec small{color:var(--muted);font-size:.78rem}
+.pf-modes{display:grid;gap:6px}
+.pf-mode{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px;align-items:center;font-size:.84rem;padding:8px 12px;border-radius:12px;background:var(--surface-2)}
+.pf-mode span{color:var(--muted)}
+.pf-mode em{font-style:normal;color:var(--ink);font-weight:700}
+.pf-pct{font-weight:800;color:var(--ink)!important;text-align:right}
+.pf-best{display:flex;gap:12px;align-items:center}
+.pf-best img{width:58px;border-radius:5px;box-shadow:var(--shadow)}
+.pf-best div{display:grid;gap:2px}
+.pf-best small{color:var(--muted);font-size:.76rem}
+.pf-ch{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.pf-ch small{color:var(--muted);font-size:.8rem}
+.pf-chb{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:600px){ .pf-mode{grid-template-columns:1fr auto;row-gap:2px} .pf-mode b{grid-column:1/-1} }
+/* "your turn" dot on the Ranked tab */
+.hasdot{position:relative}
+.hasdot::after{content:"";position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%;background:#EF6A5B;box-shadow:0 0 0 2px var(--bg,#2A211B)}
+
 </style>
 </head>
 <body>
@@ -1169,7 +1203,7 @@ html.fit .app{align-items:stretch}
   <button type="button" data-view="favs" aria-selected="false"><svg width="22" height="22"><use href="#i-star"/></svg>Favorites</button>
 </nav>
 
-<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 55</span></footer>
+<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 56</span></footer>
 
 <dialog id="saveDlg" aria-label="Save your pulls"><div class="sheet">
   <div class="sheet-h"><h3>Your pulls</h3><button class="close" data-close aria-label="Close">×</button></div>
@@ -1188,6 +1222,11 @@ html.fit .app{align-items:stretch}
     <div class="dacts2"><a class="pill buy" id="dBuy" target="_blank" rel="noopener">Buy on TCGplayer ↗</a><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a><button class="linkbtn" type="button" id="dPrintsBtn">Other artworks</button></div>
     <div class="prints" id="dPrints" hidden></div>
   </div>
+</div></dialog>
+
+<dialog id="profDlg" aria-label="Player profile"><div class="sheet">
+  <div class="sheet-h"><h3>Player</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <div id="profBody" class="pf"></div>
 </div></dialog>
 
 <dialog id="chDlg" aria-label="Challenge"><div class="sheet">
@@ -2395,6 +2434,7 @@ const ACCT_ACTIONS = {
   binder: ()=>{ binderTab='pulls'; setView('binder'); },
   favs: ()=>setView('favs'),
   ach: ()=>{ lbSub = 'ach'; setView('boards'); },
+  profile: ()=>{ if(acct.user) openProfile(acct.user.id); },
   privacy: ()=>{ const on = !!acct.user; $('#privDelete').hidden = !on; $('#privDelWrap').hidden = !on; $('#privDlg').showModal(); },
 };
 function renderAccount(){
@@ -2404,8 +2444,8 @@ function renderAccount(){
     b.classList.add('in'); b.innerHTML = (av?`<img src="${h(av)}" alt="">`:'')+h(userName(u));
   } else { b.classList.remove('in'); b.textContent = 'Sign in'; }
   const items = u
-    ? `<div class="who">Signed in as<b>${h(userName(u))}</b>${acct.titleName?`<i class="wtitle">${h(acct.titleName)}</i>`:''}</div><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="favs">Favorites</button><button type="button" role="menuitem" data-m="ach">Achievements</button><button type="button" role="menuitem" data-m="privacy">Privacy &amp; account</button><button type="button" role="menuitem" data-m="signout">Sign out</button>`
-    : `<button type="button" role="menuitem" data-m="signin">Sign in with Discord</button><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="privacy">Privacy</button>`;
+    ? `<div class="who">Signed in as<b>${h(userName(u))}</b>${acct.titleName?`<i class="wtitle">${h(acct.titleName)}</i>`:''}</div><button type="button" role="menuitem" data-m="profile">My profile</button><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="favs">Favorites</button><button type="button" role="menuitem" data-m="ach">Achievements</button><button type="button" role="menuitem" data-m="privacy">Privacy &amp; account</button><button type="button" role="menuitem" data-m="signout">Sign out</button>`
+    : `<button type="button" role="menuitem" data-m="signin">Sign in with Discord</button><button type="button" role="menuitem" data-m="profile">My profile</button><button type="button" role="menuitem" data-m="binder">Binder</button><button type="button" role="menuitem" data-m="privacy">Privacy</button>`;
   document.querySelectorAll('.acctitems').forEach(x=>x.innerHTML = items);
 }
 $('#privDelete').addEventListener('click', async ()=>{
@@ -2463,7 +2503,7 @@ const BINDER_PAGE = 50;   // cards per page
 $('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; binderPage = 0; renderBinder(); });
 $('#bSort').addEventListener('change', ()=>{ binderPage = 0; renderBinder(); });
 $('#bPager').addEventListener('click', e=>{ const b = e.target.closest('[data-bp]'); if(!b || b.disabled) return; binderPage += +b.dataset.bp; renderBinder(); $('#view-binder').scrollIntoView({block:'start'}); window.scrollTo({top:0}); });
-function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); }
+function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); chPoll(); }
 
 /* ---------- binder: signed in, Supabase keeps just card id + count and hands back one page at a time (searchable) ---------- */
 let binderSeq = 0, binderQ = '', binderT = 0;
@@ -2704,6 +2744,7 @@ function startGame(mode, opts={}){
   game = null;
   if(!rankedLeft()){ toast('That’s all your ranked packs for today. Casual is unlimited.'); renderRanked(); return; }
   game = {mode, era:opts.era||rk.era, ch:opts.ch||null, line:opts.line||null, n:0, round:1, rounds:[], you:0, them:0, pot:0, packs:[], over:false};
+  if((mode==='duel' || mode==='flip') && !game.ch && genieOnServer()) genieStart(game);   // signed in: the Genie match runs on the server
   pk.mode = 'ranked'; pk.era = game.era;
   $('#rankedHost').appendChild($('#stage'));
   $('#rkHub').hidden = true; $('#rkPlay').hidden = false; window.scrollTo({top:0}); setPlay(true);
@@ -2725,8 +2766,11 @@ function nextRankedPack(){
   pk.source = game.ch ? (ch => tok => chPack(ch.id, game ? game.n : 0, game.era, tok))(game.ch) : null;
   pk.swipe = game.mode==='duel';
   if(game.mode==='duel' && !game.ch){   // the Genie's pack rolls while you open yours
-    if(game.genieTok) game.genieTok.dead = true;
-    game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok, {genie:true}); game.genieP.catch(()=>{});
+    if(game.gstart){ const g = game; pk.source = tok => genieDuelSource(g, tok); }   // signed in: both packs come from the server
+    else {
+      if(game.genieTok) game.genieTok.dead = true;
+      game.genieTok = {}; game.genieP = rollPack(game.era, game.genieTok, {genie:true}); game.genieP.catch(()=>{});
+    }
     genieSay(game.round===1 ? 'Best of seven. Rip yours first.' : pick(['Your move.','Go on, rip it.','I’m feeling lucky.','Let’s see it.']));
   }
   setStageChrome(stageLabel(true)); newPack(); renderPanel();
@@ -2804,7 +2848,7 @@ function duelMine(cards, v){
 function duelRound(v, gv, mine, theirs){
   if(!game) return;
   const top = cs => Math.max(0, ...cs.map(c=>c.usd||0));
-  let r = v>gv ? 1 : v<gv ? -1 : Math.sign(top(mine)-top(theirs));   // dead even: the better single card wins
+  let r = game.gr ? game.gr.r : v>gv ? 1 : v<gv ? -1 : Math.sign(top(mine)-top(theirs));   // the server's call when it scored the round   // dead even: the better single card wins
   game.rounds.push({you:v, them:gv, r});
   if(r>0) game.you++; if(r<0) game.them++;
   genieSay(r>0 ? pick(['Well pulled.','Fine. Take it.','Beginner’s luck.']) : r<0 ? pick(['Ha! Mine.','The lamp provides.','Too easy.']) : 'Exactly even? Again!');
@@ -2831,6 +2875,7 @@ function duelFinish(won, forfeit){
   game.over = true;
   rkHistory({score: forfeit ? 'Left' : `${won?'Won':'Lost'} ${game.you}–${game.them}`, cls: won?'w':'l', detail:`Rating ${delta>=0?'+':''}${delta} → ${Math.round(rk.duel.rating)}`});
   renderPanel();
+  if(game.gid && !forfeit){ const id = game.gid; setTimeout(()=>achShow('genie:'+id), 900); }   // Genius
   return {won, delta};
 }
 
@@ -2934,6 +2979,7 @@ function leaveGame(){
   }
   clearInterval(game.timer);
   if(game.genieTok) game.genieTok.dead = true;
+  genieLeave(game);   // an unfinished Genie match you walk out of counts as a loss on the server too
   game = null;
   if(pk.tok) pk.tok.dead = true;
   pk.state = 'idle'; pk.source = null; pk.swipe = false; setPlay(false); liveStop();
@@ -3005,7 +3051,7 @@ function boardRows(kind, r){
   if(!r || r.error) return `<p class="empty-s">${h((r && r.error) || 'Couldn’t load this board.')}</p>`;
   if(!r.rows.length) return '<p class="empty-s">Nobody yet. Rip a pack and take the top spot.</p>';
   const val = v => kind==='count' ? Number(v).toLocaleString() : money(+v);
-  const row = x => `<div class="lbrow ${x.me?'me':''}"><span class="n">${x.rank}</span>${kind==='pull' && x.img ? `<img class="lbcard" src="${h(x.img)}" alt="" loading="lazy">` : avatarHtml(x)}<span class="who2"><b>${h(x.name)}</b><small>${x.title?`<i>${h(x.title)}</i>`:''}${x.title && kind==='pull' && x.card?' · ':''}${kind==='pull' && x.card?h(x.card):''}</small></span><span class="v">${val(x.value)}</span></div>`;
+  const row = x => `<div class="lbrow ${x.me?'me':''} ${x.uid?'click':''}" ${x.uid?`role="button" tabindex="0" data-prof="${h(x.uid)}" aria-label="${h(x.name)}’s profile"`:''}><span class="n">${x.rank}</span>${kind==='pull' && x.img ? `<img class="lbcard" src="${h(x.img)}" alt="" loading="lazy">` : avatarHtml(x)}<span class="who2"><b>${h(x.name)}</b><small>${x.title?`<i>${h(x.title)}</i>`:''}${x.title && kind==='pull' && x.card?' · ':''}${kind==='pull' && x.card?h(x.card):''}</small></span><span class="v">${val(x.value)}</span></div>`;
   const mine = r.me && !r.rows.some(x=>x.me) ? `<div class="lbrow me"><span class="n">${r.me.rank}</span><span class="av">★</span><span class="who2"><b>You</b><small>of ${Number(r.players).toLocaleString()} players</small></span><span class="v">${val(r.me.value)}</span></div>` : '';
   return r.rows.map(row).join('') + mine;
 }
@@ -3099,7 +3145,7 @@ function chDialog(title, html){ $('#chT').textContent = title; $('#chBody').inne
 function chResultsHtml(c){
   const o = chOutcome(c.mode, c.my_result, c.their_result), them = theirName(c);
   return `<div class="rres center ${o.r>0?'win':o.r<0?'lose':''}" style="color:${o.r>0?'var(--good)':o.r<0?'var(--bad)':'var(--ink)'}">${o.r>0?'You win!':o.r<0?h(them)+' wins':'It’s a tie'}</div>
-    <div class="score"><div><b>${h(String(o.my))}</b><small>You</small></div><span>–</span><div><b>${h(String(o.their))}</b><small>${h(them)}</small></div></div>
+    <div class="score"><div><b>${h(String(o.my))}</b><small>You</small></div><span>–</span><div><b>${h(String(o.their))}</b><small${c.their_id?` class="plink" role="button" tabindex="0" data-prof="${h(c.their_id)}"`:''}>${h(them)}</small></div></div>
     <p class="pwnote center">${h(MODE_NAME[c.mode])} · ${h(eraLabel(c.era))} packs · ${h(o.note)}</p>
     <div class="mlist">${o.rows.map(r=>`<div class="mrow"><div><b>${h(r.label)}</b> <span>· you ${h(r.my)} · ${h(them)} ${h(r.their)}</span></div><div class="${r.r>0?'w':r.r<0?'l':''}">${r.r>0?'Won':r.r<0?'Lost':'Tie'}</div></div>`).join('')}</div>`;
 }
@@ -3131,6 +3177,7 @@ async function openChallenge(id){
       $('#chPlay').onclick = ()=>playChallenge(c); return;
     }
     if(c.expired){ chDialog('Challenge expired', `<p style="margin:0">${what}. Nobody finished it in time.</p>`); return; }
+    if(c.side==='creator' && !c.taken && c.invited){ chDialog('Waiting on '+theirName(c), `<p style="margin:0">${what}. ${h(theirName(c))} will see it in their Challenges tab.</p>`); return; }
     if(c.side==='creator' && !c.taken){ chDialog('Waiting for a taker', chShareHtml(c)); bindShare(c); return; }
     chDialog('Waiting on '+theirName(c), `<p style="margin:0">${what}. You’re locked in. Results show up here once ${h(theirName(c))} plays.</p>`); return;
   }
@@ -3139,7 +3186,8 @@ async function openChallenge(id){
   const rules = {duel:`You each open ${CH_PACKS.duel} packs. Win more packs on dollar value to win.`, guess:`You both guess the value of the same ${CH_PACKS.guess} packs. Most points wins.`, bust:'You both rip the same packs. Bank before one comes in under the line. Highest bank wins.', flip:'Best of 5, taking turns picking one of two packs (the other goes to the other player). Rip the cheaper rare to take the round.'}[c.mode];
   const signed = !!meUser();
   chDialog('You’ve been challenged', `<div class="genie-line"><img src="genie.png" alt=""><span><b>${h(c.creator_name||'Someone')}</b> challenged you to ${what}</span></div><p style="margin:0">${rules}${c.mode==='flip'?'':' Their score stays hidden until you finish.'}</p>
-    <div class="dacts2"><button class="pill" type="button" id="chAccept">${signed?'Accept and play':'Sign in with Discord to play'}</button><button class="pill ghost" type="button" data-close>Not now</button></div>`);
+    <div class="dacts2"><button class="pill" type="button" id="chAccept">${signed?'Accept and play':'Sign in with Discord to play'}</button>${c.invited_me?'<button class="pill ghost" type="button" id="chDecline">Decline</button>':''}<button class="pill ghost" type="button" data-close>Not now</button></div>`);
+  const dc = $('#chDecline'); if(dc) dc.onclick = async ()=>{ try{ await rpc('challenge_cancel', {p_id:id}); toast('Challenge declined'); $('#chDlg').close(); renderChallenges(); }catch(e){ toast(e.message); } };
   $('#chAccept').onclick = async ()=>{
     if(!meUser()){ lsSet(LS_PENDING_CH, id); signIn(); return; }
     try{ const v = await rpc('challenge_accept', {p_id:id, p_name:userName(meUser()), p_avatar:meAvatar()}); playChallenge(v); }
@@ -3149,7 +3197,7 @@ async function openChallenge(id){
 function playChallenge(c){
   $('#chDlg').open && $('#chDlg').close();
   setView('ranked');
-  startGame(c.mode, {era:c.era, line:c.bust_line ? +c.bust_line : null, ch:{id:c.id, side:c.side, name:theirName(c)}});
+  startGame(c.mode, {era:c.era, line:c.bust_line ? +c.bust_line : null, ch:{id:c.id, side:c.side, name:theirName(c), invited:!!c.invited}});
 }
 async function createChallenge(mode){
   if(!meUser()){
@@ -3201,12 +3249,13 @@ async function chFinish(){
 // Challenges sub-tab on Ranked (with an X on each one)
 let chSeq = 0;
 function chStatus(c){
+  if(c.invited_me) return {st:'Challenged you', cls:'turn'};
   if(c.cancelled) return {st:'Cancelled', cls:''};
   if(c.done){ const o = chOutcome(c.mode, c.my_result, c.their_result); return {st:o.r>0?'Won':o.r<0?'Lost':'Tie', cls:o.r>0?'w':o.r<0?'l':''}; }
   if(c.expired) return {st:'Expired', cls:''};
-  if(c.mode==='flip') return c.flip_turn==='me' ? {st:'Your turn', cls:'turn'} : c.side==='creator' && !c.taken ? {st:'Send link', cls:''} : {st:'Their pick', cls:''};
+  if(c.mode==='flip') return c.flip_turn==='me' ? {st:'Your turn', cls:'turn'} : c.side==='creator' && !c.taken ? {st:c.invited?'Waiting':'Send link', cls:''} : {st:'Their pick', cls:''};
   if(!c.my_result) return {st:'Your turn', cls:'turn'};
-  if(c.side==='creator' && !c.taken) return {st:'Send link', cls:''};
+  if(c.side==='creator' && !c.taken) return {st:c.invited?'Waiting':'Send link', cls:''};
   return {st:'Waiting', cls:''};
 }
 async function renderChallenges(){
@@ -3219,7 +3268,7 @@ async function renderChallenges(){
   let list;
   try{ list = await rpc('my_challenges', {}); }catch(e){ box.innerHTML = `<p class="empty-s">${h(e.message)}</p>`; return; }
   if(seq!==chSeq) return;
-  const turns = list.filter(c=>chStatus(c).st==='Your turn').length;
+  const turns = list.filter(c=>chStatus(c).cls==='turn').length; setChDot(turns);
   $('#rkChN').textContent = turns ? String(turns) : '';
   box.innerHTML = list.length ? list.map(c=>{
     const them = (c.side==='creator' ? c.opponent_name : c.creator_name), s = chStatus(c);
@@ -3372,7 +3421,7 @@ async function renderAchievements(){
   $('#achNote').innerHTML = `<b>${earned} of ${list.length}</b> earned. Pin one as your title and it shows next to your name on the boards.`;
   grid.innerHTML = list.map(a=>{
     const on = !!a.earned_at, pinned = a.code===d.pinned;
-    const have = a.code==='master' ? d.p9 : a.code==='landman' ? (d.duals||0) : d.packs;
+    const have = d.progress && d.progress[a.code] != null ? d.progress[a.code] : a.code==='master' ? d.p9 : a.code==='landman' ? (d.duals||0) : d.packs;
     const prog = !on && a.goal ? `<div class="bar"><i style="width:${Math.min(100, Math.round(have/a.goal*100))}%"></i></div><small class="num">${Math.min(have, a.goal).toLocaleString()} / ${a.goal.toLocaleString()}</small>` : '';
     return `<div class="ach ${on?'on':''} ${pinned?'pinned':''}"><div class="ach-t">${h(a.title)}</div><div class="ach-d">${h(a.description)}</div>${prog}
       ${on ? `<div class="ach-f"><small>${h(new Date(a.earned_at).toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'}))}</small><button class="pill small ${pinned?'':'ghost'}" type="button" data-pin="${h(a.code)}" data-on="${pinned?1:0}">${pinned?'Pinned ✓':'Pin as title'}</button></div>` : ''}</div>`;
@@ -3429,6 +3478,11 @@ function flipNext(){
   clearInterval(game.timer);
   pk.swipe = false; pk.source = null; pk.state = 'idle';
   if(game.ch) return flipChNext();
+  if(game.gstart){   // signed in: the server rolls both packs when you pick
+    game.fr = {n:game.round, picker:'me', theirName:'The Genie'};
+    flipSay(game.round===1 ? 'start' : 'pick');
+    return flipPickView();
+  }
   const mine = {}, house = {};
   game.fr = {n:game.round, picker:'me', theirName:'The Genie', toks:[mine, house],
              mineP: rollPack(game.era, mine), theirP: rollPack(game.era, house, {genie:true})};
@@ -3464,6 +3518,14 @@ function flipPickView(){
         if(!r){ fr.going = false; return flipNext(); }
         Object.assign(fr, {pick:r.pick, mine:r.mine, theirs:r.theirs, r:r.r});
       }catch(e){ if(game!==g) return; fr.going = false; toast(e.message); return flipNext(); }
+    } else if(game.gstart && !replay){
+      const g = game;
+      try{
+        await g.gstart;
+        const s = await rpc('genie_flip_pick', {p_id:g.gid, p_round:fr.n-1, p_choice:i});
+        if(game!==g) return;
+        Object.assign(fr, {pick:s.pick, mine:s.mine, theirs:s.theirs, r:s.r});
+      }catch(e){ if(game!==g) return; fr.going = false; toast(e.message); return flipNext(); }
     }
     await sleep(380); flipOpenMine();
   };
@@ -3497,6 +3559,7 @@ function flipRipped(){
   const fr = game && game.fr; if(!fr) return;
   const rare = flipRare(fr.mineCards), usd = flipUsd(fr.mineCards);
   setTimeout(()=>{ const el = $('#flMyP'); if(el){ el.classList.add('on'); countUp(el, usd, 650); } }, 380);
+  if(game.gid){ const id = game.gid, n = fr.n; setTimeout(()=>achShow('flipg:'+id+':'+n), 700); }   // Psychopath vs the Genie
   setTimeout(()=>flipSay(usd >= 15 ? 'ripBig' : usd < 1 ? 'ripSmall' : 'ripMid'), 900);
   foot(`<div class="hint">You ripped <b>${h(rare.name)}</b>.</div><div class="stage-acts"><button class="pill gold" type="button" id="flFlip">Flip ${h(game.ch ? themName()+'’s' : 'the Genie’s')}</button></div>`);
   $('#flFlip').onclick = flipTheirs;
@@ -3557,6 +3620,7 @@ function flipSoloFinish(won, forfeit){
   f[won?'w':'l']++; f.streak = won ? (f.streak||0)+1 : 0; f.best = Math.max(f.best||0, f.streak);
   (f.matches ||= []).push({at:new Date().toISOString(), won});
   g.over = true;
+  if(g.gid && !forfeit) setTimeout(()=>achShow('genie:'+g.gid), 1200);   // Genius
   rkHistory({score: forfeit ? 'Left' : `${won?'Won':'Lost'} ${g.you}–${g.them}`, cls: won?'w':'l', detail: `${f.w} won · ${f.l} lost`});
   if(forfeit) return;
   renderPanel(); setStageChrome(stageLabel());
@@ -3588,9 +3652,9 @@ async function flipChNext(){
 // their pick: wait here (checks every few seconds), or come back later from the Challenges tab
 function flipWait(s){
   const g = game;
-  $('#stageMid').innerHTML = `<div class="flpick"><div class="flpick-h">${s.taken ? `${h(themName())}’s pick` : 'Waiting for a taker'}</div><div class="flpacks wait">${miniPack()}${miniPack()}</div>
-    <p class="pwnote center">${s.taken ? `Round ${s.rounds.length+1}. You’ll see it here as soon as they pick, or come back later. It’s in your Challenges tab.` : 'Round 1 is done. Send your link. Whoever opens it first plays round 2.'}</p></div>`;
-  foot(`<div class="stage-acts">${s.taken ? '' : '<button class="pill gold" type="button" id="flShare">Send challenge link</button>'}<button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
+  $('#stageMid').innerHTML = `<div class="flpick"><div class="flpick-h">${s.taken ? `${h(themName())}’s pick` : g.ch.invited ? `Waiting on ${h(themName())}` : 'Waiting for a taker'}</div><div class="flpacks wait">${miniPack()}${miniPack()}</div>
+    <p class="pwnote center">${s.taken ? `Round ${s.rounds.length+1}. You’ll see it here as soon as they pick, or come back later. It’s in your Challenges tab.` : g.ch.invited ? `Round 1 is done. ${h(themName())} will see the challenge in their Challenges tab.` : 'Round 1 is done. Send your link. Whoever opens it first plays round 2.'}</p></div>`;
+  foot(`<div class="stage-acts">${s.taken || g.ch.invited ? '' : '<button class="pill gold" type="button" id="flShare">Send challenge link</button>'}<button class="pill ghost" type="button" data-back>Back to Ranked</button></div>`);
   const sh = $('#flShare'); if(sh) sh.onclick = ()=>{ const c = {id:g.ch.id, mode:'flip', era:g.era}; chDialog('Send your challenge', chShareHtml(c)); bindShare(c); };
   clearInterval(g.timer);
   g.timer = setInterval(async ()=>{
@@ -3620,6 +3684,91 @@ function flipPanel(){
   return rule + `<div class="box"><div class="score"><div><b>${game.you}</b><small>You</small></div><span>–</span><div><b>${game.them}</b><small>${h(them)}</small></div></div><div class="rdots">${dots}</div><p class="pwnote center">First to ${FLIP_WINS} wins${game.ch?'':` · record ${rk.flip.w}–${rk.flip.l}`}</p></div>${game.ch ? '' : `<div class="box"><div class="genie-line"><img src="genie.png" alt="The Genie"><span id="rkSay">${h(game.say||'')}</span></div></div>`}
     <div class="box"><div class="box-h"><h2>Rounds</h2></div><div class="mlist">${game.rounds.length ? game.rounds.map((r,i)=>`<div class="mrow"><div><b>Round ${i+1}</b> <span>· ripped ${money(r.my)} vs ${money(r.th)}</span></div><div class="${r.r>0?'w':'l'}">${r.r>0?'Won':'Lost'}</div></div>`).join('') : '<p class="empty-s">Pick a pack, rip its rare in half. The cheaper rip takes the round.</p>'}</div></div>`;
 }
+
+/* ======================= Genie matches on the server (Money Spread + Rip & Flip vs the Genie) ======================= */
+// Signed in, Supabase rolls both packs and scores every round (see drop2.sql), so wins count on your profile
+// and for Genius. Signed out, the match still runs in this browser like before (it just doesn't count anywhere).
+const genieOnServer = () => !!(acct.user && acct.sb);
+function genieStart(g){
+  g.gn = 0;
+  g.gstart = rpc('genie_start', {p_mode:g.mode, p_era:g.era}).then(id=>{ g.gid = id; return id; });
+  g.gstart.catch(e=>{ if(game===g) toast(e.message); });
+}
+function genieLeave(g){ if(g && g.gid) rpc('genie_leave', {p_id:g.gid}).catch(()=>{}); }
+// Money Spread: your pack for the next round (the Genie's comes with it, revealed when you ask)
+async function genieDuelSource(g, tok){
+  await g.gstart;
+  const r = await rpc('genie_duel_round', {p_id:g.gid, p_round:g.gn});
+  if(tok.dead || game!==g) throw new Error('cancelled');
+  g.gn++; g.gr = r; g.genieP = Promise.resolve(r.theirs);
+  await warmImages(r.mine);
+  return r.mine;
+}
+// achievements earned by something other than opening a pack (beating the Genie, a Psychopath rip)
+function achShow(ref){
+  if(!acct.user || !acct.sb) return;
+  rpc('ach_pending', {p_ref:ref}).then(list=>{ (list||[]).forEach(achToast); }).catch(()=>{});
+}
+
+/* ======================= Profiles: tap a name to see their record ======================= */
+const PROF_MODES = {duel:'Money Spread', flip:'Rip & Flip', guess:'Guess the Value', bust:'Bank or Bust'};
+const pct = (w, l) => w + l ? Math.round(w / (w + l) * 100) + '%' : '—';
+let profSeq = 0;
+async function openProfile(uid){
+  if(!uid) return;
+  const seq = ++profSeq, dlg = $('#profDlg');
+  $('#profBody').innerHTML = '<div class="bload"><span class="spin" aria-hidden="true"></span>Loading…</div>';
+  if(!dlg.open) dlg.showModal();
+  if(!await sbReady()){ $('#profBody').innerHTML = '<p class="empty-s">Profiles aren’t available right now.</p>'; return; }
+  let p;
+  try{ p = await rpc('profile_card', {p_user:uid}); }catch(e){ if(seq===profSeq) $('#profBody').innerHTML = `<p class="empty-s">${h(e.message)}</p>`; return; }
+  if(seq!==profSeq) return;
+  const w = +p.w || 0, l = +p.l || 0, modes = p.modes || [];
+  const rec = (a, b) => a + b ? `${a}–${b}` : '—';
+  const rows = modes.map(m=>`<div class="pf-mode"><b>${h(PROF_MODES[m.mode]||m.mode)}</b><span>${m.mode==='duel'||m.mode==='flip' ? `vs Genie <em>${rec(m.genie_w, m.genie_l)}</em>` : ''}</span><span>vs players <em>${rec(m.ch_w, m.ch_l)}</em></span><span class="pf-pct">${pct(m.genie_w + m.ch_w, m.genie_l + m.ch_l)}</span></div>`).join('');
+  const canChallenge = !p.me && !!meUser();
+  $('#profBody').innerHTML = `
+    <div class="pf-top">${p.avatar ? `<img class="pf-av" src="${h(p.avatar)}" alt="">` : `<span class="pf-av">${h((p.name||'?').slice(0,1).toUpperCase())}</span>`}
+      <div class="pf-id"><b>${h(p.name)}${p.me ? ' <small>(you)</small>' : ''}</b>${p.title ? `<i>${h(p.title)}</i>` : ''}<small>${Number(p.packs||0).toLocaleString()} packs ripped · ${p.ach||0} of ${p.ach_total||0} achievements</small></div></div>
+    <div class="pf-rec"><div><b class="num">${w}–${l}</b><small>ranked record</small></div><div><b class="num">${pct(w, l)}</b><small>win rate</small></div></div>
+    ${rows ? `<div class="pf-modes">${rows}</div>` : '<p class="pwnote center">No ranked matches yet. Genie matches and challenges count here.</p>'}
+    ${p.best ? `<div class="pf-best">${p.best.img ? `<img src="${h(p.best.img)}" alt="" loading="lazy">` : ''}<div><small>Best pull</small><b>${h(p.best.name||'')}</b><span class="num">${money(+p.best.usd)}</span></div></div>` : ''}
+    ${canChallenge ? `<div class="pf-ch"><small>Challenge ${h(p.name)} · ${h(eraLabel(rk.era))} packs</small><div class="pf-chb">${['duel','guess','flip'].map(m=>`<button class="pill ${m==='flip'?'gold':'ghost'} small" type="button" data-invite="${m}">${h(MODE_NAME[m])}</button>`).join('')}</div></div>`
+      : !p.me && !meUser() ? '<p class="pwnote center">Sign in to challenge players.</p>' : ''}`;
+  $('#profBody').querySelectorAll('[data-invite]').forEach(b=>b.onclick = ()=>inviteChallenge(p.uid, p.name, b.dataset.invite));
+}
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-prof]'); if(!t || !t.dataset.prof) return;
+  e.preventDefault(); openProfile(t.dataset.prof);
+});
+document.addEventListener('keydown', e=>{ if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('[data-prof]')){ e.preventDefault(); openProfile(e.target.dataset.prof); } });
+
+/* ======================= Challenging someone straight from their profile ======================= */
+async function inviteChallenge(uid, name, mode){
+  if(!meUser()){ signIn(); return; }
+  if(!rankedLeft()){ toast('That’s all your ranked packs for today. Casual is unlimited.'); return; }
+  let id;
+  try{ id = await rpc('challenge_invite', {p_target:uid, p_mode:mode, p_era:rk.era, p_name:userName(meUser()), p_avatar:meAvatar()}); }
+  catch(e){ toast(e.message); return; }
+  $('#profDlg').close();
+  sfx('add'); renderChallenges();
+  let v = null; try{ v = await rpc('challenge_peek', {p_id:id}); }catch(e){}
+  const line = v && v.bust_line ? +v.bust_line : null;
+  chDialog('Challenge sent', `<p style="margin:0"><b>${h(MODE_NAME[mode])}</b> · ${h(eraLabel(rk.era))} packs. ${h(name)} will see it in their Challenges tab${mode==='flip' ? ', and it’s your pick first' : ''}. Play your part whenever you’re ready.</p>
+    <div class="dacts2"><button class="pill gold" type="button" id="chStart">${mode==='flip' ? 'Pick round 1' : 'Start opening'}</button><button class="pill ghost" type="button" data-close>Later</button></div>`);
+  $('#chStart').onclick = ()=>{ $('#chDlg').close(); setView('ranked'); startGame(mode, {era:rk.era, line, ch:{id, side:'creator', name, invited:true}}); };
+}
+
+/* ======================= "Your turn" dot on the Ranked tab ======================= */
+function setChDot(n){
+  document.querySelectorAll('.nav .seg [data-view="ranked"], .tabbar [data-view="ranked"]').forEach(b=>b.classList.toggle('hasdot', n > 0));
+}
+async function chPoll(){
+  if(!acct.user || !acct.sb || document.hidden) return;
+  try{ const list = await rpc('my_challenges', {}); setChDot(list.filter(c=>chStatus(c).cls==='turn').length); }catch(e){}
+}
+setInterval(chPoll, 90000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) chPoll(); });
 
 /* ======================= Boot ======================= */
 renderAccount();
