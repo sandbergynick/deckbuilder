@@ -8,7 +8,7 @@ const SUPABASE_KEY = 'sb_publishable_jqY4GbGYhqUh_N4tsos3Dg_R4WazLzl';
 const MODES = {
   flip:  {slug: 'rip-and-flip',    name: 'Rip & Flip',      img: 'share-flip.jpg',   rule: 'Best of 5. Pick a pack, rip its rare in half. The cheaper rip wins the round.'},
   duel:  {slug: 'money-spread',    name: 'Money Spread',    img: 'share-spread.jpg', rule: '7 packs each. The bigger pack wins the round.'},
-  guess: {slug: 'guess-the-value', name: 'Guess the Value', img: 'share-guess.jpg',  rule: 'Prices hidden. 20 seconds to guess what each pack is worth.'},
+  guess: {slug: 'guess-the-value', name: 'Guess the Value', img: 'share-guess.jpg',  rule: 'Rip a pack. 20 seconds to price its rare, an uncommon and a common.'},
   bust:  {slug: 'bank-or-bust',    name: 'Bank or Bust',    img: 'share-home.jpg',   rule: 'Stack pack value. Bank before one comes in under the line.'},
 };
 const BY_SLUG = Object.fromEntries(Object.entries(MODES).map(([k, m]) => [m.slug, k]));
