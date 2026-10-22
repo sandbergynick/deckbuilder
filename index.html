@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem("ripjr.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ripjr.com</title>
 <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
@@ -17,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ripjr.com/share-home.jpg">
-<meta name="theme-color" content="#2A211B">
+<meta name="theme-color" content="#0D1122">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.js" onload="window.sbInit && sbInit()"></script>
@@ -624,33 +625,33 @@ a.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;tex
 /* reveal grid inside the stage (ranked) */
 .rv{width:min(780px,100%);display:grid;gap:12px;padding-block:6px}
 .rv-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.rv-h span{color:#A3A19C;font-weight:800;font-size:.9rem}
-.rv-h b{font:700 clamp(1.9rem,4vw,2.6rem)/1 var(--f-display);color:#ECEBE8;font-variant-numeric:tabular-nums}
+.rv-h span{color:var(--muted);font-weight:800;font-size:.9rem}
+.rv-h b{font:700 clamp(1.9rem,4vw,2.6rem)/1 var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums}
 .rgrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px}
 .rc{border:0;padding:0;background:none;color:inherit;display:grid;gap:3px;min-width:0;animation:deal .4s cubic-bezier(.2,.8,.2,1) both}
 .rv.quiet .rc{animation:none}
-.rc img,.rc .ph{width:100%;aspect-ratio:488/680;border-radius:4.75%/3.5%;object-fit:cover;display:block;background:#1d1a24;box-shadow:0 6px 16px rgba(0,0,0,.5);transition:transform .2s}
+.rc img,.rc .ph{width:100%;aspect-ratio:488/680;border-radius:4.75%/3.5%;object-fit:cover;display:block;background:var(--card-ph);box-shadow:0 6px 16px rgba(0,0,0,.5);transition:transform .2s}
 .rc:hover img{transform:translateY(-3px)}
-.rc small{font-size:.74rem;color:rgba(242,238,228,.72);text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc small{font-size:.74rem;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc.glow-silver img{box-shadow:0 0 0 2px #C3C8CF,0 0 16px 2px rgba(220,226,234,.4)}
 .rc.glow-gold img{box-shadow:0 0 0 2px #D4A23A,0 0 18px 3px rgba(212,162,58,.5)}
 .rc.glow-rainbow img{box-shadow:0 0 0 2px #fff,0 0 10px 2px #FF6B9A,0 0 18px 4px #6BD3FF,0 0 26px 6px rgba(157,134,255,.7)}
-.rc.glow-gold small,.rc.glow-rainbow small{color:#fff;font-weight:800}
+.rc.glow-gold small,.rc.glow-rainbow small{color:var(--ink);font-weight:800}
 @keyframes deal{from{opacity:0;transform:translateY(18px) scale(.9) rotate(-3deg)}}
-.rres{font:700 1.35rem/1.2 var(--f-display);color:#ECEBE8}
-.rres.win{color:#7FD88F}.rres.lose{color:#FF9A85}
-.stage-foot .hint b{color:#ECEBE8}
+.rres{font:700 1.35rem/1.2 var(--f-display);color:var(--ink)}
+.rres.win{color:var(--good)}.rres.lose{color:var(--bad)}
+.stage-foot .hint b{color:var(--ink)}
 .gbox{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
-.timer{--p:1;width:58px;height:58px;border-radius:50%;background:conic-gradient(#5AA2FF calc(var(--p) * 360deg),rgba(255,255,255,.1) 0);display:grid;place-items:center;flex:none}
-.timer b{width:46px;height:46px;border-radius:50%;background:#141415;display:grid;place-items:center;font:700 1.15rem/1 var(--f-display)}
-.timer.low{background:conic-gradient(#EF6A5B calc(var(--p) * 360deg),rgba(255,255,255,.1) 0)}
-.gin{display:flex;align-items:center;gap:6px;background:#0E0E10;border-radius:16px;padding:6px 6px 6px 14px;box-shadow:0 0 0 2px #5AA2FF}
-.gin span{font:700 1.5rem/1 var(--f-display);color:#A3A19C}
-.gin input{width:120px;min-width:0;border:0;background:transparent;color:#ECEBE8;font:700 1.5rem/1.2 var(--f-display);outline:none;padding:4px 0}
+.timer{--p:1;width:58px;height:58px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p) * 360deg),var(--surface-2) 0);display:grid;place-items:center;flex:none}
+.timer b{width:46px;height:46px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font:700 1.15rem/1 var(--f-display)}
+.timer.low{background:conic-gradient(var(--bad) calc(var(--p) * 360deg),var(--surface-2) 0)}
+.gin{display:flex;align-items:center;gap:6px;background:var(--field);border-radius:16px;padding:6px 6px 6px 14px;box-shadow:0 0 0 2px #5AA2FF}
+.gin span{font:700 1.5rem/1 var(--f-display);color:var(--muted)}
+.gin input{width:120px;min-width:0;border:0;background:transparent;color:var(--ink);font:700 1.5rem/1.2 var(--f-display);outline:none;padding:4px 0}
 .gres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;text-align:center}
-.gres small{display:block;font-size:.76rem;color:#A3A19C}
-.gres b{font:800 1.3rem/1.2 var(--f-body);color:#ECEBE8;font-variant-numeric:tabular-nums}
-.gres b.win{color:#7FD88F}
+.gres small{display:block;font-size:.76rem;color:var(--muted)}
+.gres b{font:800 1.3rem/1.2 var(--f-body);color:var(--ink);font-variant-numeric:tabular-nums}
+.gres b.win{color:var(--good)}
 /* card popup extras */
 .dacts2 .buy{background:var(--accent);color:var(--accent-ink)}
 .prints-h{display:flex;align-items:center;gap:8px}
@@ -726,7 +727,7 @@ html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .nav,.tabbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--bg)!important}
   .toast,.top{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
   .toast{background:var(--surface)}
-  dialog::backdrop{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(12,8,6,.75)}
+  dialog::backdrop{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--scrim)}
 }
 @media (max-width: 600px){
   html.fit .app{padding-block:0}
@@ -765,7 +766,7 @@ html.fit .app{align-items:stretch}
 
 /* ranked mode art: drop mode-spread.jpg, mode-guess.jpg and mode-flip.jpg next to index.html (16:9 looks best); a drawing shows until then */
 .mode{grid-template-rows:auto auto auto 1fr auto}
-.mode-art{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:radial-gradient(120% 120% at 30% 20%,#46372C,#211A15);margin:-4px -4px 4px}
+.mode-art{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:radial-gradient(120% 120% at 30% 20%,var(--surface-2),var(--field));margin:-4px -4px 4px}
 .mode-art svg{position:absolute;inset:0;width:100%;height:100%;padding:8% 18%}
 .mode-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .backbtn{display:inline-flex;align-items:center;gap:6px}
@@ -783,7 +784,7 @@ html.fit .app{align-items:stretch}
 }
 
 /* Quit button on the pack screen (phones, during a ranked match; desktop keeps Back above the pack) */
-.quitbtn{display:none;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font:800 .85rem/1 var(--f-body);padding:8px 12px 8px 10px;flex:none}
+.quitbtn{display:none;border:0;border-radius:999px;background:var(--surface);color:var(--ink);font:800 .85rem/1 var(--f-body);padding:8px 12px 8px 10px;flex:none}
 /* older phones without container sizes: fixed pack size instead */
 @supports not (container-type: size){ .stage-mid{--cw:min(300px,68vw)!important} }
 @media (max-width: 600px){
@@ -815,9 +816,9 @@ html.fit .app{align-items:stretch}
 .livedot.on{color:var(--good)} .livedot.on::before{background:var(--good);box-shadow:0 0 0 4px rgba(107,196,125,.2)}
 .rgrid.mini{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .rgrid.mini .rc img{box-shadow:none}
-.rvtoggle{display:inline-flex;gap:4px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px}
-.rvtoggle button{border:0;background:transparent;color:#ECEBE8;font:800 .82rem/1 var(--f-body);padding:8px 12px;border-radius:999px;white-space:nowrap}
-.rvtoggle button[aria-pressed="true"]{background:rgba(255,255,255,.2)}
+.rvtoggle{display:inline-flex;gap:4px;background:var(--surface);border-radius:999px;padding:3px}
+.rvtoggle button{border:0;background:transparent;color:var(--ink);font:800 .82rem/1 var(--f-body);padding:8px 12px;border-radius:999px;white-space:nowrap}
+.rvtoggle button[aria-pressed="true"]{background:var(--surface-2)}
 /* favorites lookup */
 .flook{position:relative;display:flex;align-items:center;gap:10px;background:var(--field);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:0 0 0 2px var(--line),0 4px 0 rgba(0,0,0,.22);max-width:640px}
 .flook:focus-within{box-shadow:0 0 0 2px var(--gold),0 4px 0 rgba(0,0,0,.22)}
@@ -835,7 +836,7 @@ html.fit .app{align-items:stretch}
 
 /* global boards */
 .lbrow{display:grid;grid-template-columns:24px 34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px;border-radius:12px}
-.lbrow.me{background:var(--gold-soft);box-shadow:inset 0 0 0 1px rgba(90,162,255,.35)}
+.lbrow.me{background:var(--gold-soft);box-shadow:none}
 .lbrow .n{color:var(--muted);font-weight:800;text-align:center}
 .lbrow .av{width:34px;height:34px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:var(--surface-2);font-weight:800;color:var(--muted)}
 .lbrow .lbcard{width:34px;aspect-ratio:488/680;height:auto;border-radius:3px;object-fit:cover}
@@ -856,7 +857,7 @@ html.fit .app{align-items:stretch}
 .ach small{color:var(--muted);font-size:.78rem}
 .ach-f{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
 .achpop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:80;border:0;display:grid;gap:2px;justify-items:center;text-align:center;
-  background:linear-gradient(135deg,#3A2B12,#2A211B);color:var(--ink);padding:12px 22px 14px;border-radius:20px;box-shadow:0 0 0 2px var(--accent),0 18px 40px rgba(0,0,0,.5);animation:achIn .5s cubic-bezier(.2,.9,.3,1.3) both;min-width:240px}
+  background:var(--surface);color:var(--ink);padding:12px 22px 14px;border-radius:20px;box-shadow:0 0 0 2px var(--accent),0 18px 40px rgba(0,0,0,.5);animation:achIn .5s cubic-bezier(.2,.9,.3,1.3) both;min-width:240px}
 .achpop .achpop-k{font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
 .achpop b{font:700 1.5rem/1.1 var(--f-display)}
 .achpop span:last-child{font-size:.85rem;color:var(--muted)}
@@ -865,14 +866,9 @@ html.fit .app{align-items:stretch}
 @keyframes achOut{to{opacity:0;transform:translate(-50%,-12px)}}
 
 
-/* ---- foil: crinkle facets lit from two sides (crossfaded by spin/tilt), plus a glint that follows the light ---- */
-.crk{position:absolute;inset:0;pointer-events:none;background-size:100% 100%;mix-blend-mode:overlay}
-.crk.a{background-image:var(--crA,none);opacity:calc(.22 + var(--ry-n,0) * .7 + var(--lx,0) * .55)}
-.crk.b{background-image:var(--crB,none);opacity:calc(.22 - var(--ry-n,0) * .7 - var(--lx,0) * .55)}
-.glint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;opacity:.85;
-  background:radial-gradient(60% 34% at calc(50% + var(--lx,0) * 110% + var(--ry-n,0) * 70%) calc(34% + var(--ly,0) * 90%),rgba(255,255,255,.95),rgba(255,255,255,.25) 45%,transparent 72%)}
-.band:not(.f-bd):not(.b-bd) .crk,.band:not(.f-bd):not(.b-bd) .glint{display:none}   /* only on the big panels (cheap on phones) */
-.sheen{background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.7) 44%,rgba(255,236,250,.45) 47%,rgba(200,226,255,.5) 51%,rgba(220,255,236,.3) 54%,transparent 63%);background-size:260% 100%;background-position:calc(50% + var(--ry-n,0) * 80% + var(--lx,0) * 60%) 0}
+/* ---- pack art: drawn per pack type (genPackArt), filling the whole front panel ---- */
+.packart{left:0;right:0;top:14%;height:71.6%;aspect-ratio:auto;background-size:cover;background-position:center;-webkit-mask:none;mask:none}
+html #stage .pack{--c0:var(--p0,#2F5BC9);--cm:var(--pm,#2F5BC9);--c2:var(--p2,#2F5BC9);--c3:var(--p3,#2F5BC9);--c4:var(--p4,#2F5BC9);--cd:var(--pd,#2F5BC9)}
 
 /* ---- tear along your own line ---- */
 .tearzone{top:-14%;height:66%}
@@ -918,10 +914,10 @@ html.fit .app{align-items:stretch}
 .pack.mpack{width:100%;transform:none;cursor:inherit;--hz:0px;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55))}
 .pack.mpack .face{--z:7px}
 .flpick{display:grid;gap:14px;justify-items:center;width:100%}
-.flpick-h{font:700 clamp(1.1rem,2.6vw,1.45rem)/1.2 var(--f-display);color:#F3E4C4;text-align:center}
+.flpick-h{font:700 clamp(1.1rem,2.6vw,1.45rem)/1.2 var(--f-display);color:var(--ink);text-align:center}
 .flpacks{display:flex;gap:clamp(18px,6vw,56px);justify-content:center;align-items:flex-end}
 .flpk{all:unset;cursor:pointer;display:grid;gap:10px;justify-items:center;width:min(32vw,170px,calc((var(--appH,100svh) - 330px) * .6));transition:transform .38s cubic-bezier(.2,.9,.3,1.2),opacity .3s,filter .3s}
-.flpk span{font:600 .8rem/1 var(--f-body);color:rgba(243,228,196,.8);letter-spacing:.04em}
+.flpk span{font:600 .8rem/1 var(--f-body);color:var(--muted);letter-spacing:.04em}
 @media (hover:hover){.flpk:hover:not(:disabled){transform:translateY(-6px) rotate(-1.5deg)}}
 .flpk:focus-visible{outline:2px solid #FFE7A0;outline-offset:6px;border-radius:6px}
 .flpk.chosen{transform:translateY(-10px) scale(1.08)}
@@ -932,16 +928,16 @@ html.fit .app{align-items:stretch}
 .flpacks.wait .mpack:last-child{animation-delay:-1.1s}
 @keyframes waitBob{50%{transform:translateY(-6px)}}
 .flside{position:absolute;right:12px;top:10px;width:min(16vw,74px);display:grid;gap:6px;justify-items:center;opacity:.9;pointer-events:none;z-index:2}
-.flside small{font:600 .66rem/1.1 var(--f-body);color:rgba(243,228,196,.75);text-align:center}
+.flside small{font:600 .66rem/1.1 var(--f-body);color:var(--muted);text-align:center}
 .flboard{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(8px,2.4vw,26px);width:min(100%,560px)}
 .flslot{display:grid;gap:10px;justify-items:center;transition:opacity .4s}
 .flcard{width:min(100%,230px,calc((var(--appH,100svh) - 300px) * .717));aspect-ratio:488/680;position:relative}
-.fllab{font:600 .78rem/1.1 var(--f-body);color:rgba(243,228,196,.8);letter-spacing:.03em;text-align:center}
-.flvs{font:700 1rem/1 var(--f-display);color:rgba(243,228,196,.5)}
-.flprice{font:800 clamp(1.15rem,3.2vw,1.6rem)/1 var(--f-body);font-variant-numeric:tabular-nums;color:rgba(243,228,196,.45);padding:6px 12px;border-radius:999px;transition:background .3s,color .3s}
-.flprice.on{color:#F3E4C4}
-.flslot.win .flprice{background:rgba(70,190,120,.18);color:#7FE3A6}
-.flslot.lose .flprice{background:rgba(239,106,91,.16);color:#FF9A85}
+.fllab{font:600 .78rem/1.1 var(--f-body);color:var(--muted);letter-spacing:.03em;text-align:center}
+.flvs{font:700 1rem/1 var(--f-display);color:var(--faint)}
+.flprice{font:800 clamp(1.15rem,3.2vw,1.6rem)/1 var(--f-body);font-variant-numeric:tabular-nums;color:var(--faint);padding:6px 12px;border-radius:999px;transition:background .3s,color .3s}
+.flprice.on{color:var(--ink)}
+.flslot.win .flprice{background:rgba(70,190,120,.18);color:var(--good)}
+.flslot.lose .flprice{background:rgba(239,106,91,.16);color:var(--bad)}
 .flslot.lose .flcard{opacity:.78}
 .flsealed{position:absolute;inset:6% 12%}
 .flsealed.zip{animation:zip .3s ease-in forwards}
@@ -1044,6 +1040,133 @@ html.fit .app{align-items:stretch}
 .hasdot{position:relative}
 .hasdot::after{content:"";position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%;background:#EF6A5B;box-shadow:0 0 0 2px var(--bg,#2A211B)}
 
+/* ---- Casual set picker ---- */
+#eraSet .setnm{display:inline-block;max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+#setDlg{width:min(520px,calc(100vw - 24px))}
+#setDlg .sheet{display:grid;gap:12px}
+.setlist{display:grid;gap:4px;max-height:min(56vh,520px);overflow-y:auto;overscroll-behavior:contain;margin:0 -6px;padding:0 6px}
+.setrow{all:unset;cursor:pointer;display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;padding:9px 10px;border-radius:12px}
+.setrow:hover,.setrow:focus-visible{background:var(--surface-2)}
+.setrow.on{background:var(--accent-soft)}
+.setrow img,.setrow > span{width:24px;height:24px;object-fit:contain;justify-self:center}
+.setrow b{font-weight:700;font-size:.95rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.setrow small{color:var(--muted);font-size:.78rem;white-space:nowrap}
+
+
+/* ======================= Theme: Genie night (dark) and Genie day (light) =======================
+   The Genie is the only decoration: his blue and his gold carry the whole site. No borders between areas;
+   surfaces are separated by tone, and the pack screen sits right on the page. */
+:root,:root[data-theme="dark"]{
+  --bg:#0D1122; --glow:rgba(84,132,255,.13);
+  --surface:#161C34; --surface-2:#212843; --field:#0A0E1C;
+  --glass:rgba(13,17,34,.82); --glass-line:transparent;
+  --ink:#EEF1FB; --muted:#A4ABC8; --faint:#6D7493; --line:rgba(164,171,200,.14);
+  --accent:#F4BF3A; --accent-ink:#1C1405; --accent-deep:#B9861A; --accent-soft:rgba(244,191,58,.15);
+  --gold:#6FA8FF; --gold-soft:rgba(111,168,255,.13); --blue-deep:#2F5BC9;
+  --good:#5FD38A; --warn:#F4BF3A; --bad:#FF7A6B;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.3);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.35),0 20px 44px rgba(0,0,0,.45);
+  --scrim:rgba(4,6,14,.62); --card-ph:#1A2038; --edge:rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#F4EFE4; --glow:rgba(66,114,232,.10);
+  --surface:#FFFDF8; --surface-2:#ECE5D7; --field:#FFFFFF;
+  --glass:rgba(244,239,228,.86); --glass-line:transparent;
+  --ink:#171C33; --muted:#5A6080; --faint:#8C90A6; --line:rgba(23,28,51,.12);
+  --accent:#F4BF3A; --accent-ink:#1C1405; --accent-deep:#C9921C; --accent-soft:rgba(244,191,58,.22);
+  --gold:#2F64D8; --gold-soft:rgba(47,100,216,.10); --blue-deep:#2F5BC9;
+  --good:#1F9A55; --warn:#C9921C; --bad:#D9483A;
+  --shadow:0 1px 2px rgba(23,28,51,.08),0 8px 22px rgba(23,28,51,.08);
+  --shadow-lift:0 2px 6px rgba(23,28,51,.1),0 18px 40px rgba(23,28,51,.14);
+  --scrim:rgba(23,28,51,.38); --card-ph:#E2DBCB; --edge:rgba(23,28,51,.16);
+  color-scheme:light;
+}
+html{background:var(--bg)}
+body{background-color:var(--bg);background-image:radial-gradient(1200px 520px at 50% -220px,var(--glow),transparent 70%);transition:background-color .25s,color .25s}
+body::before{display:none}
+
+/* top bar and tab bar: same color as the page, no lines */
+.nav{background:var(--glass);border-bottom:0;box-shadow:none}
+.tabbar{border-top:0!important;box-shadow:0 -8px 24px -18px var(--edge)}
+.brand .com{color:var(--gold)}
+.helpbtn,.acctbtn{border:0;background:var(--surface);color:var(--ink);box-shadow:none}
+.helpbtn:hover{color:var(--ink)}
+.seg button{color:var(--muted)}
+.seg button[aria-selected="true"]{color:var(--accent-ink)}
+.pill.ghost{background:var(--surface-2);color:var(--ink);box-shadow:0 3px 0 var(--edge)}
+.pill.ghost:active:not(:disabled){box-shadow:0 1px 0 var(--edge)}
+.navmenu,.navmenu.dark{background:var(--surface);box-shadow:var(--shadow-lift)}
+.navmenu.dark button{color:var(--ink)} .navmenu.dark button span{color:var(--muted)}
+.navmenu.dark button:hover,.navmenu.dark button:active{background:var(--surface-2)}
+dialog{box-shadow:var(--shadow-lift)}
+.input{border:0;background:var(--surface-2)}
+.box,.mode,.ach,.bstats div{border:0}
+.bstats div{background:var(--surface)}
+.lbnote{background:var(--gold-soft)}
+.toast{border:0}
+.achpop{box-shadow:0 0 0 2px var(--accent),var(--shadow-lift)}
+.art,.sumcard img,.rc img,.pc{background:var(--card-ph)}
+
+/* Casual: the Genie and his line, then the pack right on the page (no panel, no border) */
+.cas-hi .bubble,.bubble,.nsay{background:var(--surface);box-shadow:var(--shadow)}
+.cas-hi .bubble::before,.bubble::before,.nsay::before{background:var(--surface)}
+.stage{color:var(--ink);background:transparent!important;box-shadow:none!important;border-radius:0!important}
+.stage::before{display:none}
+.stage-top .eyebrow{color:var(--faint)}
+.stage .seg{background:var(--surface)}
+.stage .seg button{color:var(--muted)}
+.stage .seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 3px 0 var(--accent-deep)}
+.stage .close{background:var(--surface);color:var(--ink)}
+.stage .iconbtn[aria-pressed="true"]#tiltBtn{background:var(--ink);color:var(--bg)}
+.stage .iconbtn[aria-pressed="false"]#soundBtn{color:var(--faint)}
+.stage-foot{background:linear-gradient(to top,var(--bg) 58%,transparent)}
+.stage-foot.static{background:none}
+.stage-foot .hint{color:var(--muted)}
+.stage-foot .hint b{color:var(--ink)}
+.stage .pill{background:var(--accent);color:var(--accent-ink);box-shadow:0 3px 0 var(--accent-deep)}
+.stage .pill.ghost{background:var(--surface);color:var(--ink);box-shadow:0 3px 0 var(--edge)}
+.stage .rar{color:var(--faint)} .stage .rar.rare,.stage .rar.mythic,.stage .rar.special{color:var(--ink)}
+.sumcard small{color:var(--muted)}
+.rv-h span{color:var(--muted)} .rv-h b{color:var(--ink)}
+.rres{color:var(--ink)}
+.timer b{background:var(--bg)}
+.pshadow{background:radial-gradient(closest-side,var(--edge),transparent)}
+#rankedHost .stage{background:transparent}
+@media (min-width:601px){
+  .stage{height:min(760px,calc(100dvh - 190px))}
+  html.fit #casualHost .stage{height:100%}
+}
+@media (max-width:600px){
+  html.fit #casualHost .stage,html.play #rankedHost .stage{background:var(--bg)!important}
+}
+
+/* Ranked and the rest: plain cards on the page */
+.mode{box-shadow:none}
+.mode-art{border-radius:16px}
+.rk-head h1,.lhead h2{color:var(--ink)}
+.chrow{background:var(--surface)}
+.chrow:hover{background:var(--surface-2)}
+.mrow{background:var(--surface-2)}
+.box .mrow{background:var(--surface-2)}
+.lbrow.me{background:var(--gold-soft)}
+.ach.on{box-shadow:inset 0 0 0 2px var(--accent-soft)}
+.ach.pinned{box-shadow:inset 0 0 0 2px var(--accent)}
+:root[data-theme="light"] .ach.on .ach-t{color:#9A6A08}
+:root[data-theme="light"] .lbrow .who2 i,:root[data-theme="light"] .wtitle,:root[data-theme="light"] .chrow .turn{color:#9A6A08}
+:root[data-theme="light"] .tabbar button[aria-selected="true"]{color:#9A6A08}
+:root[data-theme="light"] .setrow img,:root[data-theme="light"] .flipicon{filter:none}
+:root[data-theme="dark"] .setrow img{filter:invert(1) opacity(.85)}
+
+/* theme switch */
+.themebtn svg{width:16px;height:16px}
+
+.counter{color:var(--muted)}
+.dots i{background:var(--surface-2)}
+.dots i.on,.dots i[aria-current]{background:var(--accent)}
+.loadingpack{color:var(--muted)}
+.stage .rar.common{color:var(--faint)}
+
 </style>
 </head>
 <body>
@@ -1067,11 +1190,12 @@ html.fit .app{align-items:stretch}
       <button role="tab" type="button" data-view="boards" aria-selected="false">Leaderboards</button>
       <button role="tab" type="button" data-view="binder" aria-selected="false">Binder</button>
       <button role="tab" type="button" data-view="favs" aria-selected="false">Favorites</button>
+      <button role="tab" type="button" data-view="ach" aria-selected="false">Achievements</button>
     </div>
-    <div class="nav-r"><button class="helpbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="helpbtn" id="navSound" type="button" aria-label="Sound and haptics"></button><button class="acctbtn" id="acctBtn" type="button" aria-label="Account" aria-haspopup="true" aria-expanded="false">Sign in</button><button class="helpbtn" id="navMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button></div>
+    <div class="nav-r"><button class="helpbtn themebtn" type="button" aria-label="Light mode"></button><button class="helpbtn" id="navSound" type="button" aria-label="Sound and haptics"></button><button class="acctbtn" id="acctBtn" type="button" aria-label="Account" aria-haspopup="true" aria-expanded="false">Sign in</button><button class="helpbtn" id="navMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button></div>
     <div class="navmenu" id="navMenu" hidden role="menu">
-      <button type="button" role="menuitem" data-m="music" hidden>Music<span></span></button>
       <button type="button" role="menuitem" data-m="sound">Sound &amp; haptics<span></span></button>
+      <button type="button" role="menuitem" data-m="theme">Theme<span></span></button>
       <div class="acctitems"></div>
     </div>
     <div class="navmenu" id="acctMenu" hidden role="menu"><div class="acctitems"></div></div>
@@ -1092,12 +1216,12 @@ html.fit .app{align-items:stretch}
         <button type="button" data-era="all" aria-selected="true">Any</button>
         <button type="button" data-era="old" aria-selected="false">Old school</button>
         <button type="button" data-era="new" aria-selected="false" id="eraNew">Newest</button>
+        <button type="button" data-era="set" aria-selected="false" id="eraSet" aria-haspopup="dialog">Sets ▾</button>
       </div>
-      <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn musicbtn" type="button" hidden aria-label="Music"></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close iconbtn" id="stageMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+      <button class="close iconbtn" id="tiltBtn" type="button" aria-pressed="false" title="Tilt to look" aria-label="Tilt to look" hidden></button><button class="close iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound and haptics"></button><button class="close iconbtn" id="stageMenuBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <div class="navmenu dark" id="stageMenu" hidden role="menu">
         <button type="button" role="menuitem" data-m="tilt" hidden>Tilt to look<span></span></button>
-        <button type="button" role="menuitem" data-m="music" hidden>Music<span></span></button>
-        <button type="button" role="menuitem" data-m="sound">Sound &amp; haptics<span></span></button>
+          <button type="button" role="menuitem" data-m="sound">Sound &amp; haptics<span></span></button>
       </div>
     </div>
   </div>
@@ -1112,7 +1236,7 @@ html.fit .app{align-items:stretch}
   <section class="view" id="view-ranked" hidden aria-label="Ranked">
     <div id="rkHub" style="display:grid;gap:20px">
       <div class="rk-head">
-        <div><span class="eyebrow2" id="rkSeason"></span><h1>Ranked</h1><p>Every pack is judged on its dollar value, using Scryfall prices.</p></div>
+        <div><h1>Ranked</h1><p>Every pack is judged on its dollar value, using Scryfall prices.</p></div>
         <div class="rk-meta"><span class="left num" id="rkLeft"></span>
           <div class="bseg" id="rkEra" role="tablist" aria-label="Pack type"><button type="button" role="tab" data-rera="all">Any</button><button type="button" role="tab" data-rera="old">Old school</button><button type="button" role="tab" data-rera="new" id="rkEraNew">Newest</button></div>
         </div>
@@ -1127,7 +1251,7 @@ html.fit .app{align-items:stretch}
         <div class="mode"><div class="mode-art"><svg viewBox="0 0 120 80" aria-hidden="true"><path d="M38 10h22l-3 9 4 8-5 9 4 9-4 8 4 9-3 8H38a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z" fill="#F4BF3A" transform="rotate(-9 47 40)"/><path d="M64 12h20a4 4 0 0 1 4 4v52a4 4 0 0 1-4 4H64l3-8-4-9 4-8-4-9 4-9-4-8z" fill="#F4BF3A" transform="rotate(8 74 42) translate(4 0)"/><path d="M60 19l4 8-5 9 4 9-4 8 4 9" fill="none" stroke="#2F5DB8" stroke-width="1.6" transform="rotate(-9 47 40)"/></svg><img src="mode-flip.jpg" alt="Rip &amp; Flip" onerror="this.remove()"></div><h2>Rip &amp; Flip <span id="rkFlipR"></span></h2><p>Pick one of two packs and rip its rare in half. Rip the cheaper rare to take the round. Best of 5.</p><p class="sub" id="rkFlipS"></p>
           <div class="acts"><button class="pill" type="button" data-start="flip">Duel the Genie</button><button class="pill ghost small" type="button" data-challenge="flip">Challenge a friend</button></div></div>
       </div>
-      <p class="pwnote">Solo ranked runs in this browser for now. Challenges are rolled and scored by the server. Online matchmaking and global leaderboards are coming next.</p>
+      <p class="pwnote">Sign in and every Genie match and challenge is rolled and scored by the server, and counts on your profile.</p>
       </div>
       <div id="rkChs" hidden style="display:grid;gap:14px">
         <p class="pwnote">Your challenge links. Open one to play or see results. The × deletes a challenge nobody took yet, cancels one that’s in progress (it won’t count for either of you), or clears a finished one from your list.</p>
@@ -1142,9 +1266,8 @@ html.fit .app{align-items:stretch}
 
   <section class="view" id="view-boards" hidden aria-label="Leaderboards">
     <div class="rk-head">
-      <div><span class="eyebrow2">LEADERBOARDS</span><h1>Leaderboards</h1></div>
+      <div><h1>Leaderboards</h1></div>
       <div class="rk-meta">
-        <div class="bseg" id="lbSub" role="tablist" aria-label="Show"><button type="button" role="tab" data-ls="boards">Boards</button><button type="button" role="tab" data-ls="ach">Achievements</button></div>
         <div class="bseg" id="lbTabs" role="tablist" aria-label="Period"><button type="button" role="tab" data-lb="day">Daily</button><button type="button" role="tab" data-lb="week">Weekly</button><button type="button" role="tab" data-lb="all">All-time</button></div>
       </div>
     </div>
@@ -1158,10 +1281,11 @@ html.fit .app{align-items:stretch}
       <h2 class="sec">Your ranked</h2>
       <div class="boards" id="lbRanked"></div>
     </div>
-    <div id="lbAch" hidden style="display:grid;gap:16px">
-      <p class="lbnote" id="achNote"></p>
-      <div class="achgrid" id="achGrid"></div>
-    </div>
+  </section>
+
+  <section class="view" id="view-ach" hidden aria-label="Achievements">
+    <div class="rk-head"><div><h1>Achievements</h1><p id="achNote"></p></div></div>
+    <div class="achgrid" id="achGrid"></div>
   </section>
 
   <section class="view" id="view-favs" hidden aria-label="Favorites">
@@ -1203,7 +1327,7 @@ html.fit .app{align-items:stretch}
   <button type="button" data-view="favs" aria-selected="false"><svg width="22" height="22"><use href="#i-star"/></svg>Favorites</button>
 </nav>
 
-<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 56</span></footer>
+<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 60</span></footer>
 
 <dialog id="saveDlg" aria-label="Save your pulls"><div class="sheet">
   <div class="sheet-h"><h3>Your pulls</h3><button class="close" data-close aria-label="Close">×</button></div>
@@ -1222,6 +1346,13 @@ html.fit .app{align-items:stretch}
     <div class="dacts2"><a class="pill buy" id="dBuy" target="_blank" rel="noopener">Buy on TCGplayer ↗</a><a id="dLink" target="_blank" rel="noopener">View on Scryfall ↗</a><button class="linkbtn" type="button" id="dPrintsBtn">Other artworks</button></div>
     <div class="prints" id="dPrints" hidden></div>
   </div>
+</div></dialog>
+
+<dialog id="setDlg" aria-label="Pick a set"><div class="sheet">
+  <div class="sheet-h"><h3>Pick a set</h3><button class="close" data-close aria-label="Close">×</button></div>
+  <input class="input" id="setQ" type="search" placeholder="Search sets or years" autocomplete="off" aria-label="Search sets">
+  <div class="setlist" id="setList"></div>
+  <p class="pwnote">Casual only. Ranked always uses Any, Old school or Newest.</p>
 </div></dialog>
 
 <dialog id="profDlg" aria-label="Player profile"><div class="sheet">
@@ -1517,7 +1648,7 @@ function bumpCount(){ const n = packCount()+1; try{ localStorage.setItem('ripjr.
 
 // ---- pack pools ----
 // "Newest": set this by hand when a new set comes out (Scryfall set code + display name)
-const NEWEST_SET = 'trk', NEWEST_NAME = 'Star Trek';
+const NEWEST_SET = 'trk', NEWEST_NAME = 'Newest';
 // "Old school": Alpha, Beta, Unlimited, Arabian Nights, Antiquities, The Dark, Legends
 const OLD_SETS = ['lea','leb','2ed','arn','atq','drk','leg'];
 const OLD_ABU = ['lea','leb','2ed'];
@@ -1562,9 +1693,10 @@ function ripPack(cards){
 }
 async function rollPackScryfall(era, tok={}){
   const chk = v => { if(tok.dead) throw new Error('cancelled'); return v; };
-  const old = era==='old', nu = era==='new';
+  const setc = String(era).startsWith('set:') ? String(era).slice(4) : null, NS = setc || NEWEST_SET;   // one set (Casual's set picker) works like Newest
+  const old = era==='old', nu = era==='new' || !!setc;
   // card pool for this era
-  const P = old ? ' game:paper '+setQ(OLD_SETS) : nu ? ' game:paper e:'+NEWEST_SET : ' is:booster game:paper';
+  const P = old ? ' game:paper '+setQ(OLD_SETS) : nu ? ' game:paper e:'+NS : ' is:booster game:paper';
   const mythic = !old && Math.random() < 1/8;
   const tag = (raw, rar, extra={}) => Object.assign(cardLite(raw), {rar, set: raw.set_name||''}, extra);
   // small pools (a set still being previewed) may repeat cards rather than come up short
@@ -1573,7 +1705,7 @@ async function rollPackScryfall(era, tok={}){
   // 9 commons, 3 uncommons
   const commons = fill(chk(await randomFromSearch('r:common -t:basic'+P, 9)), 9);
   const uncommons = fill(chk(await randomFromSearch('r:uncommon'+P, 3)), 3);
-  if(commons.length < 9 || uncommons.length < 3) throw new Error(nu ? NEWEST_NAME+' doesn’t have enough cards on Scryfall yet. Try another pack type.' : 'Scryfall didn’t hand back enough cards. Try opening again.');
+  if(commons.length < 9 || uncommons.length < 3) throw new Error(nu ? (setc ? 'That set' : 'The newest set')+' doesn’t have enough cards on Scryfall yet. Try another pack type.' : 'Scryfall didn’t hand back enough cards. Try opening again.');
   commons.forEach(c=>out.push(tag(c,'common')));
   uncommons.forEach(c=>out.push(tag(c,'uncommon')));
   // rare or mythic
@@ -1584,7 +1716,7 @@ async function rollPackScryfall(era, tok={}){
   chk();
   const B = BASICS[Math.floor(Math.random()*BASICS.length)];
   const landQ = '!"'+B+'" game:paper -st:memorabilia -is:oversized';
-  let land = (await randomFromSearch(landQ + (old ? ' '+setQ(OLD_ABU) : nu ? ' e:'+NEWEST_SET : ''), 1, {order:'released', unique:'prints'}))[0];
+  let land = (await randomFromSearch(landQ + (old ? ' '+setQ(OLD_ABU) : nu ? ' e:'+NS : ''), 1, {order:'released', unique:'prints'}))[0];
   if(!land && nu) land = (await randomFromSearch(landQ+' is:booster', 1, {order:'released', unique:'prints'}))[0];
   if(!land) land = await sf('/cards/random?q='+encodeURIComponent('t:basic game:paper'));
   chk(); out.push(tag(land,'basic'));
@@ -1599,7 +1731,7 @@ async function rollPackScryfall(era, tok={}){
     if(extra) last = tag(extra,'common');
   }
   if(!last){
-    const tq = nu ? ['t:token include:extras (e:t'+NEWEST_SET+' or e:'+NEWEST_SET+')'] : ['t:token include:extras game:paper','t:token'];
+    const tq = nu ? ['t:token include:extras (e:t'+NS+' or e:'+NS+')'] : ['t:token include:extras game:paper','t:token'];
     for(const q of tq){
       try{ const raw = await sf('/cards/random?q='+encodeURIComponent(q)); if(raw && raw.id){ last = tag(raw,'token'); break; } }catch(e){ if(e.message===RATE_MSG) throw e; }
     }
@@ -1653,7 +1785,7 @@ function unlockAudio(){
 feel.musicOn = (()=>{ try{ const v = localStorage.getItem('ripjr.music'); return v ? v==='on' : MUSIC_DEFAULT; }catch(e){ return MUSIC_DEFAULT; } })();
 let musicSrc = null, musicBuf = null, musicLoading = false, musicNode = null, musicGain = null, musicAt = 0, musicOffset = 0;
 (async()=>{
-  for(const u of ['music.wav','music.mp3','music.m4a','sfx/music.wav','sfx/music.mp3','sfx/music.m4a']){
+  for(const u of [/* music is switched off; sound effects stay */]){
     try{ const r = await fetch(u, {method:'HEAD'}); if(r.ok){ musicSrc = u; break; } }catch(e){}
   }
   if(musicSrc) document.querySelectorAll('.musicbtn').forEach(b=>b.hidden=false);
@@ -1819,11 +1951,11 @@ function newPack(keepNumber, swap){
   if(swap){ const sc=$('#scene'); if(sc){ sc.classList.add('swapin'); setTimeout(()=>sc.classList.remove('swapin'),450); } }
 }
 
-const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="crk a"></div><div class="crk b"></div><div class="glint"></div><div class="sheen"></div>`;
-const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="crk a"></div><div class="crk b"></div><div class="glint"></div><div class="sheen"></div>
+const packFront = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="packart"></div><div class="puff"></div><div class="sheen"></div>`;
+const packBack = () => `<div class="wrap"></div><div class="brown"></div><div class="crimp t"></div><div class="crimp b"></div><div class="puff"></div><div class="flap"></div><div class="sheen"></div>
   <div class="backcopy"><span class="side">ripjrs delight</span><div class="label"><div class="bar"></div></div></div>`;
 // pack colors: old school keeps the original; newest and any recolor its brown (same hue shift as the band colors)
-const ART_TINT = {new:[165,.75,.55], all:[195,.8,.8]};
+const ART_TINT = {};   // the pack art is drawn now (see genPackArt)
 const artCache = {old: PACK_ART};
 (()=>{ const im = new Image(); im.onload = ()=>{ try{
   for(const [k,[hue,sm,vm]] of Object.entries(ART_TINT)){
@@ -1841,12 +1973,12 @@ const artCache = {old: PACK_ART};
     }
     x.putImageData(d,0,0); artCache[k] = c.toDataURL('image/jpeg',.88);
   }
-  if(!$('#stage').hidden && pk.state==='pack') $('#stage').style.setProperty('--packart', `url(${packArt(pk.era)})`);
+
   }catch(e){} }; im.src = PACK_ART; })();
 const packArt = era => artCache[era] || PACK_ART;
 function renderPack(){
   $('#stage').dataset.era = pk.era;
-  $('#stage').style.setProperty('--packart', `url(${packArt(pk.era)})`);
+  stageArt(pk.era);
   const F = packFront(), B = packBack();
   $('#stageMid').innerHTML = `<div class="scene" id="scene"><div class="pshadow"></div><div class="pack snap" id="pack" tabindex="0" aria-label="Booster pack. Drag to spin, draw a line across the top half to tear it open.">
       <div class="piece p-top">
@@ -1951,7 +2083,7 @@ function showSummary(){
   pk.state='summary'; achCheck(pk.cards);
   const {total,best} = packStats();
   $('#stageMid').innerHTML = `<div class="summary"><h2>Your pulls</h2>
-    <div style="color:rgba(242,238,228,.7);font-size:.92rem;text-align:center">Worth about <b style="color:#ECEBE8">${money(total)}</b>${best?` · Best pull: <b style="color:#fff">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
+    <div style="color:var(--muted);font-size:.92rem;text-align:center">Worth about <b style="color:var(--ink)">${money(total)}</b>${best?` · Best pull: <b style="color:var(--ink)">${h(best.name)}</b> (${money(best.usd)})`:''}</div>
     <div class="stage-acts"><button class="pill ghost" type="button" id="exportPack">Export image</button><button class="pill" type="button" id="againPack">Another pack</button><button class="pill ghost" type="button" id="binderPack">Binder</button></div>
     <div class="sumgrid">${pk.cards.map((c,i)=>{ cache.set(c.id,c); const g = glowOf(c);
       return `<button class="sumcard ${g?'glow-'+g:''} ${c.rar}" type="button" data-open="${c.id}" style="animation-delay:${i*35}ms">${c.img?`<img src="${h(c.img)}" crossorigin="anonymous" alt="${h(c.name)}" loading="lazy">`:'<span class="ph"></span>'}<span class="rar ${c.rar}"><i></i>${h(rarLabel(c))}</span><span>${h(c.name)}</span><small>${money(c.usd)}</small></button>`; }).join('')}</div></div>`;
@@ -2038,41 +2170,6 @@ $('#saveDlg').addEventListener('close', ()=>{ if(savePending){ setTimeout(()=>UR
 
 /* ======================= Pack feel: tear along your own line, crinkled foil, ripping a card in half ======================= */
 
-// ---- foil: a crinkle texture lit from the left and from the right; tilting or spinning the pack crossfades them ----
-(function makeCrinkle(){
-  const go = () => { try{
-    const W = 240, H = 400, cell = 15, gx = Math.ceil(W/cell)+1, gy = Math.ceil(H/cell)+1;
-    const P = [];   // one jittered point per cell, each facet with its own tilt
-    for(let j=0;j<gy;j++) for(let i=0;i<gx;i++){ const a = Math.random()*Math.PI*2, s = .15+Math.random()*.4;
-      P.push({x:(i+Math.random())*cell, y:(j+Math.random())*cell, nx:Math.cos(a)*s, ny:Math.sin(a)*s*.7}); }
-    const mk = lx => {
-      const c = document.createElement('canvas'); c.width = W; c.height = H;
-      const x = c.getContext('2d'), d = x.createImageData(W, H), A = d.data;
-      const L = [lx, -.45, .7], ln = Math.hypot(...L); L[0]/=ln; L[1]/=ln; L[2]/=ln;
-      for(let py=0; py<H; py++){ const cj = Math.floor(py/cell);
-        for(let px=0; px<W; px++){ const ci = Math.floor(px/cell);
-          let b1 = 1e9, b2 = 1e9, best = null;
-          for(let dj=-1; dj<=1; dj++) for(let di=-1; di<=1; di++){
-            const ii = ci+di, jj = cj+dj; if(ii<0||jj<0||ii>=gx||jj>=gy) continue;
-            const q = P[jj*gx+ii], dx = px-q.x, dy = (py-q.y)*1.7, dd = dx*dx+dy*dy;   // facets stretched sideways, like real crinkles
-            if(dd<b1){ b2 = b1; b1 = dd; best = q; } else if(dd<b2) b2 = dd;
-          }
-          const nz = Math.sqrt(Math.max(0, 1-best.nx*best.nx-best.ny*best.ny));
-          let v = 128 + 95*(best.nx*L[0] + best.ny*L[1] + nz*L[2] - L[2]);
-          const crease = Math.sqrt(b2) - Math.sqrt(b1); if(crease < 1.2) v += (1.2-crease)*(lx>0?14:-14);   // fold lines catch the light on one side
-          v += (Math.random()-.5)*8;
-          const k = (py*W+px)*4; A[k] = A[k+1] = A[k+2] = Math.max(0, Math.min(255, v)); A[k+3] = 255;
-        }
-      }
-      x.putImageData(d, 0, 0);
-      const o = document.createElement('canvas'); o.width = W; o.height = H; const ox = o.getContext('2d'); ox.filter = 'blur(.7px)'; ox.drawImage(c, 0, 0);
-      return o.toDataURL('image/jpeg', .82);
-    };
-    const r = document.documentElement.style;
-    r.setProperty('--crA', `url(${mk(-.75)})`); r.setProperty('--crB', `url(${mk(.75)})`);
-  }catch(e){} };
-  (window.requestIdleCallback || (f=>setTimeout(f, 300)))(go);
-})();
 // light follows the mouse on desktop (tilt and spin drive it on phones)
 function packGlint(p, x, y){ p.style.setProperty('--lx', x.toFixed(3)); p.style.setProperty('--ly', y.toFixed(3)); }
 
@@ -2433,7 +2530,7 @@ const ACCT_ACTIONS = {
   signin: signIn, signout: signOut,
   binder: ()=>{ binderTab='pulls'; setView('binder'); },
   favs: ()=>setView('favs'),
-  ach: ()=>{ lbSub = 'ach'; setView('boards'); },
+  ach: ()=>setView('ach'),
   profile: ()=>{ if(acct.user) openProfile(acct.user.id); },
   privacy: ()=>{ const on = !!acct.user; $('#privDelete').hidden = !on; $('#privDelWrap').hidden = !on; $('#privDlg').showModal(); },
 };
@@ -2503,7 +2600,7 @@ const BINDER_PAGE = 50;   // cards per page
 $('#bTabs').addEventListener('click', e=>{ const b = e.target.closest('[data-b]'); if(!b) return; binderTab = b.dataset.b; binderPage = 0; renderBinder(); });
 $('#bSort').addEventListener('change', ()=>{ binderPage = 0; renderBinder(); });
 $('#bPager').addEventListener('click', e=>{ const b = e.target.closest('[data-bp]'); if(!b || b.disabled) return; binderPage += +b.dataset.bp; renderBinder(); $('#view-binder').scrollIntoView({block:'start'}); window.scrollTo({top:0}); });
-function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='casual') renderCasualSide(); chPoll(); }
+function refreshView(){ logMemo = {}; warmBoards(); profileSync(); if(acct.user){ const pc = lsGet(LS_PENDING_CH, null); if(pc) openChallenge(pc); } if(ui.view==='ranked' && !game) renderChallenges(); if(ui.view==='binder') renderBinder(); if(ui.view==='favs') renderFavs(); if(ui.view==='boards') renderBoards(); if(ui.view==='ach') renderAchievements(); if(ui.view==='casual') renderCasualSide(); chPoll(); }
 
 /* ---------- binder: signed in, Supabase keeps just card id + count and hands back one page at a time (searchable) ---------- */
 let binderSeq = 0, binderQ = '', binderT = 0;
@@ -2562,7 +2659,7 @@ async function renderBinder(){
 
 /* ======================= Views ======================= */
 const ui = {view:''};
-const VIEWS = ['casual','ranked','boards','binder','favs'];
+const VIEWS = ['casual','ranked','boards','binder','favs','ach'];
 function setView(v){
   const prev = ui.view;
   if(prev==='ranked' && v!=='ranked' && game && !leaveGame()) return;
@@ -2577,6 +2674,7 @@ function setView(v){
   if(v==='boards') renderBoards();
   if(v==='binder') renderBinder();
   if(v==='favs') renderFavs();
+  if(v==='ach') renderAchievements();
   window.scrollTo({top:0});
 }
 document.addEventListener('click',e=>{ const t = e.target.closest('button[data-view]'); if(t) setView(t.dataset.view); });
@@ -2638,19 +2736,20 @@ function packRow(p, i, period){
   const c = best ? (cardById(best.id) || best) : null; if(best) cache.set(best.id, c);
   return `<${best?'button':'div'} class="prow" ${best?`type="button" data-open="${h(best.id)}"`:''}><span class="n">${i+1}</span>${thumb(c)}<span><b>${h(eraLabel(p.era))} pack</b><small>${best?'Best: '+h(best.name)+' · ':''}${h(when(p.at, period))}</small></span><span class="v">${money(p.value)}</span></${best?'button':'div'}>`;
 }
-const eraLabel = era => era==='old' ? 'Old school' : era==='new' ? NEWEST_NAME : 'Any';
+const eraLabel = era => era==='old' ? 'Old school' : era==='new' ? 'Newest' : String(era).startsWith('set:') ? (setName(era.slice(4)) || era.slice(4).toUpperCase()) : 'Any';
 
 /* ======================= Casual ======================= */
 const LS_ERA = 'ripjr.era';
 let casualEra = (()=>{ try{ return localStorage.getItem(LS_ERA) || 'all'; }catch(e){ return 'all'; } })();
-if(!['all','old','new'].includes(casualEra)) casualEra = 'all';
+if(!['all','old','new'].includes(casualEra) && !/^set:[a-z0-9]{2,8}$/.test(casualEra)) casualEra = 'all';
 function setStageChrome(label){
   const casual = pk.mode==='casual';
   $('#eraSeg').hidden = !casual;
   $('#stageLabel').textContent = casual ? 'Pack' : (label||'');
   if(!casual) $('#packNo').textContent = '';
-  $('#eraNew').title = 'Cards from '+NEWEST_NAME;
-  document.querySelectorAll('#eraSeg button').forEach(x=>x.setAttribute('aria-selected', String(x.dataset.era===pk.era)));
+  $('#eraNew').title = 'Cards from the newest set';
+  document.querySelectorAll('#eraSeg button').forEach(x=>x.setAttribute('aria-selected', String(x.dataset.era===pk.era || (x.dataset.era==='set' && String(pk.era).startsWith('set:')))));
+  setBtnLabel();
   $('#tiltBtn').hidden = !(('DeviceOrientationEvent' in window) && matchMedia('(pointer: coarse)').matches);
 }
 function enterCasual(fromElsewhere){
@@ -2704,8 +2803,6 @@ function renderRanked(){
   setPlay(!!game);
   if(game){ $('#rkHub').hidden = true; $('#rkPlay').hidden = false; return; }
   $('#rkHub').hidden = false; $('#rkPlay').hidden = true;
-  $('#rkSeason').textContent = NEWEST_NAME.toUpperCase()+' SEASON';
-  $('#rkEraNew').textContent = NEWEST_NAME;
   const left = rankedLeft();
   $('#rkLeft').textContent = RANKED_PACKS_PER_DAY===Infinity ? '' : `${left} / ${RANKED_PACKS_PER_DAY} ranked packs left today`;
   document.querySelectorAll('#rkEra [data-rera]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.rera===rk.era)));
@@ -3025,9 +3122,6 @@ let lbSub = 'boards';
 async function renderBoards(){
   const seq = ++lbSeq;
   document.querySelectorAll('#lbTabs [data-lb]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.lb===lbPeriod)));
-  document.querySelectorAll('#lbSub [data-ls]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.ls===lbSub)));
-  $('#lbBoards').hidden = lbSub!=='boards'; $('#lbAch').hidden = lbSub!=='ach'; $('#lbTabs').hidden = lbSub!=='boards';
-  if(lbSub==='ach') return renderAchievements();
   // your ranked stats (kept in this browser for now)
   const since = sinceFor(lbPeriod), inP = x => !since || x.at >= since, word = lbPeriod==='day' ? 'today' : lbPeriod==='week' ? 'this week' : 'all-time';
   const matches = (rk.duel.matches||[]).filter(inP), w = matches.filter(m=>m.won).length;
@@ -3055,7 +3149,7 @@ function boardRows(kind, r){
   const mine = r.me && !r.rows.some(x=>x.me) ? `<div class="lbrow me"><span class="n">${r.me.rank}</span><span class="av">★</span><span class="who2"><b>You</b><small>of ${Number(r.players).toLocaleString()} players</small></span><span class="v">${val(r.me.value)}</span></div>` : '';
   return r.rows.map(row).join('') + mine;
 }
-$('#lbSub').addEventListener('click', e=>{ const b = e.target.closest('[data-ls]'); if(!b) return; lbSub = b.dataset.ls; renderBoards(); });
+
 
 
 /* ======================= Challenge links (Supabase: see challenges.sql) ======================= */
@@ -3394,7 +3488,7 @@ async function achCheck(cards){
   if(!acct.user || !acct.sb || !cards || !cards.length) return;
   const ref = cards[0].id + ':' + cards[cards.length-1].id;
   if(cards.ripP) await cards.ripP;   // wait for Supabase to finish counting this pack
-  try{ const list = await rpc('ach_pending', {p_ref:ref}); (list||[]).forEach(achToast); if((list||[]).length && ui.view==='boards' && lbSub==='ach') renderAchievements(); }catch(e){}
+  try{ const list = await rpc('ach_pending', {p_ref:ref}); (list||[]).forEach(achToast); if((list||[]).length && ui.view==='ach') renderAchievements(); }catch(e){}
 }
 const achQueue = [];
 function achToast(a){ achQueue.push(a); if(achQueue.length===1) setTimeout(achNext, 600); }
@@ -3405,7 +3499,7 @@ function achNext(){
   document.body.appendChild(el); sfx('delight'); buzz('hit');
   let gone = false;
   const done = ()=>{ if(gone) return; gone = true; el.classList.add('out'); setTimeout(()=>{ el.remove(); achQueue.shift(); achNext(); }, 320); };
-  el.onclick = ()=>{ done(); lbSub = 'ach'; if(!game) setView('boards'); };
+  el.onclick = ()=>{ done(); if(!game) setView('ach'); };
   setTimeout(done, 3600);
 }
 async function renderAchievements(){
@@ -3471,7 +3565,7 @@ const FLIP_SAY = {
   matchLose: ['Back to the lamp, champ. Mine, that is.', 'Better luck next wish.'],
 };
 const flipSay = k => { if(game && !game.ch) genieSay(pick(FLIP_SAY[k])); };
-function flipStageArt(){ $('#stage').dataset.era = game.era; $('#stage').style.setProperty('--packart', `url(${packArt(game.era)})`); }
+function flipStageArt(){ $('#stage').dataset.era = game.era; stageArt(game.era); }
 
 function flipNext(){
   if(!game) return;
@@ -3733,9 +3827,11 @@ async function openProfile(uid){
     <div class="pf-rec"><div><b class="num">${w}–${l}</b><small>ranked record</small></div><div><b class="num">${pct(w, l)}</b><small>win rate</small></div></div>
     ${rows ? `<div class="pf-modes">${rows}</div>` : '<p class="pwnote center">No ranked matches yet. Genie matches and challenges count here.</p>'}
     ${p.best ? `<div class="pf-best">${p.best.img ? `<img src="${h(p.best.img)}" alt="" loading="lazy">` : ''}<div><small>Best pull</small><b>${h(p.best.name||'')}</b><span class="num">${money(+p.best.usd)}</span></div></div>` : ''}
+    ${p.me ? `<div class="pf-ch"><button class="pill ghost" type="button" id="pfAch">Your achievements</button></div>` : ''}
     ${canChallenge ? `<div class="pf-ch"><small>Challenge ${h(p.name)} · ${h(eraLabel(rk.era))} packs</small><div class="pf-chb">${['duel','guess','flip'].map(m=>`<button class="pill ${m==='flip'?'gold':'ghost'} small" type="button" data-invite="${m}">${h(MODE_NAME[m])}</button>`).join('')}</div></div>`
       : !p.me && !meUser() ? '<p class="pwnote center">Sign in to challenge players.</p>' : ''}`;
   $('#profBody').querySelectorAll('[data-invite]').forEach(b=>b.onclick = ()=>inviteChallenge(p.uid, p.name, b.dataset.invite));
+  const pa = $('#pfAch'); if(pa) pa.onclick = ()=>{ $('#profDlg').close(); setView('ach'); };
 }
 document.addEventListener('click', e=>{
   const t = e.target.closest('[data-prof]'); if(!t || !t.dataset.prof) return;
@@ -3769,6 +3865,139 @@ async function chPoll(){
 }
 setInterval(chPoll, 90000);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) chPoll(); });
+
+/* ======================= Pack art: minimalist, drawn here, built around the Genie ======================= */
+// One color per pack type (sets get their own color from their code), the Genie in a seal, the wordmark and the pack type.
+const PACK_COLORS = {all:'#2F5BC9', old:'#8A5A2E', new:'#16806F'};
+function packHex(era){
+  if(PACK_COLORS[era]) return PACK_COLORS[era];
+  let n = 0; for(const ch of String(era)) n = (n*31 + ch.charCodeAt(0)) >>> 0;   // a steady color per set
+  return hslHex(n % 360, 46, 36);
+}
+function hslHex(h, s, l){
+  s /= 100; l /= 100; const k = n => (n + h/30) % 12, a = s*Math.min(l, 1-l), f = n => l - a*Math.max(-1, Math.min(k(n)-3, 9-k(n), 1));
+  return '#' + [f(0), f(8), f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+function shade(hex, amt){   // amt -1..1: darker..lighter
+  const v = parseInt(hex.slice(1), 16), c = [v>>16, v>>8&255, v&255].map(x=>Math.round(amt<0 ? x*(1+amt) : x + (255-x)*amt));
+  return '#' + c.map(x=>Math.max(0, Math.min(255, x)).toString(16).padStart(2,'0')).join('');
+}
+function packTypeName(era){
+  if(era==='old') return 'Old school';
+  if(era==='new') return 'Newest';
+  if(String(era).startsWith('set:')) return setName(String(era).slice(4)) || String(era).slice(4).toUpperCase();
+  return 'Any set';
+}
+const packArtCache = {}, genieImg = new Image();
+let genieReady = false;
+genieImg.onload = ()=>{ genieReady = true; for(const k in packArtCache) delete packArtCache[k]; if(document.fonts) document.fonts.ready.then(refreshStageArt); else refreshStageArt(); };
+genieImg.src = 'genie.png';
+function genPackArt(era){
+  const key = era + '|' + (genieReady?1:0);
+  if(packArtCache[key]) return packArtCache[key];
+  const W = 600, H = 716, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), base = packHex(era);
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, shade(base, .12)); g.addColorStop(1, shade(base, -.28));
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  // soft light behind the seal
+  const glow = x.createRadialGradient(W/2, H*.42, 10, W/2, H*.42, W*.62); glow.addColorStop(0, 'rgba(255,255,255,.16)'); glow.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = glow; x.fillRect(0, 0, W, H);
+  // thin inner frame
+  x.strokeStyle = 'rgba(255,255,255,.28)'; x.lineWidth = 3; x.strokeRect(34, 30, W-68, H-60);
+  // the seal with the Genie
+  const cx = W/2, cy = H*.42, r = 168;
+  x.beginPath(); x.arc(cx, cy, r, 0, Math.PI*2); x.fillStyle = 'rgba(255,255,255,.1)'; x.fill();
+  x.lineWidth = 5; x.strokeStyle = '#F4BF3A'; x.stroke();
+  x.beginPath(); x.arc(cx, cy, r-14, 0, Math.PI*2); x.lineWidth = 1.5; x.strokeStyle = 'rgba(244,191,58,.55)'; x.stroke();
+  if(genieReady){ x.save(); x.beginPath(); x.arc(cx, cy, r-16, 0, Math.PI*2); x.clip(); const s = (r-16)*2.05; x.drawImage(genieImg, cx-s/2, cy-s/2+6, s, s); x.restore(); }
+  // wordmark and pack type
+  x.textAlign = 'center'; x.fillStyle = '#FBF3E2';
+  x.font = '700 96px "El Messiri", Georgia, serif'; x.fillText('ripjr', cx, H*.78);
+  let label = packTypeName(era).toUpperCase(), fs = 30;
+  if('letterSpacing' in x) x.letterSpacing = label.length > 16 ? '2px' : '6px';
+  x.font = `800 ${fs}px Nunito, system-ui, sans-serif`;
+  while(x.measureText(label).width > W-110 && fs > 22){ fs -= 2; x.font = `800 ${fs}px Nunito, system-ui, sans-serif`; }
+  while(x.measureText(label).width > W-110 && label.length > 4) label = label.slice(0, -2).trim() + '…';
+  x.fillStyle = 'rgba(251,243,226,.82)'; x.fillText(label, cx, H*.87);
+  return packArtCache[key] = c.toDataURL('image/jpeg', .9);
+}
+// paint the pack art and the pack's colors onto the stage (big pack, mini packs and the Rip & Flip packs all read these)
+function stageArt(era){
+  const s = $('#stage'); if(!s) return;
+  const b = packHex(era);
+  s.style.setProperty('--packart', `url(${genPackArt(era)})`);
+  [['--p0', shade(b,-.12)], ['--pm', b], ['--p2', shade(b,-.05)], ['--p3', shade(b,.06)], ['--p4', shade(b,-.18)], ['--pd', shade(b,-.25)]].forEach(([k,v])=>s.style.setProperty(k, v));
+}
+function refreshStageArt(){ if(typeof pk!=='undefined' && $('#stage')) stageArt(game && pk.mode==='ranked' ? game.era : pk.era); }
+if(document.fonts) document.fonts.ready.then(()=>{ for(const k in packArtCache) delete packArtCache[k]; refreshStageArt(); });
+
+/* ======================= Casual: pick any set (from Scryfall's set list) ======================= */
+// Ranked always uses Any / Old school / Newest. Casual can also open packs from one specific set.
+const SET_TYPES = ['core','expansion','masters','draft_innovation','funny','starter'];
+const LS_SETS = 'ripjr.sets', LS_SETNAMES = 'ripjr.setNames';
+let setList = null;
+const setNames = (()=>{ try{ return JSON.parse(localStorage.getItem(LS_SETNAMES)||'{}'); }catch(e){ return {}; } })();
+const setName = code => setNames[code] || '';
+async function loadSets(){
+  if(setList) return setList;
+  try{ const c = JSON.parse(localStorage.getItem(LS_SETS)||'null'); if(c && c.day===new Date().toDateString() && c.list.length) return setList = c.list; }catch(e){}
+  const r = await fetch('https://api.scryfall.com/sets');
+  if(!r.ok) throw new Error('Couldn’t load the set list from Scryfall.');
+  const today = new Date().toISOString().slice(0,10);
+  setList = ((await r.json()).data||[])
+    .filter(s=>SET_TYPES.includes(s.set_type) && !s.digital && (s.card_count||0) >= 50 && (s.released_at||'9') <= today)
+    .map(s=>({code:s.code, name:s.name, year:(s.released_at||'').slice(0,4), icon:s.icon_svg_uri||'', type:s.set_type}))
+    .sort((a,b)=>b.year.localeCompare(a.year));
+  try{ localStorage.setItem(LS_SETS, JSON.stringify({day:new Date().toDateString(), list:setList})); }catch(e){}
+  return setList;
+}
+function renderSetList(){
+  const q = $('#setQ').value.trim().toLowerCase(), cur = String(pk.era).startsWith('set:') ? pk.era.slice(4) : '';
+  const list = (setList||[]).filter(s=>!q || s.name.toLowerCase().includes(q) || s.code===q || s.year===q);
+  $('#setList').innerHTML = list.length ? list.slice(0, 400).map(s=>`<button type="button" class="setrow ${s.code===cur?'on':''}" data-set="${h(s.code)}" data-name="${h(s.name)}">${s.icon?`<img src="${h(s.icon)}" alt="" loading="lazy">`:'<span></span>'}<b>${h(s.name)}</b><small>${h(s.year)} · ${h(s.code.toUpperCase())}</small></button>`).join('')
+    : `<p class="empty-s">${setList ? 'No sets match “'+h(q)+'”.' : ''}</p>`;
+}
+async function openSetPicker(){
+  $('#setQ').value = ''; $('#setList').innerHTML = '<div class="bload"><span class="spin" aria-hidden="true"></span>Loading sets…</div>';
+  if(!$('#setDlg').open) $('#setDlg').showModal();
+  try{ await loadSets(); renderSetList(); }catch(e){ $('#setList').innerHTML = `<p class="empty-s">${h(e.message)}</p>`; }
+  if(!matchMedia('(pointer: coarse)').matches) $('#setQ').focus();
+}
+function chooseSet(code, name){
+  setNames[code] = name; try{ localStorage.setItem(LS_SETNAMES, JSON.stringify(setNames)); }catch(e){}
+  $('#setDlg').close();
+  const era = 'set:'+code; if(pk.era===era || pk.state==='opening') return;
+  pk.era = era; casualEra = era; try{ localStorage.setItem(LS_ERA, era); }catch(e){}
+  buzz('tick'); setStageChrome(); newPack(pk.state==='pack', true);
+}
+$('#eraSet').addEventListener('click', e=>{ e.stopPropagation(); if(pk.state==='opening') return; sfx('menuselect'); openSetPicker(); });
+$('#setQ').addEventListener('input', renderSetList);
+$('#setList').addEventListener('click', e=>{ const b = e.target.closest('[data-set]'); if(b) chooseSet(b.dataset.set, b.dataset.name); });
+function setBtnLabel(){
+  const b = $('#eraSet'); if(!b) return;
+  const on = String(pk.era).startsWith('set:'), code = on ? pk.era.slice(4) : '';
+  b.innerHTML = on ? `<span class="setnm">${h(setName(code) || code.toUpperCase())}</span> ▾` : 'Sets ▾';
+  b.title = on ? (setName(code) || code.toUpperCase()) : 'Pick a set';
+}
+
+/* ======================= Dark / light mode ======================= */
+// Follows the phone or computer's setting until someone picks one with the sun/moon button.
+const LS_THEME = 'ripjr.theme';
+const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+const ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+const themeNow = () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+function setTheme(t, save){
+  document.documentElement.dataset.theme = t;
+  if(save){ try{ localStorage.setItem(LS_THEME, t); }catch(e){} }
+  const meta = document.querySelector('meta[name="theme-color"]'); if(meta) meta.content = t==='light' ? '#F4EFE4' : '#0D1122';
+  document.querySelectorAll('.themebtn').forEach(b=>{ b.innerHTML = t==='light' ? ICON_MOON : ICON_SUN; b.title = t==='light' ? 'Dark mode' : 'Light mode'; b.setAttribute('aria-label', b.title); });
+  document.querySelectorAll('[data-m="theme"] span').forEach(s=>s.textContent = t==='light' ? 'Light' : 'Dark');
+}
+function toggleTheme(){ setTheme(themeNow()==='light' ? 'dark' : 'light', true); }
+document.addEventListener('click', e=>{ if(e.target.closest('.themebtn')) toggleTheme(); });
+ACCT_ACTIONS.theme = toggleTheme;
+try{ matchMedia('(prefers-color-scheme: light)').addEventListener('change', e=>{ let saved = null; try{ saved = localStorage.getItem(LS_THEME); }catch(er){} if(!saved) setTheme(e.matches ? 'light' : 'dark'); }); }catch(e){}
+setTheme(themeNow());
 
 /* ======================= Boot ======================= */
 renderAccount();
