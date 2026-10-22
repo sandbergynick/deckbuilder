@@ -1167,6 +1167,10 @@ dialog{box-shadow:var(--shadow-lift)}
 .loadingpack{color:var(--muted)}
 .stage .rar.common{color:var(--faint)}
 
+/* the Sets button keeps the same size whatever set is picked (long names get a "…") */
+#eraSet{width:5.6em;padding-inline:10px!important;flex:none;display:inline-flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;overflow:hidden}
+#eraSet .setnm{flex:1 1 auto;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis}
+
 </style>
 </head>
 <body>
@@ -1327,7 +1331,7 @@ dialog{box-shadow:var(--shadow-lift)}
   <button type="button" data-view="favs" aria-selected="false"><svg width="22" height="22"><use href="#i-star"/></svg>Favorites</button>
 </nav>
 
-<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 60</span></footer>
+<footer class="fanfoot">ripjr.com is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC. Card data, prices and images courtesy of Scryfall. Prices are estimates. Free to play, nothing to buy. <span class="bver">Version 61</span></footer>
 
 <dialog id="saveDlg" aria-label="Save your pulls"><div class="sheet">
   <div class="sheet-h"><h3>Your pulls</h3><button class="close" data-close aria-label="Close">×</button></div>
